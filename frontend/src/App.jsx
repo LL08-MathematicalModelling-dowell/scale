@@ -4,7 +4,7 @@ import Healthcheck from "./Pages/SeverStatus/ServerHealthCheck"
 const App = () => {
   return (
     <Routes>
-      <Route path="/server-status" element={< Healthcheck/>} />
+      <Route path="/scale/server-status" element={< Healthcheck/>} />
     </Routes>
   );
 };

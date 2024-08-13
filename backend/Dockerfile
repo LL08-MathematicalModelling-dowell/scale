@@ -1,19 +1,29 @@
-# use smaller version of alpine
 FROM python:3.11-alpine
+
+# Install system dependencies
+RUN apk update && apk add --no-cache \
+    build-base \
+    libffi-dev \
+    musl-dev \
+    bash
 
 # Set the working directory in the container
 WORKDIR /usr/src/app
 
 # Copy the requirements file into the container
 COPY ./requirements.txt /usr/src/app/requirements.txt
-RUN pip install -r requirements.txt --no-cache-dir
+
+# Install dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the rest of the Django app code to the container
 COPY . /usr/src/app
 
+# Run migrations
 RUN python manage.py makemigrations && python manage.py migrate
 
 # Expose the port on which the Django app will run
 EXPOSE 8000
 
-# random comment to test fix
+# Command to run the Django app using Django's built-in server
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

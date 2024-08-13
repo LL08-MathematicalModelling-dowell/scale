@@ -1,6 +1,5 @@
 version: '3.9'
 services:
-  
   backend:
     build: ./backend
     container_name: backend_container
@@ -45,6 +44,7 @@ services:
     depends_on:
       - backend
       - frontend
+
 networks:
   queue-net:
     driver: bridge

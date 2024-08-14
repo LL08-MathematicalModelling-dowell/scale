@@ -18,10 +18,14 @@ from django.contrib import admin
 from django.urls import path
 from healthcheck import *
 from django.urls import path, include
+from .views import *
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', HealthCheck.as_view()),
     path('voc/v1/', include('app.urls')),
+    path('voc/scale/',RedirectURL.as_view()),
+    path('voc/report/',ReportRedirectURL.as_view()),
+    path('voc/login/', LoginsRedirectURL.as_view())
 ]

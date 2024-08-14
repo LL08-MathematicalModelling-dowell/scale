@@ -350,7 +350,7 @@ class ScaleManagement(APIView):
                 "message": "Scale details already exist for this workspace, username, and portfolio",
             }, status=status.HTTP_400_BAD_REQUEST)
         
-        # scale_data_response = scale_data(workspace_id, username)
+        
         scale_data_response = json.loads(datacube_data_retrieval(
             api_key,
             "livinglab_scales",
@@ -420,7 +420,7 @@ class ScaleManagement(APIView):
                 instance_name = instance.get('instance_name', '')  
                 instance_display_name = instance.get('instance_display_name', '')
                 link = (
-                    f"https://100035.pythonanywhere.com/voc/?workspace_id={workspace_id}&username={username}&"
+                    f"https://www.scales.uxlivinglab.online/api/voc/scale/?workspace_id={workspace_id}&username={username}&"
                     f"scale_id={assigned_scale['scale_id']}&scale_type={scale_type}&channel={channel_name}&"
                     f"instance_name={instance_name}&channel_display_name={channel_display_name}&instance_display_name={instance_display_name}"
                 )
@@ -434,7 +434,7 @@ class ScaleManagement(APIView):
         
         
         report_link = {
-            "report_link": f"https://100035.pythonanywhere.com/voc/report/?workspace_id={workspace_id}&username={username}&scale_id={assigned_scale['scale_id']}",
+            "report_link": f"https://www.scales.uxlivinglab.online/api/voc/report/?workspace_id={workspace_id}&username={username}&scale_id={assigned_scale['scale_id']}",
             "qrcode_image_url": None
         }
         
@@ -445,7 +445,7 @@ class ScaleManagement(APIView):
         report_link["qrcode_image_url"] = report_qrcode_image_url
 
         login = {
-            "login_link": f"https://ll08-mathematicalmodelling-dowell.github.io/voc/#/?workspace_name={username}",
+            "login_link": f"https://www.scales.uxlivinglab.online/api/voc/login/?workspace_name={username}",
             "qrcode_image_url": None
         }
 

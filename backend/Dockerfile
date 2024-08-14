@@ -26,4 +26,4 @@ RUN python manage.py makemigrations && python manage.py migrate
 EXPOSE 8000
 
 # Command to run the Django app using Django's built-in server
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8001"]

@@ -5,7 +5,7 @@ const getServerStatus = async() => {
 }
 
 const getAPIServerStatus = async() => {
-    return await servicesAxiosInstance.get('/api/v1/')
+    return await servicesAxiosInstance.get('v1/health-check/')
 }
 export {
     getServerStatus,

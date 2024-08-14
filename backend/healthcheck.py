@@ -11,7 +11,7 @@ class HealthCheck(APIView):
         now = datetime.now(timezone.utc).isoformat()
         return Response({
             "success": True,
-            "version": "1.1.0",
+            "version": "1.1.1",
             "status": "UP",
             "timestamp": now,
             "server_time": now,

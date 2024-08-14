@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import *
-from services.datacube import datacube_data_insertion,datacube_data_retrieval,api_key, datacube_data_update
+from services.datacube import *
 from django.contrib.auth.hashers import make_password, check_password
 import asyncio
 import json
@@ -105,8 +105,6 @@ class UserManagement(APIView):
             "workspace_name": workspace_name,
             "portfolio": portfolio
         }
-
-        print("data",data)
 
         existing_user_response = json.loads(datacube_data_retrieval(api_key, "voc", "voc_user_management", user_info, 10000, 0, False))
         existing_user = existing_user_response.get('data', [])
@@ -284,9 +282,6 @@ class UserManagement(APIView):
                 "message":"User does not exist"
             }, status=status.HTTP_400_BAD_REQUEST)
     
-    
-
-
 
     def handle_error(self, request): 
         return Response({
@@ -303,6 +298,8 @@ class ScaleManagement(APIView):
             return self.save_scale_details(request)
         elif type == 'scale_details':
             return self.scale_details(request)
+        elif type == 'qrcodessss':
+            return self.qrcodessss(request)
         else:
             return self.handle_error(request)
 
@@ -316,7 +313,8 @@ class ScaleManagement(APIView):
         serializer = ScaleRetrieveSerializer(data={
             "workspace_id": workspace_id,
             "username": username,
-            "portfolio": portfolio
+            "portfolio": portfolio,
+            "portfolio_username": portfolio_username
         })
         if not serializer.is_valid():
             return Response({
@@ -338,6 +336,7 @@ class ScaleManagement(APIView):
             False
         ))
 
+
         if not voc_scale_data['success']:
             return Response({
                 "success": False,
@@ -350,14 +349,35 @@ class ScaleManagement(APIView):
                 "message": "Scale details already exist for this workspace, username, and portfolio",
             }, status=status.HTTP_400_BAD_REQUEST)
         
-        scale_data_response = scale_data(workspace_id, username)
+        # scale_data_response = scale_data(workspace_id, username)
+        scale_data_response = json.loads(datacube_data_retrieval(
+            api_key,
+            "livinglab_scales",
+            "collection_3",
+            {
+                "workspace_id": workspace_id,
+                "settings.username": username,
+                "settings.scale_category": "nps"
+            },
+            0,
+            0,
+            False
+        ))
         if not scale_data_response["success"]:
             return Response({
                 "success": False,
                 "message": "Failed to retrieve scale data",
             }, status=status.HTTP_400_BAD_REQUEST)
         
+        scale_details = [{
+            "scale_id":scale["_id"],
+            "scale_name": scale["settings"].get("scale_name"),
+            "scale_type":scale["settings"].get("scale_category"),
+            "no_of_channels":scale["settings"].get("no_of_channels"),
+            "channel_instance_details": scale["settings"].get("channel_instance_list")
+            } for scale in scale_data_response["data"]]
         
+    
         data_for_voc_scale = json.loads(datacube_data_retrieval(
             api_key,
             "voc",
@@ -378,7 +398,8 @@ class ScaleManagement(APIView):
         existing_scale_ids = {scale['scale_id'] for scale in data_for_voc_scale.get('data', [])}
         
         
-        available_scales = [scale for scale in scale_data_response['response'] if scale['scale_id'] not in existing_scale_ids]
+        available_scales = [scale for scale in scale_details if scale['scale_id'] not in existing_scale_ids]
+
 
         if not available_scales:
             return Response({
@@ -417,7 +438,7 @@ class ScaleManagement(APIView):
         }
         
        
-        report_qrcode_image = generate_qr_code(report_link["report_link"])
+        report_qrcode_image = generate_qr_code(report_link["report_link"],portfolio_name=portfolio_username)
         report_qrcode_file_name = generate_file_name(prefix='report_qrcode', extension='png')
         report_qrcode_image_url = upload_qr_code_image(report_qrcode_image, report_qrcode_file_name)
         report_link["qrcode_image_url"] = report_qrcode_image_url
@@ -428,7 +449,7 @@ class ScaleManagement(APIView):
         }
 
 
-        login_qrcode_image = generate_qr_code(url=link, portfolio_name=portfolio_username)
+        login_qrcode_image = generate_qr_code(url=login["login_link"], portfolio_name=portfolio_username)
         login_qrcode_file_name = generate_file_name(prefix='login_qrcode', extension='png')
         login_qrcode_image_url = upload_qr_code_image(login_qrcode_image, login_qrcode_file_name)
         login["qrcode_image_url"] = login_qrcode_image_url
@@ -506,7 +527,7 @@ class ScaleManagement(APIView):
             "response": response['data']
         }, status=status.HTTP_200_OK)
         
-        
+
 
     def handle_error(self, request): 
         return Response({

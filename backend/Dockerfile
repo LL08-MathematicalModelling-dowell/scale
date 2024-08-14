@@ -1,11 +1,12 @@
 FROM python:3.11-alpine
 
-# Install system dependencies
+# Install system dependencies and font packages
 RUN apk update && apk add --no-cache \
     build-base \
     libffi-dev \
     musl-dev \
-    bash
+    bash \
+    ttf-dejavu  # Install DejaVuSans font package
 
 # Set the working directory in the container
 WORKDIR /usr/src/app
@@ -13,7 +14,7 @@ WORKDIR /usr/src/app
 # Copy the requirements file into the container
 COPY ./requirements.txt /usr/src/app/requirements.txt
 
-# Install dependencies
+# Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the rest of the Django app code to the container

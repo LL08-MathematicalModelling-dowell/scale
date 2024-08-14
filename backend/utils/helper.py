@@ -8,7 +8,6 @@ import requests
 import time
 import qrcode
 from io import BytesIO
-
 from PIL import Image, ImageDraw, ImageFont
 
 auth_jwt_config = {
@@ -136,35 +135,34 @@ def generate_qr_code(url, portfolio_name):
         box_size=10,
         border=4,
     )
-    qr.add_data(url)  # Replace with your data
+    qr.add_data(url)
     qr.make(fit=True)
+    
+    img = qr.make_image(fill='black', back_color='white').convert('RGB')
+    draw = ImageDraw.Draw(img)
 
-    # Create an image from the QR code
-    qr_img = qr.make_image(fill='black', back_color='white').convert('RGB')
+    try:
+        font = ImageFont.truetype('/usr/share/fonts/ttf/dejavu/DejaVuSans-Bold.ttf', 24)
+    except:
+        font = ImageFont.load_default()
 
-    # Prepare to draw text on the image
-    draw = ImageDraw.Draw(qr_img)
-    font = ImageFont.truetype('arial.ttf', 24)  # Replace with the path to your font file
-
-    # Text to display
     text_name = portfolio_name
 
     def draw_bottom_centered_text(draw, text, font):
+    
         bbox = draw.textbbox((0, 0), text, font=font)
         text_width = bbox[2] - bbox[0]
         text_height = bbox[3] - bbox[1]
-        width, height = qr_img.size
+        width, height = img.size
         x = (width - text_width) / 2
-        y = height - text_height - 20  # 20 pixels from the bottom, adjust as needed
+        y = height - text_height - 20
         draw.text((x, y), text, font=font, fill='black')
 
-    # Draw bottom-centered text on the image
+    
     draw_bottom_centered_text(draw, text_name, font)
 
-    # Save the image
-    filename = str(int(time.time())) + '.jpg'
-    qr_img.save(filename)
-    return qr_img
+    return img
+
 
 def upload_qr_code_image(img, file_name):
     url = 'https://dowellfileuploader.uxlivinglab.online/uploadfiles/upload-qrcode-to-drive/'

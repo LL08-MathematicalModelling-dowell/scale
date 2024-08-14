@@ -3,11 +3,11 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import *
-from .datacube import datacube_data_insertion,datacube_data_retrieval,api_key, datacube_data_update
+from services.datacube import datacube_data_insertion,datacube_data_retrieval,api_key, datacube_data_update
 from django.contrib.auth.hashers import make_password, check_password
 import asyncio
 import json
-from .helper import *
+from utils.helper import *
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 
@@ -24,11 +24,7 @@ class healthCheck(APIView):
 class UserManagement(APIView):
     def post(self, request):
         type = request.GET.get('type')
-        if type =='sign-up':
-            return self.sign_up(request)
-        elif type == 'login':
-            return self.login(request)
-        elif type == 'get_access_token':
+        if type == 'get_access_token':
             return self.get_access_token(request)
         elif type == 'update_profile':
             return self.update_userprofile(request)
@@ -36,105 +32,8 @@ class UserManagement(APIView):
             return self.authenticate_user(request)
         else:
             return self.handle_error(request)
-    def sign_up(self,request):
-        serializer = UserSerializer(data=request.data)
-        if serializer.is_valid():
-            workspace_id = serializer.validated_data["workspace_id"]
-            portfolio = serializer.validated_data["portfolio"]
-            password = serializer.validated_data["password"]
-
-            payload = {
-                "workspace_id":workspace_id,
-                "portfolio":portfolio,
-                "password":make_password(password)
-            }
-            try:
-                existing_user = json.loads(datacube_data_retrieval(api_key,"voc","voc_user_management",{ "workspace_id":workspace_id,"portfolio":portfolio},10000, 0, False))
-                response_ = existing_user['data']
-                if response_:
-                    return Response({
-                        "success":False,
-                        "message":"User already exists",
-                        "response": response_
-                    }, status=status.HTTP_400_BAD_REQUEST)
-                
-                else:
-                    new_user = json.loads(datacube_data_insertion(api_key,"voc","voc_user_management",payload))
-
-                    if new_user['data']:
-                        return Response({
-                            "success":True,
-                            "message": f"user with portfolio_id {portfolio} was created successfully",
-                            "response":{
-                                "_id": new_user['data']['inserted_id'],
-                                "workspace_id":workspace_id,
-                                "portfolio":portfolio
-                            }
-
-                        }, status=status.HTTP_201_CREATED)
-                    else:
-                        return Response({
-                            "success":False,
-                            "message":"An error occured during user creation"
-                        },status=status.HTTP_400_BAD_REQUEST)
-
-            except Exception as e:
-                return Response({
-                    "success": False,
-                    "message":"An error occured during user creation",
-                    "error":e
-                },status=status.HTTP_400_BAD_REQUEST)
-
-        else:
-            return Response({
-                "success":False,
-                "message":"Posting wrong data to api",
-                "errors": serializer.errors,
-            }, status=status.HTTP_400_BAD_REQUEST)
-
-    def login(self,request):
-        workspace_id = request.data.get("workspace_id")
-        portfolio = request.data.get("portfolio")
-        password = request.data.get("password")
-        if workspace_id and portfolio and password:
-            try:
-
-                existing_user = json.loads(datacube_data_retrieval(api_key,"voc","voc_user_management",{ "workspace_id":workspace_id,"portfolio":portfolio},0, 0, False))
-                response_ = existing_user['data']
-                if response_:
-                    response_pass = response_[0]["password"]
-                    if check_password(password,response_pass):
-
-                        token = jwt_utils.generate_jwt_tokens(response_[0]["_id"],workspace_id,portfolio)
-                        return Response({
-                            "success":True,
-                            "message":"User Found",
-                            "access_token":token["access_token"],
-                            "refresh_token":token["refresh_token"],
-                            "response": response_
-                        }, status=status.HTTP_200_OK)
-                    else:
-                        return Response({
-                            "success":False,
-                            "message":"Invalid password"
-                        }, status=status.HTTP_400_BAD_REQUEST)
-                else:
-                    return Response({
-                        "success":False,
-                        "message":"User does not exist"
-                    }, status=status.HTTP_400_BAD_REQUEST)
-                
-            except Exception as e:
-                return Response({
-                    "success":False,
-                    "message":e
-                },status=status.HTTP_400_BAD_REQUEST)
-        else:
-            return Response({
-                "success":False,
-                "message":"Provide workspace_id, porfolio_id and password"
-            },status=status.HTTP_400_BAD_REQUEST)
-
+    
+    
     def get_access_token(self,request):
         refresh_token = request.COOKIES.get('refresh_token') or request.headers.get('Authorization', '').replace('Bearer ', '') or request.data.get('refresh_token')
 
@@ -347,46 +246,10 @@ class UserManagement(APIView):
                     api_key,
                     "voc",
                     "voc_user_management",
-                    user_info,  # Escaping the curly braces
+                    user_info,  
                     updated_data
                 ))
 
-
-
-                # updated_user_data = user_update.get('data',[])
-
-                # if updated_user_data:
-                #     data = {
-                #         "_id": updated_user_data[0]["_id"],
-                #         **updated_data,
-                #         "email": updated_user_data[0]["email"],
-                #         "profile_image": updated_user_data[0]["profile_image"],
-                #         "workspace_id": updated_user_data[0]["workspace_id"],
-                #         "workspace_owner_name": updated_user_data[0]["workspace_owner_name"],
-                #         "portfolio_username": updated_user_data[0]["portfolio_username"],
-                #         "member_type": updated_user_data[0]["member_type"],
-                #         "data_type": updated_user_data[0]["data_type"],
-                #         "operations_right": updated_user_data[0]["operations_right"],
-                #         "status": updated_user_data[0]["status"]
-                #     }
-
-
-
-
-
-                #     message = "User details updated successfully"
-
-                #     return Response({
-                #         "success": True,
-                #         "message": message,
-                #         "response": data
-                #     })
-                # else:
-                #     message = user_update.get("message")
-                #     return Response({
-                #         "success":False,
-                #         "message":message
-                #     }, status=status.HTTP_400_BAD_REQUEST)
                 message = user_update.get("message")
                 return Response({
                         "success":True,
@@ -448,7 +311,8 @@ class ScaleManagement(APIView):
         workspace_id = request.data.get("workspace_id")
         username = request.data.get("username")
         portfolio = request.data.get("portfolio")
-
+        portfolio_username = request.data.get("portfolio_username")
+        
         serializer = ScaleRetrieveSerializer(data={
             "workspace_id": workspace_id,
             "username": username,
@@ -538,7 +402,7 @@ class ScaleManagement(APIView):
                     f"scale_id={assigned_scale['scale_id']}&scale_type={scale_type}&channel={channel_name}&"
                     f"instance_name={instance_name}&channel_display_name={channel_display_name}&instance_display_name={instance_display_name}"
                 )
-                qrcode_image = generate_qr_code(link)
+                qrcode_image = generate_qr_code(url=link, portfolio_name=portfolio_username)
                 file_name = generate_file_name(prefix='qrcode', extension='png')
                 qrcode_image_url = upload_qr_code_image(qrcode_image, file_name)
                 links_details.append({
@@ -564,7 +428,7 @@ class ScaleManagement(APIView):
         }
 
 
-        login_qrcode_image = generate_qr_code(login["login_link"])
+        login_qrcode_image = generate_qr_code(url=link, portfolio_name=portfolio_username)
         login_qrcode_file_name = generate_file_name(prefix='login_qrcode', extension='png')
         login_qrcode_image_url = upload_qr_code_image(login_qrcode_image, login_qrcode_file_name)
         login["qrcode_image_url"] = login_qrcode_image_url

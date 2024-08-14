@@ -20,6 +20,7 @@ class healthCheck(APIView):
             "success":True,
             "message":"If you are seeing this, then the server is up for Voice of Customer v1.0.0!"
         }, status=status.HTTP_200_OK)
+    
 @method_decorator(csrf_exempt, name='dispatch')
 class UserManagement(APIView):
     def post(self, request):

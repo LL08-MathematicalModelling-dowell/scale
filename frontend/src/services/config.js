@@ -1,13 +1,9 @@
 import axios from "axios";
 
-const baseURL = window.location.hostname === 'localhost'
-  ? 'http://127.0.0.1:8001'
-  : 'https://www.scales.uxlivinglab.online/api';
-
-  
-
+// comment the localhost baseURL before pushing
 const servicesAxiosInstance = axios.create({
-    baseURL: baseURL,
+    // baseURL: "http://127.0.0.1:8001'",
+    baseURL: "https://www.scales.uxlivinglab.online/api"
 });
 
 const scaleAxiosInstance = axios.create({

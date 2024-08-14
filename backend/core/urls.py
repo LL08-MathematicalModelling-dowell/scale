@@ -23,5 +23,5 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', HealthCheck.as_view()),
-    path('v1/', include('app.urls')),
+    path('voc/v1/', include('app.urls')),
 ]

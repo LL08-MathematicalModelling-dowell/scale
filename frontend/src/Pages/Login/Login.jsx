@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Logo from "../../assets/VOC.png";
 import CircularProgress from "@mui/material/CircularProgress";
-import { getUserLogin,getAPIServerStatus } from "../../services/api.services";
+import { getUserLogin, getAPIServerStatus } from "../../services/api.services";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -10,7 +10,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [healthStatus, setHealthStatus] = useState(null);
   const [formData, setFormData] = useState({
-    workspace_name: "", 
+    workspace_name: "",
     portfolio: "",
     password: "",
   });
@@ -19,15 +19,15 @@ const Login = () => {
   useEffect(() => {
     // Extract query parameters from the URL
     const queryParams = new URLSearchParams(location.search);
-    const workspaceName = queryParams.get('workspace_name');
-  
+    const workspaceName = queryParams.get("workspace_name");
+
     if (workspaceName) {
-      setFormData(prevData => ({
+      setFormData((prevData) => ({
         ...prevData,
-        workspace_name: workspaceName
+        workspace_name: workspaceName,
       }));
     }
-  
+
     checkServerHealth();
   }, [location.search]);
 
@@ -78,7 +78,9 @@ const Login = () => {
       }
     } catch (error) {
       if (error.message.includes("<!DOCTYPE")) {
-        setStatusMessage("Received HTML instead of JSON. Possible server issue.");
+        setStatusMessage(
+          "Received HTML instead of JSON. Possible server issue."
+        );
         console.error("Received HTML instead of JSON. Possible server issue.");
       } else {
         setStatusMessage("Error during login.");
@@ -91,7 +93,7 @@ const Login = () => {
 
   const handleChange = (event) => {
     const { name, value } = event.target;
-    setFormData(prevData => ({
+    setFormData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
@@ -108,7 +110,7 @@ const Login = () => {
                   ? "bg-green-500 animate-pulse"
                   : "bg-red-500 animate-pulse"
               }`}
-              title={`Server status: ${healthStatus}`}  // Add a tooltip for better UX
+              title={`Server status: ${healthStatus}`} // Add a tooltip for better UX
             />
           )}
         </div>
@@ -125,7 +127,7 @@ const Login = () => {
             required
             value={formData.workspace_name}
             onChange={handleChange}
-            readOnly={!!formData.workspace_name}  // Make input read-only if workspace_name is present
+            readOnly={!!formData.workspace_name} // Make input read-only if workspace_name is present
           />
           <input
             type="text"
@@ -147,16 +149,16 @@ const Login = () => {
           />
           <button
             type="submit"
-            className={`w-40 py-2 text-sm font-semibold rounded-md ${
+            className={`w-40 py-2 text-sm font-semibold rounded-md transition-colors duration-300 ${
               loading
-                ? "bg-lightblue cursor-not-allowed text-black"
-                : "bg-deepblue"
-            } text-white`}
+                ? "bg-blue-300 cursor-not-allowed text-gray-700"
+                : "bg-blue-600 hover:bg-blue-700 text-white"
+            }`}
             disabled={loading}
           >
             {loading ? (
               <div className="flex items-center justify-center gap-2">
-                <CircularProgress color="success" size={20} />
+                <CircularProgress color="inherit" size={20} />
                 Loading...
               </div>
             ) : (

@@ -10,15 +10,21 @@ import json
 from utils.helper import *
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from datetime import datetime, timezone
 
 jwt_utils = JWTUtils()
 
 @method_decorator(csrf_exempt, name='dispatch')
 class healthCheck(APIView):
     def get(self, request):
+        now = datetime.now(timezone.utc).isoformat()
         return Response({
             "success":True,
-            "message":"If you are seeing this, then the server is up for Voice of Customer v1.0.0!"
+            "status": "UP",
+            "version": "1.2.0",
+            "timestamp": now,
+            "server_time": now,
+            "message":"The API server is healthy"
         }, status=status.HTTP_200_OK)
     
 @method_decorator(csrf_exempt, name='dispatch')

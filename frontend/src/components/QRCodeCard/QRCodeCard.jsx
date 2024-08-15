@@ -2,7 +2,7 @@ import { LinkIcon } from "@heroicons/react/20/solid";
 import { useState } from "react";
 import { saveAs } from 'file-saver';
 
-const QRCodeCard = ({ imageSrc, instanceName, scaleLink, qrCodeLink, reportLink, onClick, type }) => {
+const QRCodeCard = ({ imageSrc, instanceName, scaleLink, qrCodeLink, reportLink, loginLink, onClick, type }) => {
   const [alert, setAlert] = useState("");
   const [isHovered, setIsHovered] = useState(false);
 
@@ -52,7 +52,7 @@ const QRCodeCard = ({ imageSrc, instanceName, scaleLink, qrCodeLink, reportLink,
           <p className="font-bold text-[14px] flex gap-3 text-left">
             Name: <span className="font-normal">{instanceName}</span>
           </p>
-          {type !== "report" && (
+          {type !== "report" && scaleLink && (
             <p className="font-bold text-[14px] flex gap-3">
               Scale link:
               <span
@@ -64,17 +64,31 @@ const QRCodeCard = ({ imageSrc, instanceName, scaleLink, qrCodeLink, reportLink,
               </span>
             </p>
           )}
-          <p className="font-bold text-[14px] flex gap-3">
-            QR Code link:
-            <span
-              onClick={() => handleCopy(qrCodeLink)}
-              className="flex text-sm font-normal text-deepblue cursor-pointer"
-            >
-              <LinkIcon className="w-3" />
-              copy link
-            </span>
-          </p>
-          {type !== "scale" && (
+          {qrCodeLink && (
+            <p className="font-bold text-[14px] flex gap-3">
+              QR Code link:
+              <span
+                onClick={() => handleCopy(qrCodeLink)}
+                className="flex text-sm font-normal text-deepblue cursor-pointer"
+              >
+                <LinkIcon className="w-3" />
+                copy link
+              </span>
+            </p>
+          )}
+          {loginLink && (
+            <p className="font-bold text-[14px] flex gap-3">
+              Login link:
+              <span
+                onClick={() => handleCopy(loginLink)}
+                className="flex text-sm font-normal text-deepblue cursor-pointer"
+              >
+                <LinkIcon className="w-3" />
+                copy link
+              </span>
+            </p>
+          )}
+          {type !== "scale" && reportLink && (
             <p className="font-bold text-[14px] flex gap-3">
               Report link:
               <span
@@ -86,6 +100,7 @@ const QRCodeCard = ({ imageSrc, instanceName, scaleLink, qrCodeLink, reportLink,
               </span>
             </p>
           )}
+          
         </div>
       </div>
       {alert && <div className="absolute top-2 right-2 p-2 bg-green-200 text-green-800 rounded">{alert}</div>}

@@ -84,7 +84,7 @@ const response = await getUserScales({workspace_id: workspaceId, portfolio, acce
         workspace_id: workspaceId,
         username: decodedPayload.workspace_owner_name,
         portfolio,
-
+        portfolio_username: decodedPayload.portfolio_username
       };
 
       const response = await saveScaleDetails({hardCodedData, accessToken})

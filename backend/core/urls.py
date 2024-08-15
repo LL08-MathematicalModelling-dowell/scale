@@ -24,7 +24,7 @@ from .views import *
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', HealthCheck.as_view()),
-    path('voc/v1/', include('app.urls')),
+    path('v1/', include('app.urls')),
     path('voc/scale/',RedirectURL.as_view()),
     path('voc/report/',ReportRedirectURL.as_view()),
     path('voc/login/', LoginsRedirectURL.as_view())

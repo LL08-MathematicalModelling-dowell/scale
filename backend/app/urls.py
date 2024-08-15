@@ -3,7 +3,7 @@ from .views import UserManagement, ScaleManagement,healthCheck
 
 urlpatterns = [
     path("", healthCheck.as_view()),
-    path("user-management/",UserManagement.as_view()),
-    path("scale-management/",ScaleManagement.as_view())
+    path("voc/user-management/",UserManagement.as_view()),
+    path("voc/scale-management/",ScaleManagement.as_view())
 
 ]

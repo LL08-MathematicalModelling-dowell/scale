@@ -128,6 +128,7 @@ def generate_file_name(prefix='qrcode', extension='png'):
     filename = f'{prefix}_{timestamp}.{extension}'
     return filename
 
+
 def generate_qr_code(url, portfolio_name):
     qr = qrcode.QRCode(
         version=1,
@@ -135,31 +136,32 @@ def generate_qr_code(url, portfolio_name):
         box_size=10,
         border=4,
     )
+
     qr.add_data(url)
     qr.make(fit=True)
     
     img = qr.make_image(fill='black', back_color='white').convert('RGB')
+    
     draw = ImageDraw.Draw(img)
 
     try:
         font = ImageFont.truetype('/usr/share/fonts/ttf/dejavu/DejaVuSans-Bold.ttf', 24)
-    except:
+    except IOError:
         font = ImageFont.load_default()
 
-    text_name = portfolio_name
-
-    def draw_bottom_centered_text(draw, text, font):
-    
+    def draw_bottom_centered_text(draw, text, font, img, additional_offset=10):
         bbox = draw.textbbox((0, 0), text, font=font)
         text_width = bbox[2] - bbox[0]
         text_height = bbox[3] - bbox[1]
+        
         width, height = img.size
+        
         x = (width - text_width) / 2
-        y = height - text_height - 20
+        y = height - text_height - 20 + additional_offset  # Add additional offset below the text
+        
         draw.text((x, y), text, font=font, fill='black')
 
-    
-    draw_bottom_centered_text(draw, text_name, font)
+    draw_bottom_centered_text(draw, portfolio_name, font, img)
 
     return img
 
@@ -191,7 +193,8 @@ def dowell_login(workspace_name, username, password):
     payload = {
         'portfolio': username,
         'password': password,
-        'workspace_name': workspace_name
+        'workspace_name': workspace_name,
+        "username": "false",
     }
     try:
         response = requests.post(url, json=payload)

@@ -71,7 +71,7 @@ const Login = () => {
     try {
       const loginResponse = await login(credentials);
       if (loginResponse.success) {
-        navigate("/reports");
+        navigate("/voc/reports");
       } else {
         setStatusMessage("Login failed.");
         console.error("Login failed:", loginResponse);

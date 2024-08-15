@@ -95,6 +95,8 @@ class UserManagement(APIView):
             }, status=status.HTTP_400_BAD_REQUEST)
 
         client_admin_login_response = dowell_login(workspace_name, portfolio, password)
+
+        # return Response(client_admin_login_response)
         if not client_admin_login_response.get("success") or client_admin_login_response.get("response") == 0:
             return Response({
                 "success": False,
@@ -529,7 +531,24 @@ class ScaleManagement(APIView):
         }, status=status.HTTP_200_OK)
         
 
+    def qrcodessss(self, request):
+        login = {
+            "login_link": "www.example.com",
+            "qrcode_image_url": None
+        }
 
+
+        login_qrcode_image = generate_qr_code(url=login["login_link"], portfolio_name="manish")
+        login_qrcode_file_name = generate_file_name(prefix='login_qrcode', extension='png')
+        login_qrcode_image_url = upload_qr_code_image(login_qrcode_image, login_qrcode_file_name)
+        login["qrcode_image_url"] = login_qrcode_image_url
+
+        return Response({
+            "success": True,
+            "message": "QR code generated successfully",
+            "response": login
+        }, status=status.HTTP_200_OK)
+    
     def handle_error(self, request): 
         return Response({
             "success": False,

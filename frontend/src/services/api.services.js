@@ -5,11 +5,11 @@ const getServerStatus = async() => {
 }
 
 const getAPIServerStatus = async() => {
-    return await servicesAxiosInstance.get('/voc/v1/')
+    return await servicesAxiosInstance.get('/v1/')
 }
 
 const getUserLogin = async (credentials) => {
-    return await servicesAxiosInstance.post('/voc/v1/user-management/?type=authenticate_user', 
+    return await servicesAxiosInstance.post('/v1/voc/user-management/?type=authenticate_user', 
      credentials
     )
 }
@@ -20,7 +20,7 @@ const getUserReport = async (scale_id)=> {
 
 const getUserScales = async ({ workspace_id, portfolio, accessToken }) => {
     return await servicesAxiosInstance.post(
-        '/voc/v1/scale-management/?type=scale_details',
+        '/v1/voc/scale-management/?type=scale_details',
         { workspace_id, portfolio }, 
         {
             headers: {
@@ -32,7 +32,7 @@ const getUserScales = async ({ workspace_id, portfolio, accessToken }) => {
 }
 
 const saveScaleDetails = async ({hardCodedData, accessToken}) => {
-  return await servicesAxiosInstance.post("/voc/v1/scale-management/?type=save_scale_details", hardCodedData,
+  return await servicesAxiosInstance.post("/v1/voc/scale-management/?type=save_scale_details", hardCodedData,
     {
         headers: {
             "Content-Type" : "application/json",

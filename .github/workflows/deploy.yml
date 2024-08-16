@@ -21,6 +21,6 @@ jobs:
         run: |
           sshpass -p $SSH_PASSWORD ssh -o StrictHostKeyChecking=no root@67.217.58.179 << 'EOF'
             cd /home/dowell/scale
-            git pull origin backend
+            git pull origin main
             docker-compose up -d --build
           EOF

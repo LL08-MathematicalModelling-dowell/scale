@@ -99,6 +99,10 @@ const Login = () => {
     }));
   };
 
+  const handleRegister = () => {
+    navigate("/register"); // Replace with the actual register path
+  };
+
   return (
     <div className="max-h-screen flex flex-col relative">
       <div className="flex flex-col gap-1 justify-center items-center mt-10">
@@ -122,8 +126,8 @@ const Login = () => {
           <input
             type="text"
             name="workspace_name"
-            placeholder="Enter Workspace Name"
-            className="cursor-pointer bg-gray-100 border flex items-center justify-between font-medium p-2.5 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            placeholder="Enter Product ID"
+            className="cursor-pointer bg-white border border-gray-300 flex items-center justify-between font-medium p-2.5 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full"
             required
             value={formData.workspace_name}
             onChange={handleChange}
@@ -132,8 +136,8 @@ const Login = () => {
           <input
             type="text"
             name="portfolio"
-            placeholder="Enter Portfolio ID"
-            className="cursor-pointer bg-gray-100 border flex items-center justify-between font-medium p-2.5 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            placeholder="Enter User ID"
+            className="cursor-pointer bg-white border border-gray-300 flex items-center justify-between font-medium p-2.5 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full"
             required
             value={formData.portfolio}
             onChange={handleChange}
@@ -142,7 +146,7 @@ const Login = () => {
             type="password"
             name="password"
             placeholder="Enter password"
-            className="cursor-pointer bg-gray-100 border flex items-center justify-between font-medium p-2.5 border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            className="cursor-pointer bg-white border border-gray-300 flex items-center justify-between font-medium p-2.5 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full"
             required
             value={formData.password}
             onChange={handleChange}
@@ -162,8 +166,15 @@ const Login = () => {
                 Loading...
               </div>
             ) : (
-              "Confirm"
+              "Login"
             )}
+          </button>
+          <button
+            type="button"
+            className="w-40 py-2 text-sm font-semibold rounded-md bg-green-600 hover:bg-green-700 text-white transition-colors duration-300 mt-2"
+            onClick={handleRegister}
+          >
+            Register
           </button>
           {statusMessage && (
             <p className="mt-2 text-center text-red-600">{statusMessage}</p>

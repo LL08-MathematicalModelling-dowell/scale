@@ -28,7 +28,7 @@ const ScaleDetails = () => {
 
   useEffect(() => {
     if (!accessToken || !refreshToken) {
-      navigate("/");
+      navigate("/voc/");
     }
   }, [accessToken, refreshToken, navigate]);
 

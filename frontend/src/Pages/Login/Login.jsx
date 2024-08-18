@@ -131,7 +131,7 @@ const Login = () => {
             required
             value={formData.workspace_name}
             onChange={handleChange}
-            readOnly={!!formData.workspace_name} // Make input read-only if workspace_name is present
+            readOnly={location.search.includes("workspace_name")} // Make input read-only if workspace_name is present
           />
           <input
             type="text"

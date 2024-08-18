@@ -11,8 +11,6 @@ from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 from itertools import chain
 import json
-import logging
-
 from functools import partial
 
 
@@ -327,10 +325,6 @@ def calcualte_learning_index(score, group_size, learner_category, category):
     print(score,group_size,learner_category)    
 
 
-def log_api_downtime(api_name, error_message):
-    logger = logging.getLogger('external_api')
-    logger.error(f"API '{api_name}' is down: {error_message}")
-
 
 def dowell_time(timezone):
     url = "https://100009.pythonanywhere.com/dowellclock/"
@@ -356,7 +350,6 @@ def dowell_time(timezone):
         
         res = {"current_time" : current_time.strftime("%Y-%m-%d %H:%M:%S")}
 
-        log_api_downtime("dowell clock" , "Some is bad")
 
     return res
 

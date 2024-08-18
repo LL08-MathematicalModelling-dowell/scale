@@ -189,14 +189,6 @@ class UserManagement(APIView):
     @login_required
     def update_userprofile(self,request):
         _id = request.data.get("_id")
-        serializer = UserAuthSerializer(data=request.data["auth"])
-        if not serializer.is_valid():
-            return Response({
-                "success": False,
-                "message": "Posting wrong data to API",
-                "errors": serializer.errors,
-            }, status=status.HTTP_400_BAD_REQUEST)
-
 
         existing_user_response = json.loads(datacube_data_retrieval(api_key, "voc", "voc_user_management", {"_id":_id}, 10000, 0, False))
         existing_user = existing_user_response.get('data', [])
@@ -212,7 +204,7 @@ class UserManagement(APIView):
                     return Response({
                         "success": False,
                         "message": "Posting wrong data to API",
-                        "errors": serializer.errors,
+                        "errors": update_serializer.errors,
                     }, status=status.HTTP_400_BAD_REQUEST)
                 
                 email = update_serializer.validated_data.get("email",None)

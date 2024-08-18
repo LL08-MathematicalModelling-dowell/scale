@@ -23,13 +23,8 @@ class UserAuthSerializer(serializers.Serializer):
 
 
 class UserUpdateSerializer(serializers.Serializer):
-    first_name = serializers.CharField(required=False)
-    last_name = serializers.CharField(required=False,allow_blank=True)
-    time_zone = serializers.CharField(required=False,allow_blank=True)
-    phone = serializers.CharField(required=False,allow_blank=True)
     email = serializers.CharField(required=False,allow_blank=True)
-    password = serializers.CharField(required=False,allow_blank=True)
-    portfolio = serializers.CharField(required=False,allow_blank=True)
+    profile_image = serializers.CharField(required=False,allow_blank=True)
 
 
 class ScaleSerializer(serializers.Serializer):

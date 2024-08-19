@@ -6,10 +6,14 @@ import UserDetails from "./Pages/UserDetails/UserDetails";
 import ScaleDetails from "./Pages/Scale/ScaleDetails";
 import Scales from "./Pages/Scale/Scales";
 import OpenReportPage from "./Pages/Reports/OpenReportPage";
+import useDowellLogin from "./hooks/useDowellLogin";
+import HomePage from "./Pages/HomePage/HomePage";
 
 const App = () => {
+  useDowellLogin();
   return (
     <Routes>
+      <Route path="/scale" element={<HomePage />} />
       <Route path="/server-status" element={<Healthcheck />} />
       <Route path="/voc" element={<Login />} />
       <Route path="/voc/reports" element={<Report />} />

@@ -30,7 +30,6 @@ export const getSavedApiKey = () => {
 }
 
 export default function useDowellLogin() {
-
     const {
         setCurrentUser,
         setCurrentUserDetailLoading,

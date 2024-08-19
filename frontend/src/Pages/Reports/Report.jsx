@@ -5,8 +5,8 @@ import {Select, MenuItem, CircularProgress, Grid, Typography, Box} from "@mui/ma
 import {Chart as ChartJS, CategoryScale, LinearScale, LineElement, PointElement, Title, Tooltip, Legend} from "chart.js";
 import {Line} from "react-chartjs-2";
 import {getUserReport} from "../../services/api.services";
-import {getIndividualCounts, initialScoreData, channelNames, allChannelsNameTag, instanceNames} from "../utils/helper";
-import { processData, filterDataWithinDays,  transformData, pickSevenKeys } from "../utils/helper";
+import {getIndividualCounts, initialScoreData, channelNames, allChannelsNameTag, instanceNames} from "../../utils/helper";
+import { processData, filterDataWithinDays,  transformData, pickSevenKeys } from "../../utils/helper";
 ChartJS.register(CategoryScale, LinearScale, LineElement, PointElement, Title, Tooltip, Legend);
 
 const Report = () => {

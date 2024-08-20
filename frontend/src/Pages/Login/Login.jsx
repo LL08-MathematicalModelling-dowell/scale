@@ -169,13 +169,16 @@ const Login = () => {
               "Login"
             )}
           </button>
-          <button
+          <div className="flex gap-2">
+            <p className="text-[16px] font-poppins font-normal">Don't have an account? </p>
+            <button
             type="button"
-            className="w-40 py-2 text-sm font-semibold rounded-md bg-green-600 hover:bg-green-700 text-white transition-colors duration-300 mt-2"
+            className="text-[16px] font-poppins font-semibold text-blue-800 underline"
             onClick={handleRegister}
           >
             Register
           </button>
+          </div>
           {statusMessage && (
             <p className="mt-2 text-center text-red-600">{statusMessage}</p>
           )}

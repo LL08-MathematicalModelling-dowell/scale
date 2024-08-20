@@ -30,7 +30,6 @@ export const getSavedApiKey = () => {
 }
 
 export default function useDowellLogin() {
-
     const {
         setCurrentUser,
         setCurrentUserDetailLoading,
@@ -142,6 +141,5 @@ export default function useDowellLogin() {
         // redirecting to login
         sessionStorage.clear();
         window.location.replace(PRODUCT_LOGIN_URL + pathname);
-
     }, [])
 }

@@ -12,6 +12,7 @@ from PIL import Image, ImageDraw, ImageFont
 from itertools import chain
 import json
 from functools import partial
+from core.settings import public_url
 
 
 

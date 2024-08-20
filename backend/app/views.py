@@ -541,6 +541,7 @@ class ScaleCreateAPI(APIView):
     
 
     def create_scale(self,request):     
+        print("running")
         scale_serializer = ScaleSerializer(data=request.data)
         if scale_serializer.is_valid():
             workspace_id = scale_serializer.validated_data['workspace_id']
@@ -854,74 +855,43 @@ class ScaleCreateAPI(APIView):
 
 
     def get_scale_response(self,request):
-        
+         
         scale_id = request.GET.get('scale_id')
         channel = request.GET.get('channel')
         instance = request.GET.get('instance')
 
+        returned_items = []
         try:
-            fields = {"scale_id":scale_id}
+            fields = {"scale_id":scale_id, "channel_name":channel,"instance_name":instance}
             response_data = json.loads(datacube_data_retrieval(api_key, "livinglab_scale_response", "collection_1", fields, 10000, 0, False))
             data = response_data['data']
 
-            if 'channel' and 'instance' in request.GET:
-                matching_instance_list = [response for response in data if response["channel_name"] == channel and response["instance_name"] == instance]
-                print(matching_instance_list)
-                no_of_responses = len(matching_instance_list)
-                if no_of_responses == 0:
-                    return Response({"success":"true",
-                                    "message":"No responses found",
-                                    "total_no_of_responses": no_of_responses
-                                    }, status=status.HTTP_404_NOT_FOUND)
-                else:
-                    return Response({"success":"true",
-                                    "message":"fetched the data for the requested channel & instance",
-                                    "total_no_of_responses": len(matching_instance_list),
-                                    "data":matching_instance_list
-                                    }, status=status.HTTP_200_OK)
-
-            elif 'channel' in request.GET:
-
-                matching_instance_list = [response for response in data if response["channel_name"] == channel]
-                print(matching_instance_list)
-                no_of_responses = len(matching_instance_list)
-                if no_of_responses == 0:
-                    return Response({"success":"true",
-                                    "message":"No responses found",
-                                    "total_no_of_responses": no_of_responses
-                                    }, status=status.HTTP_404_NOT_FOUND)
-                else:
-
-                    return Response({"success":"true",
-                                    "message":"fetched the data for the requested channel",
-                                    "total_no_of_responses": len(matching_instance_list),
-                                    "data":matching_instance_list
-                                    }, status=status.HTTP_200_OK)
-
-            elif 'instance' in request.GET:
-                matching_instance_list = [response for response in data if response["instance_name"] == instance]
-                print(matching_instance_list)
-                no_of_responses = len(matching_instance_list)
-                if no_of_responses == 0:
-                    return Response({"success":"true",
-                                    "message":"No responses found",
-                                    "total_no_of_responses": no_of_responses
-                                    }, status=status.HTTP_404_NOT_FOUND)
-                else:
-
-                    return Response({"success":"true",
-                                    "message":"fetched the data for the requested instance",
-                                    "total_no_of_responses": len(matching_instance_list),
-                                    "data":matching_instance_list
-                                    }, status=status.HTTP_200_OK)
-
-            else:
+            if not data:
                 return Response({"success":"true",
-                                "message":"fetched the data for the requested scale",
-                                "total_no_of_responses": len(data),
-                                "data":data
-                                }, status=status.HTTP_200_OK)
+                                    "message":"No responses found",
+                                    "total_no_of_responses": 0
+                                }, status=status.HTTP_404_NOT_FOUND)
+            for valid_data in data:
+                return_data={
+                    "_id": valid_data["_id"],
+                    "scale_id":valid_data["scale_id"],
+                    "category":valid_data["category"],
+                    "score":valid_data["score"],
+                    "channel_name":valid_data["channel_name"],
+                    "instance_name":valid_data["instance_name"],
+                    "channel_display_name":valid_data["channel_display_name"],
+                    "instance_display_name":valid_data["instance_display_name"],
+                    "dowell_time":valid_data["dowell_time"]
 
+                }
+
+                returned_items.append(return_data)
+           
+            return Response({"success":"true",
+                                    "message":"fetched the data for the requested channel, scale_name & instance_name",
+                                    "total_no_of_responses": len(returned_items),
+                                    "data": returned_items
+                                    }, status=status.HTTP_200_OK)
         except Exception as e:
             return Response(e)
 

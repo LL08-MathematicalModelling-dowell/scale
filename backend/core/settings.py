@@ -25,6 +25,12 @@ SECRET_KEY = 'django-insecure-cfjz=^q=d^*#*_5)2gx-fm+-$!(5r9%1%5hu56cog_8j4gl@h9
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+if DEBUG != True:
+    public_url = "https://100035.pythonanywhere.com"
+else:
+    public_url = "https://100035.pythonanywhere.com"
+
+
 ALLOWED_HOSTS = ["*"]
 
 

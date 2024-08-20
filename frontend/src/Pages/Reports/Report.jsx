@@ -700,7 +700,7 @@ const Report = () => {
                   <MenuItem
                     key={instance}
                     value={instance}
-                    onClick={handleFetch}
+                    // onClick={handleFetch}
                   >
                     {instanceNames[instance]}
                   </MenuItem>

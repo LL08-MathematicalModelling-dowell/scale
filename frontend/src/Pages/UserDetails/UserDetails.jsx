@@ -4,8 +4,10 @@ import { PencilSquareIcon } from "@heroicons/react/20/solid";
 import { useRef, useState, useEffect } from "react";
 import { decodeToken } from "../../utils/tokenUtils";
 import { updateUserDetails } from "../../services/api.services";
+import { useNavigate } from "react-router-dom";
 
 const UserDetails = () => {
+  const navigate = useNavigate();
   const inputRef = useRef(null);
   const emailRef = useRef(null);
   const [image, setImage] = useState(() => localStorage.getItem("profileImage"));
@@ -29,6 +31,8 @@ const UserDetails = () => {
         operationsRight: decodedToken.operations_right,
         status: decodedToken.status
       });
+    } else{
+      navigate('/voc');
     }
   }, [token]);
 

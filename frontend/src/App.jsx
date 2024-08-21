@@ -8,6 +8,7 @@ import Scales from "./Pages/Scale/Scales";
 import OpenReportPage from "./Pages/Reports/OpenReportPage";
 import useDowellLogin from "./hooks/useDowellLogin";
 import HomePage from "./Pages/HomePage/HomePage";
+import Registration from './Pages/Registration/RegistrationPage';
 
 const App = () => {
   useDowellLogin();
@@ -21,6 +22,7 @@ const App = () => {
       <Route path="/voc/scale" element={<Scales />} />
       <Route path="/voc/scaledetails" element={<ScaleDetails />} />
       <Route path="/voc/userdetails" element={<UserDetails />} />
+      <Route path="/voc/register" element={<Registration />} />
     </Routes>
   );
 };

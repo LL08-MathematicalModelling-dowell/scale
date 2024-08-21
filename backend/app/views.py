@@ -12,6 +12,7 @@ from utils.eventID import get_event_id
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime, timezone
+from services.sendEmail import *
 
 jwt_utils = JWTUtils()
 
@@ -38,6 +39,8 @@ class UserManagement(APIView):
             return self.update_userprofile(request)
         elif type == 'authenticate_user':
             return self.authenticate_user(request)
+        elif type == 'send_customer_email':
+            return self.send_customer_email(request)
         else:
             return self.handle_error(request)
     
@@ -257,6 +260,59 @@ class UserManagement(APIView):
                 "message":"User does not exist"
             }, status=status.HTTP_400_BAD_REQUEST)
     
+    def send_customer_email(self, request):
+        email = request.data.get("email")
+        user_id = request.data.get("user_id")
+
+        serializer = EmailSerializer(data={
+            "email": email,
+            "user_id": user_id
+        })
+
+        if not serializer.is_valid():
+            return Response({
+                "success": False,
+                "message": "Posting wrong data to API",
+                "errors": serializer.errors,
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # TODO: Replace this when required
+        workspace_name = "manish_test_error_login"
+
+        response = get_portfolio_details(workspace_name, user_id)
+
+        if not response["success"]:
+            return Response({
+                "success": False,
+                "message": response["message"]
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        portfolio_details = response["response"][0]
+        customer_id = portfolio_details["portfolio_info"]["portfolio_name"]
+        product_id = workspace_name
+        user_id = user_id
+        password = portfolio_details["portfolio_info"]["password"]
+
+        response_send_email = json.loads(send_email(
+            toname=email,
+            toemail=email,
+            customer_id=customer_id,
+            product_id=product_id,    
+            user_id=user_id,
+            password=password,        
+            login_link="https://www.scales.uxlivinglab.online/voc/register"
+        ))
+
+        if not response_send_email["success"]:
+            return Response({
+                "success": False,
+                "message": "Failed to send email, Please try again"
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({
+            "success": True,
+            "message": "Email sent successfully"
+        }, status=status.HTTP_200_OK)
 
     def handle_error(self, request): 
         return Response({

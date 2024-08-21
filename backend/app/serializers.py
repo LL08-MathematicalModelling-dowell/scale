@@ -25,6 +25,10 @@ class ScaleRetrieveSerializer(serializers.Serializer):
     portfolio = serializers.CharField()
     portfolio_username = serializers.CharField()
 
+class EmailSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    user_id = serializers.CharField()
+
 class SaceScaleDetailsSerializer(serializers.Serializer):
     TYPE_OF_SCALE = (
         ('nps', 'nps'),

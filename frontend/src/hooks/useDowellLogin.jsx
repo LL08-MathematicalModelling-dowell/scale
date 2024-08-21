@@ -52,7 +52,8 @@ export default function useDowellLogin() {
             pathname === '/voc/report' || pathname === '/voc/report/' ||
             pathname === '/voc/scale' || pathname === '/voc/scale/' ||
             pathname === '/voc/scaledetails' || pathname === '/voc/scaledetails/' ||
-            pathname === '/voc/userdetails' || pathname === '/voc/userdetails/'
+            pathname === '/voc/userdetails' || pathname === '/voc/userdetails/' ||
+            pathname === '/voc/register' || pathname === '/voc/register/'
         )
 
         if (localAPIKey) {

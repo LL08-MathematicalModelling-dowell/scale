@@ -60,6 +60,12 @@ const saveScaleDetails = async ({ hardCodedData, accessToken }) => {
     )
 }
 
+const emailServiceForUserDetails = async (email,userId) => {
+    return await servicesAxiosInstance.post('/v1/voc/user-management/?type=send_customer_email',{
+        email: email,
+        user_id: userId
+    })
+}
 
 export {
     getUserLogin,
@@ -68,5 +74,6 @@ export {
     getUserReport,
     getUserScales,
     saveScaleDetails,
-    servicesAxiosInstance
+    servicesAxiosInstance,
+    emailServiceForUserDetails
 }

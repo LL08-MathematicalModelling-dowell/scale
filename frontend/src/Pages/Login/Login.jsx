@@ -100,7 +100,7 @@ const Login = () => {
   };
 
   const handleRegister = () => {
-    navigate("/register"); // Replace with the actual register path
+    navigate("/voc/register");
   };
 
   return (

@@ -1,0 +1,121 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Logo from "../../assets/VOC.png";
+import CircularProgress from "@mui/material/CircularProgress";
+import { emailServiceForUserDetails } from "../../services/api.services";
+
+const Registration = () => {
+  const [email, setEmail] = useState("");
+  const [userId, setUserId] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [statusMessage, setStatusMessage] = useState("");
+  const [isSuccess, setIsSuccess] = useState(false);
+  const navigate = useNavigate();
+
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
+  };
+
+  const handleUserIdChange = (e) => {
+    setUserId(e.target.value);
+  };
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const response = await emailServiceForUserDetails(email, userId);
+
+      if (response.data.success) {
+        setStatusMessage(response.data.message);
+        setIsSuccess(true);
+
+        setTimeout(() => {
+          navigate("/voc");
+        }, 2000);
+      } else {
+        setStatusMessage(response.data.message || "Failed to send email. Please try again.");
+        setIsSuccess(false);
+      }
+    } catch (error) {
+      setStatusMessage("Failed to send email. Please try again.");
+      console.log(error);
+      
+    setIsSuccess(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleHome = () => {
+    navigate("/voc");
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center px-4">
+      <img src={Logo} className="w-48 h-auto mb-8" alt="VOC Logo" />
+      <form
+        className="w-full max-w-sm flex flex-col gap-4 items-center"
+        onSubmit={handleRegister}
+      >
+        <input
+          type="text"
+          name="userId"
+          placeholder="Enter your User ID"
+          className="bg-white border border-gray-300 w-full p-2.5 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500"
+          required
+          value={userId}
+          onChange={handleUserIdChange}
+        />
+        <input
+          type="email"
+          name="email"
+          placeholder="Enter your email"
+          className="bg-white border border-gray-300 w-full p-2.5 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500"
+          required
+          value={email}
+          onChange={handleEmailChange}
+        />
+        <div className="w-full flex gap-4">
+          <button
+            type="button"
+            className="w-full py-2 text-sm font-semibold rounded-md bg-gray-300 hover:bg-gray-400 text-gray-800 transition-colors duration-300"
+            onClick={handleHome}
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className={`w-full py-2 text-sm font-semibold rounded-md transition-colors duration-300 ${
+              loading
+                ? "bg-blue-300 cursor-not-allowed text-gray-700"
+                : "bg-blue-600 hover:bg-blue-700 text-white"
+            }`}
+            disabled={loading}
+          >
+            {loading ? (
+              <div className="flex items-center justify-center gap-2">
+                <CircularProgress color="inherit" size={20} />
+                Sending...
+              </div>
+            ) : (
+              "Send Email"
+            )}
+          </button>
+        </div>
+        {statusMessage && (
+          <p
+            className={`mt-2 text-center font-semibold ${
+              isSuccess ? "text-green-600" : "text-red-600"
+            }`}
+          >
+            {statusMessage}
+          </p>
+        )}
+      </form>
+    </div>
+  );
+};
+
+export default Registration;

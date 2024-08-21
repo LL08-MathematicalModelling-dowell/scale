@@ -226,6 +226,36 @@ def dowell_login(workspace_name, username, password):
         }
 
 
+def get_portfolio_details(workspace_name, portfolio_id):
+    url = 'https://100093.pythonanywhere.com/api/portfoliodetails'
+    payload = {
+        'workspace_name': workspace_name,
+        'portfolio_id': portfolio_id
+    }
+    try:
+        response = requests.post(url, json=payload)
+        response.raise_for_status() 
+        return {
+            "success": True,
+            "message": "Portfolio details retrieved successfully",
+            "response": response.json()["response"]
+        }
+    except requests.exceptions.HTTPError as http_err:
+        return {
+            "success": False,
+            "message": f"Server responded with status code {response.status_code}: {http_err}"
+        }
+    except requests.exceptions.RequestException as req_err:
+        return {
+            "success": False,
+            "message": f"Request failed: {req_err}"
+        }
+    except ValueError as json_err:
+        return {
+            "success": False,
+            "message": f"Error parsing JSON response: {json_err}"
+        }
+
 def build_urls(channel_instance,payload,instance_idx):
         urls = []
         print(payload)

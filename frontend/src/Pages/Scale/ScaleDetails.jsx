@@ -1,16 +1,18 @@
 import { useState, useEffect } from "react";
 import Navbar from "../../components/Navbar/Navbar";
-import QRCodeCard from "../../components/QRCodeCard/QRCodeCard"
+import QRCodeCard from "../../components/QRCodeCard/QRCodeCard";
 import { FaCirclePlus } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
 import { decodeToken } from "../../utils/tokenUtils";
-import {getUserScales, saveScaleDetails} from '../../services/api.services'
+import { getUserScales, saveScaleDetails } from "../../services/api.services";
 
 function getInstanceDisplayName(url) {
   try {
     const urlObj = new URL(url);
     const params = new URLSearchParams(urlObj.search);
-    return params.has('instance_display_name') ? params.get('instance_display_name') : null;
+    return params.has("instance_display_name")
+      ? params.get("instance_display_name")
+      : null;
   } catch (error) {
     console.log(error.message);
     return null;
@@ -22,9 +24,19 @@ const ScaleDetails = () => {
   const [alert, setAlert] = useState("");
   const [loading, setLoading] = useState(false);
   const [showCreateButton, setShowCreateButton] = useState(false);
+  const [selectedScaleType, setSelectedScaleType] = useState("nps"); // Default scale type
   const navigate = useNavigate();
   const accessToken = localStorage.getItem("accessToken");
   const refreshToken = localStorage.getItem("refreshToken");
+
+  const scaleOptions = [
+    { value: "nps", label: "NPS" },
+    { value: "nps_lite", label: "NPS Lite" },
+    { value: "stapel", label: "Stapel" },
+    { value: "likert", label: "Likert" },
+    { value: "percent", label: "Percent" },
+    { value: "percent_sum", label: "Percent Sum" },
+  ];
 
   useEffect(() => {
     if (!accessToken || !refreshToken) {
@@ -45,7 +57,12 @@ const ScaleDetails = () => {
         const workspaceId = decodedPayload.workspace_id;
         const portfolio = decodedPayload.portfolio;
 
-const response = await getUserScales({workspace_id: workspaceId, portfolio, accessToken})
+        const response = await getUserScales({
+          workspace_id: workspaceId,
+          portfolio,
+          type_of_scale: selectedScaleType, // Fetch data based on selected scale type
+          accessToken,
+        });
 
         const data = response.data;
         console.log("Scale Details Response:", data);
@@ -67,7 +84,11 @@ const response = await getUserScales({workspace_id: workspaceId, portfolio, acce
     };
 
     fetchScaleDetails();
-  }, [accessToken, navigate]);
+  }, [accessToken, selectedScaleType, navigate]); // Re-fetch data when selected scale type changes
+
+  const handleScaleTypeChange = (event) => {
+    setSelectedScaleType(event.target.value);
+  };
 
   const handleButtonClick = async () => {
     if (!accessToken) {
@@ -84,10 +105,13 @@ const response = await getUserScales({workspace_id: workspaceId, portfolio, acce
         workspace_id: workspaceId,
         username: decodedPayload.workspace_owner_name,
         portfolio,
-        portfolio_username: decodedPayload.portfolio_username
+        portfolio_username: decodedPayload.portfolio_username,
       };
 
-      const response = await saveScaleDetails({hardCodedData, accessToken})
+      const response = await saveScaleDetails({
+        hardCodedData,
+        accessToken,
+      });
 
       const data = response.data;
       console.log("Create Scale Response:", data);
@@ -98,14 +122,14 @@ const response = await getUserScales({workspace_id: workspaceId, portfolio, acce
           ...qrCodes,
           {
             id: newId,
-            imageSrc: "path_to_default_image", 
+            imageSrc: "path_to_default_image",
             qrDetails: data.qrDetails || `QR Code ${newId}`,
             scaleDetails: data.scaleDetails || "Scale Details",
           },
         ]);
         setAlert("QR Code card created successfully!");
         localStorage.setItem("scale_id", data.scale_id);
-        setShowCreateButton(false); 
+        setShowCreateButton(false);
       } else {
         setAlert(data.message || "Failed to create card.");
       }
@@ -130,6 +154,22 @@ const response = await getUserScales({workspace_id: workspaceId, portfolio, acce
   return (
     <div className="max-h-screen max-w-full relative">
       <Navbar />
+      <div className="flex justify-end p-6 items-center gap-4">
+        <label htmlFor="scale-type" className="text-lg font-semibold">
+          Choose a scale type:
+        </label>
+        <select
+          value={selectedScaleType}
+          onChange={handleScaleTypeChange}
+          className="p-2 border rounded"
+        >
+          {scaleOptions.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      </div>
       <div className="flex-col flex">
         <div className="flex mt-2 flex-col md:flex-row flex-wrap md:gap-4 p-6 gap-4">
           {loading ? (
@@ -141,7 +181,9 @@ const response = await getUserScales({workspace_id: workspaceId, portfolio, acce
               {qrCodes.map((qrCode) => (
                 <div key={qrCode._id} className="flex flex-col gap-6">
                   <div className="flex-col flex gap-2">
-                    <h1 className="text-[25px] font-bold font-poppins">Scale Details</h1>
+                    <h1 className="text-[25px] font-bold font-poppins">
+                      Scale Details
+                    </h1>
                     <div className="flex flex-col md:flex-row gap-6 flex-wrap">
                       {qrCode.links_details?.map((link, idx) => (
                         <QRCodeCard
@@ -156,7 +198,9 @@ const response = await getUserScales({workspace_id: workspaceId, portfolio, acce
                     </div>
                   </div>
                   <div className="flex-col flex gap-2">
-                    <h1 className="text-[25px] font-bold font-poppins">Report Details</h1>
+                    <h1 className="text-[25px] font-bold font-poppins">
+                      Report Details
+                    </h1>
                     <div className="flex flex-col md:flex-row gap-6">
                       <QRCodeCard
                         imageSrc={qrCode.report_link.qrcode_image_url}
@@ -168,7 +212,9 @@ const response = await getUserScales({workspace_id: workspaceId, portfolio, acce
                     </div>
                   </div>
                   <div className="flex-col flex gap-2">
-                    <h1 className="text-[25px] font-bold font-poppins">Login Details</h1>
+                    <h1 className="text-[25px] font-bold font-poppins">
+                      Login Details
+                    </h1>
                     <div className="flex flex-col md:flex-row gap-6">
                       {qrCode.login && (
                         <QRCodeCard

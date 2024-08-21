@@ -7,14 +7,39 @@ class UserSerializer(serializers.Serializer):
     password = serializers.CharField()
 
 class ScaleDetailsSerializer(serializers.Serializer):
+    TYPE_OF_SCALE = (
+        ('nps', 'nps'),
+        ('nps_lite', 'nps_lite'),
+        ('stapel', 'stapel'),
+        ('likert', 'likert'),
+        ('percent', 'percent'),
+        ('percent_sum', 'percent_sum')
+    )
     workspace_id = serializers.CharField()
     portfolio = serializers.CharField()
+    type_of_scale = serializers.ChoiceField(choices=TYPE_OF_SCALE)
 
 class ScaleRetrieveSerializer(serializers.Serializer):
     workspace_id = serializers.CharField()
     username = serializers.CharField()
     portfolio = serializers.CharField()
     portfolio_username = serializers.CharField()
+
+class SaceScaleDetailsSerializer(serializers.Serializer):
+    TYPE_OF_SCALE = (
+        ('nps', 'nps'),
+        ('nps_lite', 'nps_lite'),
+        ('stapel', 'stapel'),
+        ('likert', 'likert'),
+        ('percent', 'percent'),
+        ('percent_sum', 'percent_sum')
+    )
+    
+    workspace_id = serializers.CharField()
+    username = serializers.CharField()
+    portfolio = serializers.CharField()
+    portfolio_username = serializers.CharField()
+    type_of_scale = serializers.ChoiceField(choices=TYPE_OF_SCALE)
 
 class UserAuthSerializer(serializers.Serializer):
     workspace_name = serializers.CharField()

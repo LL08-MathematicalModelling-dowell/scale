@@ -69,7 +69,7 @@ def send_email(toname, toemail, customer_id, product_id, user_id, password, logi
                 <td style="font-size: 16px; color: #333333; padding-bottom: 20px;">
                     Thank you for using DoWell Voice of Customers.<br>
                     Best regards,<br>
-                    The DoWell Voice of Customers Team
+                    DoWell Voice of Customers Team
                 </td>
             </tr>
             <tr>

@@ -300,7 +300,7 @@ class UserManagement(APIView):
             product_id=product_id,    
             user_id=user_id,
             password=password,        
-            login_link="https://www.scales.uxlivinglab.online/voc/register"
+            login_link="https://www.scales.uxlivinglab.online/voc/"
         ))
 
         if not response_send_email["success"]:

@@ -360,13 +360,9 @@ dowell_time_asian_culta = partial(dowell_time , "Asia/Calcutta")
 
 
 def determine_category(scale_type, item):
+    index = {0:"detractor",1:"passive",2:"promoter"}
     if scale_type == "nps_lite":
-        if item == 0:
-            return "detractor"
-        elif item == 1:
-            return "passive"
-        elif item == 2:
-            return "promoter"
+        return index[item]
     elif scale_type == "nps":
         if 0 <= item <= 6:
             return "detractor"

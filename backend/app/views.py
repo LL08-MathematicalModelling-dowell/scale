@@ -539,9 +539,18 @@ class ScaleCreateAPI(APIView):
         else:
             return self.handle_error(request)
     
+    def get(self, request):
+        type = request.GET.get("type")
+        if type == 'get_scale':
+            return self.get_scale(request)
+        elif type == 'create-scale-response':
+            return self.create_scale_response(request)
+        elif type == 'get-scale-response':
+            return self.get_scale_response(request)
+        else:
+            return self.handle_error(request)
 
     def create_scale(self,request):     
-        print("running")
         scale_serializer = ScaleSerializer(data=request.data)
         if scale_serializer.is_valid():
             workspace_id = scale_serializer.validated_data['workspace_id']
@@ -579,17 +588,17 @@ class ScaleCreateAPI(APIView):
 
             if scale_type == "likert":
                 pointers = scale_serializer.validated_data.get('pointers')
-                if pointers is not None:
-                    settings['pointers'] = pointers
-                else:
+                if not pointers :
                     return Response("Missing field for likert", status=status.HTTP_400_BAD_REQUEST)
 
-            if scale_type == "stapel":
+                settings['pointers'] = pointers
+
+            elif scale_type == "stapel":
                 axis_limit = scale_serializer.validated_data.get('axis_limit')
-                if axis_limit is not None:
-                    settings['axis_limit'] = axis_limit
-                else:
+                if not axis_limit:
                     return Response("Missing field for stapel", status=status.HTTP_400_BAD_REQUEST)
+
+                settings['axis_limit'] = axis_limit
 
             total_no_of_items = scale_type_fn(scale_type, payload)
             settings["total_no_of_items"] = total_no_of_items
@@ -657,16 +666,6 @@ class ScaleCreateAPI(APIView):
         }, status=status.HTTP_400_BAD_REQUEST)
 
 
-    def get(self, request):
-        type = request.GET.get("type")
-        if type == 'get_scale':
-            return self.get_scale(request)
-        elif type == 'create-scale-response':
-            return self.create_scale_response(request)
-        elif type == 'get-scale-response':
-            return self.get_scale_response(request)
-        else:
-            return self.handle_error(request)
 
     def get_scale(self,request):
         try:
@@ -753,6 +752,7 @@ class ScaleCreateAPI(APIView):
         try:
             # Category determination
             category = determine_category(scale_type, item)
+
             if category is None:
                 return Response({"success": "false", "message": "Invalid value for score"}, status=status.HTTP_400_BAD_REQUEST)
 

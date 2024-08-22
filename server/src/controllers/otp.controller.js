@@ -29,8 +29,7 @@ const sendOtpToUser = asyncHandler(async (req, res) => {
     if (existingOtp) {
         return res.status(200).json({
             success: true,
-            message: "An existing OTP is still valid. Please use the existing OTP in your email.",
-            otp: existingOtp.otp
+            message: "An existing OTP is still valid. Please use the existing OTP in your email."
         });
     }
 
@@ -59,7 +58,7 @@ const sendOtpToUser = asyncHandler(async (req, res) => {
     )
 
     if(!sendEmailToUser.success) {
-        res
+        return res
         .status(400)
         .json({
             success: false,
@@ -71,8 +70,7 @@ const sendOtpToUser = asyncHandler(async (req, res) => {
     .status(200)
     .json({
         success: true,
-        message: "OTP has been sent to your email",
-        otp
+        message: "OTP has been sent to your email"
     });
 });
 

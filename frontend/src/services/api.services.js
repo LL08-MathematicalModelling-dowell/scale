@@ -1,4 +1,4 @@
-import { servicesAxiosInstance, scaleAxiosInstance } from "./config";
+import { servicesAxiosInstance, scaleAxiosInstance, otpAxiosInstance } from "./config";
 
 const getServerStatus = async () => {
     return await servicesAxiosInstance.get('/')
@@ -67,6 +67,21 @@ const emailServiceForUserDetails = async (email,userId) => {
     })
 }
 
+const sendOtpServices = async (email,userId) => {
+    return await otpAxiosInstance.post('/v1/otp-services/send-otp',{
+        email: email,
+        userId: userId
+    })
+}
+
+const validateOtpServices = async (email, userId, otp) => {
+    return await otpAxiosInstance.post('/v1/otp-services/validate-otp',{
+        email: email,
+        userId: userId,
+        otp: otp
+    })
+}
+
 export {
     getUserLogin,
     getServerStatus,
@@ -75,5 +90,7 @@ export {
     getUserScales,
     saveScaleDetails,
     servicesAxiosInstance,
-    emailServiceForUserDetails
+    emailServiceForUserDetails,
+    sendOtpServices,
+    validateOtpServices
 }

@@ -2,35 +2,80 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Logo from "../../assets/VOC.png";
 import CircularProgress from "@mui/material/CircularProgress";
-import { emailServiceForUserDetails } from "../../services/api.services";
+import { sendOtpServices, validateOtpServices, emailServiceForUserDetails } from "../../services/api.services";
 
 const Registration = () => {
   const [email, setEmail] = useState("");
   const [userId, setUserId] = useState("");
+  const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpValidated, setOtpValidated] = useState(false); // New state to track OTP validation status
   const navigate = useNavigate();
 
-  const handleEmailChange = (e) => {
-    setEmail(e.target.value);
+  const handleEmailChange = (e) => setEmail(e.target.value);
+  const handleUserIdChange = (e) => setUserId(e.target.value);
+  const handleOtpChange = (e) => setOtp(e.target.value);
+
+  const handleSendOtp = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const response = await sendOtpServices(email, userId);
+      if (response.data.success) {
+        setStatusMessage(response.data.message);
+        setIsSuccess(true);
+        setOtpSent(true);
+      } else {
+        setStatusMessage(response.data.message || "Failed to send OTP. Please try again.");
+        setIsSuccess(false);
+      }
+    } catch (error) {
+      console.log(error);
+      
+      setStatusMessage("Failed to send OTP. Please try again.");
+      setIsSuccess(false);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleUserIdChange = (e) => {
-    setUserId(e.target.value);
+  const handleValidateOtp = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const response = await validateOtpServices(email, userId, otp);
+      if (response.data.success) {
+        setStatusMessage("OTP validated successfully.");
+        setIsSuccess(true);
+        setOtpValidated(true);
+      } else {
+        setStatusMessage(response.data.message || "Failed to validate OTP. Please try again.");
+        setIsSuccess(false);
+      }
+    } catch (error) {
+      console.log(error);
+      
+      setStatusMessage("Failed to validate OTP. Please try again.");
+      setIsSuccess(false);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleRegister = async (e) => {
+  const handleSendEmail = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
       const response = await emailServiceForUserDetails(email, userId);
-
       if (response.data.success) {
-        setStatusMessage(response.data.message);
+        setStatusMessage("Email sent successfully.");
         setIsSuccess(true);
-
         setTimeout(() => {
           navigate("/voc");
         }, 2000);
@@ -39,25 +84,29 @@ const Registration = () => {
         setIsSuccess(false);
       }
     } catch (error) {
-      setStatusMessage("Failed to send email. Please try again.");
       console.log(error);
       
-    setIsSuccess(false);
+      setStatusMessage("Failed to send email. Please try again.");
+      setIsSuccess(false);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleHome = () => {
-    navigate("/voc");
-  };
+  const handleHome = () => navigate("/voc");
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4">
       <img src={Logo} className="w-48 h-auto mb-8" alt="VOC Logo" />
       <form
         className="w-full max-w-sm flex flex-col gap-4 items-center"
-        onSubmit={handleRegister}
+        onSubmit={
+          otpValidated
+            ? handleSendEmail // If OTP is validated, send email
+            : otpSent
+            ? handleValidateOtp // If OTP is sent, validate OTP
+            : handleSendOtp // Initial state, send OTP
+        }
       >
         <input
           type="text"
@@ -77,6 +126,19 @@ const Registration = () => {
           value={email}
           onChange={handleEmailChange}
         />
+
+        {otpSent && !otpValidated && (
+          <input
+            type="text"
+            name="otp"
+            placeholder="Enter the OTP"
+            className="bg-white border border-gray-300 w-full p-2.5 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500"
+            required
+            value={otp}
+            onChange={handleOtpChange}
+          />
+        )}
+
         <div className="w-full flex gap-4">
           <button
             type="button"
@@ -97,13 +159,22 @@ const Registration = () => {
             {loading ? (
               <div className="flex items-center justify-center gap-2">
                 <CircularProgress color="inherit" size={20} />
-                Sending...
+                {otpValidated
+                  ? "Sending Email..."
+                  : otpSent
+                  ? "Verifying OTP..."
+                  : "Sending OTP..."}
               </div>
-            ) : (
+            ) : otpValidated ? (
               "Send Email"
+            ) : otpSent ? (
+              "Verify OTP"
+            ) : (
+              "Send OTP"
             )}
           </button>
         </div>
+
         {statusMessage && (
           <p
             className={`mt-2 text-center font-semibold ${

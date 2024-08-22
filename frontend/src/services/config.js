@@ -10,7 +10,13 @@ const scaleAxiosInstance = axios.create({
   baseURL: 'https://100035.pythonanywhere.com',
 });
 
+const otpAxiosInstance = axios.create({
+  // baseURL: 'http://localhost:5000',
+  baseURL: 'https://www.scales.uxlivinglab.online/services',
+})
+
 export {
   servicesAxiosInstance,
-  scaleAxiosInstance
+  scaleAxiosInstance,
+  otpAxiosInstance
 }

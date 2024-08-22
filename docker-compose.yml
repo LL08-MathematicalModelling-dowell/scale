@@ -24,6 +24,41 @@ services:
       - queue-net
     depends_on:
       - backend
+      - server
+
+  mongo:
+    container_name: mongo_container
+    image: 'mongo'
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - queue-net
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    command: mongod --bind_ip_all
+    restart: always
+  
+  server:
+    container_name: server_container
+    build: ./server
+    ports:
+      - '5000:5000'
+    volumes:
+      - ./server:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      - mongo
+    environment:
+      PORT: ${PORT}
+      MONGO_DB_URI: ${MONGO_DB_URI}
+      REFRESH_TOKEN_SECRET: ${REFRESH_TOKEN_SECRET}
+      REFRESH_TOKEN_EXPIRY: ${REFRESH_TOKEN_EXPIRY}
+      JWT_EXPIRY: ${JWT_EXPIRY}
+      JWT_SECRET: ${JWT_SECRET}
+    networks:
+      - queue-net
+
 
   nginx:
     build:
@@ -48,3 +83,6 @@ services:
 networks:
   queue-net:
     driver: bridge
+
+volumes:
+  mongo-data:

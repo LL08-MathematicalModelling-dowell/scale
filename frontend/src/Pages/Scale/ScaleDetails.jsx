@@ -4,7 +4,7 @@ import QRCodeCard from "../../components/QRCodeCard/QRCodeCard";
 import { FaCirclePlus } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
 import { decodeToken } from "../../utils/tokenUtils";
-import { getUserScales, saveScaleDetails } from "../../services/api.services";
+import { getUserScales, saveScaleDetails, saveScaleDetailsType } from "../../services/api.services";
 
 function getInstanceDisplayName(url) {
   try {
@@ -23,11 +23,26 @@ const ScaleDetails = () => {
   const [qrCodes, setQrCodes] = useState([]);
   const [alert, setAlert] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showCreateButton, setShowCreateButton] = useState(false);
   const [selectedScaleType, setSelectedScaleType] = useState("nps"); // Default scale type
   const navigate = useNavigate();
   const accessToken = localStorage.getItem("accessToken");
   const refreshToken = localStorage.getItem("refreshToken");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentScaleType, setCurrentScaleType] = useState("");
+  const [isCreateScaleLoading, setIsCreateScaleLoading] = useState(false);
+
+  const handleClick = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleScaleChange = (e) => {
+    console.log('value', e.target.value);
+    setCurrentScaleType(e.target.value);
+  };
 
   const scaleOptions = [
     { value: "nps", label: "NPS" },
@@ -73,7 +88,6 @@ const ScaleDetails = () => {
           localStorage.setItem("scale_id", scaleId);
         } else {
           setAlert("No scale found. Please create a scale for yourself.");
-          setShowCreateButton(true);
         }
       } catch (error) {
         console.error("Error fetching scale details:", error.message);
@@ -96,8 +110,9 @@ const ScaleDetails = () => {
       return;
     }
 
-    setLoading(true);
+    // setLoading(true);
     try {
+      setIsCreateScaleLoading(true);
       const decodedPayload = decodeToken(accessToken);
       const workspaceId = decodedPayload.workspace_id;
       const portfolio = decodedPayload.portfolio;
@@ -108,10 +123,16 @@ const ScaleDetails = () => {
         portfolio_username: decodedPayload.portfolio_username,
       };
 
-      const response = await saveScaleDetails({
-        hardCodedData,
-        accessToken,
-      });
+      if (currentScaleType !== "nps") {
+        hardCodedData.type_of_scale = currentScaleType;
+      }
+
+      console.log('>>>>>>>>>>', hardCodedData, currentScaleType);
+
+      const response = currentScaleType === "nps" 
+      ? await saveScaleDetails({ hardCodedData, accessToken }) 
+      : await saveScaleDetailsType({ hardCodedData, accessToken });
+      console.log('resss>>',response);
 
       const data = response.data;
       console.log("Create Scale Response:", data);
@@ -129,15 +150,18 @@ const ScaleDetails = () => {
         ]);
         setAlert("QR Code card created successfully!");
         localStorage.setItem("scale_id", data.scale_id);
-        setShowCreateButton(false);
       } else {
         setAlert(data.message || "Failed to create card.");
       }
     } catch (error) {
       console.error("Error creating card:", error);
-      setAlert("Error creating card.");
+      if(error.response.status===400){
+        setAlert(error?.response?.data?.message);
+      }
+      
     } finally {
-      setLoading(false);
+      // setLoading(false);
+      setIsCreateScaleLoading(false);
     }
   };
 
@@ -229,13 +253,52 @@ const ScaleDetails = () => {
                   </div>
                 </div>
               ))}
-              {showCreateButton && (
-                <button
-                  onClick={handleButtonClick}
-                  className="bg-deepblue text-white shadow-xl px-2 py-2 rounded-full mt-4 md:mt-0 fixed md:bottom-[90px] bottom-[50px] md:right-12 right-8 z-10"
-                >
-                  <FaCirclePlus className="text-xl" />
-                </button>
+              <button
+                onClick={handleClick}
+                className="bg-deepblue text-white shadow-xl px-2 py-2 rounded-full mt-4 md:mt-0 fixed md:bottom-[90px] bottom-[50px] md:right-12 right-8 z-10"
+              >
+                <FaCirclePlus className="text-xl" />
+              </button>
+              {isModalOpen && (
+                <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center z-50">
+                  <div className="bg-white rounded-lg shadow-2xl p-8 w-full max-w-lg mx-4 md:mx-0">
+                    <h2 className="text-xl font-semibold text-gray-700 mb-6 text-center">
+                      Select Scale Type
+                    </h2>
+                    <div className="mb-6">
+                      <label htmlFor="scaleType" className="block text-sm font-medium text-gray-600 mb-2">
+                        Scale Type
+                      </label>
+                      <select
+                        id="scaleType"
+                        value={currentScaleType}
+                        onChange={handleScaleChange}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                      >
+                        <option value="">-- Select Scale Type --</option>
+                        {scaleOptions.map((type, index) => (
+                          <option key={index} value={type.value}>
+                            {type.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <button
+                        onClick={handleButtonClick}
+                        className="bg-indigo-600 text-white px-5 py-2 rounded-md shadow-lg hover:bg-indigo-700 transition-colors"
+                      >
+                        {isCreateScaleLoading?'Loading...':'Create'}
+                      </button>
+                      <button
+                        onClick={handleCloseModal}
+                        className="text-gray-500 hover:text-gray-700 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                </div>
               )}
             </div>
           )}
@@ -245,6 +308,7 @@ const ScaleDetails = () => {
         <div
           className="fixed top-24 right-4 flex items-center p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400"
           role="alert"
+          style={{ zIndex: 9999 }}
         >
           <svg
             className="flex-shrink-0 inline w-4 h-4 me-3"

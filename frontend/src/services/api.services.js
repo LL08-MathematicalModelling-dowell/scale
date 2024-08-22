@@ -60,6 +60,17 @@ const saveScaleDetails = async ({ hardCodedData, accessToken }) => {
     )
 }
 
+export const saveScaleDetailsType = async ({ hardCodedData, accessToken }) => {
+    return await servicesAxiosInstance.post("/v1/voc/scale-management/?type=save_scale_details", hardCodedData,
+        {
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${accessToken} `,
+            }
+        }
+    )
+}
+
 const emailServiceForUserDetails = async (email,userId) => {
     return await servicesAxiosInstance.post('/v1/voc/user-management/?type=send_customer_email',{
         email: email,
@@ -80,6 +91,10 @@ const validateOtpServices = async (email, userId, otp) => {
         userId: userId,
         otp: otp
     })
+}
+
+export const createScale = async (data) => {
+    return await otpAxiosInstance.post('/v1/scale/scale-services/?type=create_scale',data);
 }
 
 export {

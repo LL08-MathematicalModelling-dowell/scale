@@ -15,6 +15,7 @@ const ScaleCard = ({scaleName, scaleDescription, scaleImage}) => {
         <p className="text-[13px] font-poppins tracking-tight font-normal mb-3">{scaleDescription}</p>
 
         <div className="mt-auto flex justify-between gap-2">
+            {/* The edit and view button will be a modal with a dark background. */}
           <Link className="py-1 px-6 font-poppins text-center text-white text-[13px] font-medium bg-dowellDeepGreen rounded-md cursor-pointer hover:shadow-xl transition ease-in-out duration-300">View</Link>
           <Link className="py-1 px-6 font-poppins text-center text-dowellDeepGreen text-[13px] font-medium border-2 border-dowellDeepGreen rounded-md cursor-pointer hover:shadow-xl transition ease-in-out duration-300">Edit</Link>
         </div>

@@ -166,7 +166,7 @@ const Registration = () => {
                   : "Sending OTP..."}
               </div>
             ) : otpValidated ? (
-              "Send Email"
+              "Submit"
             ) : otpSent ? (
               "Verify OTP"
             ) : (

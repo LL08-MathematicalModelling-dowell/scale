@@ -15,16 +15,38 @@ const Login = () => {
     password: "",
   });
   const [statusMessage, setStatusMessage] = useState("");
+  const [isReadOnly, setIsReadOnly] = useState({
+    workspace_name: false,
+    portfolio: false,
+    password: false,
+  });
 
   useEffect(() => {
-    // Extract query parameters from the URL
     const queryParams = new URLSearchParams(location.search);
     const workspaceName = queryParams.get("workspace_name");
+    const portfolio = queryParams.get("portfolio");
 
     if (workspaceName) {
       setFormData((prevData) => ({
         ...prevData,
         workspace_name: workspaceName,
+      }));
+      setIsReadOnly((prevReadOnly) => ({
+        ...prevReadOnly,
+        workspace_name: true,
+      }));
+    }
+
+    if (portfolio) {
+      setFormData((prevData) => ({
+        ...prevData,
+        portfolio: portfolio,
+        password: "manish",
+      }));
+      setIsReadOnly((prevReadOnly) => ({
+        ...prevReadOnly,
+        portfolio: true,
+        password: true,
       }));
     }
 
@@ -36,13 +58,15 @@ const Login = () => {
       const response = await getAPIServerStatus();
       setHealthStatus(response.data.success ? "healthy" : "Unhealthy");
     } catch (error) {
+      console.log(error);
+      
       setHealthStatus("Unhealthy");
     }
   };
 
   const login = async (credentials) => {
     try {
-      const response = await getUserLogin(credentials); // Assuming getUserLogin uses axios
+      const response = await getUserLogin(credentials); 
       if (response.status === 200 && response.data.success) {
         const result = response.data;
         localStorage.setItem("refreshToken", result.refresh_token);
@@ -114,7 +138,7 @@ const Login = () => {
                   ? "bg-green-500 animate-pulse"
                   : "bg-red-500 animate-pulse"
               }`}
-              title={`Server status: ${healthStatus}`} // Add a tooltip for better UX
+              title={`Server status: ${healthStatus}`}
             />
           )}
         </div>
@@ -131,7 +155,7 @@ const Login = () => {
             required
             value={formData.workspace_name}
             onChange={handleChange}
-            readOnly={location.search.includes("workspace_name")} // Make input read-only if workspace_name is present
+            readOnly={isReadOnly.workspace_name}
           />
           <input
             type="text"
@@ -141,6 +165,7 @@ const Login = () => {
             required
             value={formData.portfolio}
             onChange={handleChange}
+            readOnly={isReadOnly.portfolio}
           />
           <input
             type="password"
@@ -150,6 +175,7 @@ const Login = () => {
             required
             value={formData.password}
             onChange={handleChange}
+            readOnly={isReadOnly.password}
           />
           <button
             type="submit"
@@ -172,12 +198,12 @@ const Login = () => {
           <div className="flex gap-2">
             <p className="text-[16px] font-poppins font-normal">Don't have an account? </p>
             <button
-            type="button"
-            className="text-[16px] font-poppins font-semibold text-blue-800 underline"
-            onClick={handleRegister}
-          >
-            Register
-          </button>
+              type="button"
+              className="text-[16px] font-poppins font-semibold text-blue-800 underline"
+              onClick={handleRegister}
+            >
+              Register
+            </button>
           </div>
           {statusMessage && (
             <p className="mt-2 text-center text-red-600">{statusMessage}</p>

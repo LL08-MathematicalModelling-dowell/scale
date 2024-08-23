@@ -41,9 +41,9 @@ class KitchenSinkServices(APIView):
     def get(self, request): 
         type_request = request.GET.get('type')
 
-        if type_request == "check_metedata_database_status":
+        if type_request == "check_scale_data_database_status":
             return self.check_metedata_database_status(request)
-        elif type_request == "check_data_database_status":
+        elif type_request == "check_response_database_status":
             return self.check_data_database_status(request)
         else: 
             return self.handle_error(request)
@@ -67,16 +67,14 @@ class KitchenSinkServices(APIView):
 
         if database_type == "SCALE":
             database_name  =  f'{workspace_id}_scale_meta_data'
-            collection :  f'{workspace_id}_scale_info, {workspace_id}_user_info, {workspace_id}_scale_setting'
 
         elif database_type == "RESPONSE":
             database_name = f'{workspace_id}_scale_response_data'
-            collection: f'{workspace_id}_scale_response'
 
         response = json.loads(datacube_create_collection(
             api_key,
             database_name,
-            collection
+            collection_name
         ))
 
         if not response["success"]:
@@ -84,31 +82,31 @@ class KitchenSinkServices(APIView):
 
         return CustomResponse(True,"Collection has been created successfully", None, status.HTTP_200_OK)
 
-    def check_metedata_database_status(self, request):
-        
+
+    def check_scale_data_database_status(self, request):   
         try:
             api_key = authorization_check(request.headers.get('Authorization'))
         except InvalidTokenException as e:
             return CustomResponse(False, str(e), None, status.HTTP_401_UNAUTHORIZED)
             
         workspace_id = request.GET.get('workspace_id')
-        meta_data_database = f'{workspace_id}_meta_data_q'
+        scale_data_database = f'{workspace_id}_scale_meta_data'
 
-        response_meta_data = json.loads(datacube_collection_retrieval(api_key, meta_data_database))
+        response_meta_data = json.loads(datacube_collection_retrieval(api_key, scale_data_database))
         print(response_meta_data)
 
         if not response_meta_data["success"]:
             return CustomResponse(False,"Meta Data is not yet available, kindly contact the administrator.", None, status.HTTP_501_NOT_IMPLEMENTED )
 
-        list_of_meta_data_collection = [
-            f'{workspace_id}_user_details',
-            f'{workspace_id}_qrcode_record',
-            f'{workspace_id}_store_details',
-            f'{workspace_id}_menu_card',
+        
+        list_of_scale_data_collection = [
+            f'{workspace_id}_scale_info',
+            f'{workspace_id}_user_info',
+            f'{workspace_id}_scale_setting'
         ]
 
         missing_collections = []
-        for collection in list_of_meta_data_collection:
+        for collection in list_of_scale_data_collection:
             if collection not in response_meta_data["data"][0]:
                 missing_collections.append(collection)
 
@@ -118,7 +116,7 @@ class KitchenSinkServices(APIView):
 
         return CustomResponse(True,"Meta Data are available to be used", None, status.HTTP_200_OK )
     
-    def check_data_database_status(self, request):
+    def check_response_database_status(self, request):
         
         try:
             api_key = authorization_check(request.headers.get('Authorization'))
@@ -128,15 +126,15 @@ class KitchenSinkServices(APIView):
         workspace_id = request.GET.get('workspace_id')
         date = request.GET.get('date')
 
-        data_database = f'{workspace_id}_data_q'
+        response_database = f'{workspace_id}_scale_response_data'
 
-        response_data = json.loads(datacube_collection_retrieval(api_key, data_database))
+        response_data = json.loads(datacube_collection_retrieval(api_key, response_database))
 
         print(response_data)
         if not response_data["success"]:
             return CustomResponse(False,"Database is not yet available, kindly contact the administrator", None, status.HTTP_501_NOT_IMPLEMENTED )
 
-        list_of_data_collection = [f'{workspace_id}_{date}_q']
+        list_of_data_collection = [f'{workspace_id}_scale_response']
 
         missing_collections = []
         for collection in list_of_data_collection:

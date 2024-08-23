@@ -51,8 +51,8 @@ class ChannelInstanceSerializer(serializers.Serializer):
 
 class CreateCollectionSerializer(serializers.Serializer):
     DATABASE_CHOICES = (
-        ("META DATA","META DATA"),
-        ("DATA","DATA"),
+        ("SCALE","SCALE"),
+        ("RESPONSE","RESPONSE"),
     )
     workspace_id = serializers.CharField(max_length=100,allow_null= False, allow_blank=False)
     collection_name = serializers.CharField(max_length=100,allow_null= False, allow_blank=False)

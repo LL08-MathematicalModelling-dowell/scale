@@ -29,6 +29,135 @@ class healthCheck(APIView):
         }, status=status.HTTP_200_OK)
     
 @method_decorator(csrf_exempt, name='dispatch')
+class KitchenSinkServices(APIView):
+    def post(self, request):
+        type_request = request.GET.get('type')
+
+        if type_request == "create_collection":
+            return self.create_collection(request)
+        else:
+            return self.handle_error(request)
+        
+    def get(self, request): 
+        type_request = request.GET.get('type')
+
+        if type_request == "check_metedata_database_status":
+            return self.check_metedata_database_status(request)
+        elif type_request == "check_data_database_status":
+            return self.check_data_database_status(request)
+        else: 
+            return self.handle_error(request)
+    
+    def create_collection(self,request):
+        
+        database_type = request.data.get('database_type')
+        workspace_id = request.data.get('workspace_id')
+        collection_name = request.data.get('collection_name')
+
+        try:
+            api_key = authorization_check(request.headers.get('Authorization'))
+        except InvalidTokenException as e:
+            return CustomResponse(False, str(e), None, status.HTTP_401_UNAUTHORIZED)
+        
+        serializer = CreateCollectionSerializer(data= request.data)
+
+        if not serializer.is_valid():
+            return CustomResponse(False, "Posting wrong data to API",serializer.errors, status.HTTP_400_BAD_REQUEST)
+        
+
+        if database_type == "SCALE":
+            database_name  =  f'{workspace_id}_scale_meta_data'
+            collection :  f'{workspace_id}_scale_info, {workspace_id}_user_info, {workspace_id}_scale_setting'
+
+        elif database_type == "RESPONSE":
+            database_name = f'{workspace_id}_scale_response_data'
+            collection: f'{workspace_id}_scale_response'
+
+        response = json.loads(datacube_create_collection(
+            api_key,
+            database_name,
+            collection
+        ))
+
+        if not response["success"]:
+            return CustomResponse(False, "Falied to create collection, kindly contact the administrator.",response, status.HTTP_400_BAD_REQUEST)
+
+        return CustomResponse(True,"Collection has been created successfully", None, status.HTTP_200_OK)
+
+    def check_metedata_database_status(self, request):
+        
+        try:
+            api_key = authorization_check(request.headers.get('Authorization'))
+        except InvalidTokenException as e:
+            return CustomResponse(False, str(e), None, status.HTTP_401_UNAUTHORIZED)
+            
+        workspace_id = request.GET.get('workspace_id')
+        meta_data_database = f'{workspace_id}_meta_data_q'
+
+        response_meta_data = json.loads(datacube_collection_retrieval(api_key, meta_data_database))
+        print(response_meta_data)
+
+        if not response_meta_data["success"]:
+            return CustomResponse(False,"Meta Data is not yet available, kindly contact the administrator.", None, status.HTTP_501_NOT_IMPLEMENTED )
+
+        list_of_meta_data_collection = [
+            f'{workspace_id}_user_details',
+            f'{workspace_id}_qrcode_record',
+            f'{workspace_id}_store_details',
+            f'{workspace_id}_menu_card',
+        ]
+
+        missing_collections = []
+        for collection in list_of_meta_data_collection:
+            if collection not in response_meta_data["data"][0]:
+                missing_collections.append(collection)
+
+        if missing_collections:
+            missing_collections_str = ', '.join(missing_collections)
+            return CustomResponse(False, f"The following collections are missing: {missing_collections_str}", missing_collections, status.HTTP_404_NOT_FOUND)
+
+        return CustomResponse(True,"Meta Data are available to be used", None, status.HTTP_200_OK )
+    
+    def check_data_database_status(self, request):
+        
+        try:
+            api_key = authorization_check(request.headers.get('Authorization'))
+        except InvalidTokenException as e:
+            return CustomResponse(False, str(e), None, status.HTTP_401_UNAUTHORIZED)
+            
+        workspace_id = request.GET.get('workspace_id')
+        date = request.GET.get('date')
+
+        data_database = f'{workspace_id}_data_q'
+
+        response_data = json.loads(datacube_collection_retrieval(api_key, data_database))
+
+        print(response_data)
+        if not response_data["success"]:
+            return CustomResponse(False,"Database is not yet available, kindly contact the administrator", None, status.HTTP_501_NOT_IMPLEMENTED )
+
+        list_of_data_collection = [f'{workspace_id}_{date}_q']
+
+        missing_collections = []
+        for collection in list_of_data_collection:
+            if collection not in response_data["data"][0]:
+                missing_collections.append(collection)
+
+        if missing_collections:
+            missing_collections_str = ', '.join(missing_collections)
+            return CustomResponse(False, f"The following collections are missing: {missing_collections_str}", missing_collections, status.HTTP_404_NOT_FOUND)
+
+        return CustomResponse(True,"Databases are available to be used", None, status.HTTP_200_OK )
+        
+    def handle_error(self, request): 
+       
+        return Response({
+            "success": False,
+            "message": "Invalid request type"
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    
+@method_decorator(csrf_exempt, name='dispatch')
 class UserManagement(APIView):
     def post(self, request):
         type = request.GET.get('type')
@@ -742,10 +871,10 @@ class ScaleCreateAPI(APIView):
         item = int(request.GET.get('item'))
         workspace_id = request.GET.get('workspace_id')
         username = request.GET.get('username')
-        user_type = request.GET.get('user')
+        user_type = request.GET.get('user_type')
         scale_type = request.GET.get('scale_type')
-        channel_name = request.GET.get('channel')
-        instance_name = request.GET.get('instance')
+        channel_name = request.GET.get('channel_name')
+        instance_name = request.GET.get('instance_name')
         header = dict(request.headers)
 
 
@@ -857,8 +986,8 @@ class ScaleCreateAPI(APIView):
     def get_scale_response(self,request):
          
         scale_id = request.GET.get('scale_id')
-        channel = request.GET.get('channel')
-        instance = request.GET.get('instance')
+        channel = request.GET.get('channel_name')
+        instance = request.GET.get('instance_name')
 
         returned_items = []
         try:

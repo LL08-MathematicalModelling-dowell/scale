@@ -48,3 +48,12 @@ class ChannelInstanceSerializer(serializers.Serializer):
     channel_name = serializers.CharField()
     channel_display_name = serializers.CharField()
     instances_details = InstanceDetailsSerializer(many=True)
+
+class CreateCollectionSerializer(serializers.Serializer):
+    DATABASE_CHOICES = (
+        ("META DATA","META DATA"),
+        ("DATA","DATA"),
+    )
+    workspace_id = serializers.CharField(max_length=100,allow_null= False, allow_blank=False)
+    collection_name = serializers.CharField(max_length=100,allow_null= False, allow_blank=False)
+    database_type = serializers.ChoiceField(choices=DATABASE_CHOICES)

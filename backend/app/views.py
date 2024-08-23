@@ -42,9 +42,9 @@ class KitchenSinkServices(APIView):
         type_request = request.GET.get('type')
 
         if type_request == "check_scale_data_database_status":
-            return self.check_metedata_database_status(request)
+            return self.check_scale_data_database_status(request)
         elif type_request == "check_response_database_status":
-            return self.check_data_database_status(request)
+            return self.check_response_database_status(request)
         else: 
             return self.handle_error(request)
     

@@ -11,24 +11,50 @@ import {useCurrentUserContext} from "../../contexts/CurrentUserContext";
 import ScaleCardSkeleton from "@/components/ScaleCard/ScaleCardSkeleton";
 import {CircularProgress} from "@mui/material";
 import {UserScaleData} from "../../data/DummyData";
+import ScaleViewModal from "@/components/Modals/ScaleViewModal";
 
 const HomePage = () => {
   const {currentUser, currentUserDetailLoading} = useCurrentUserContext();
   const [message, setMessage] = useState("");
+  const [filteredScales, setFilteredScales] = useState(UserScaleData.scales);
   const [openSelect, setOpenSelect] = useState(false);
   const [openScale, setOpenScale] = useState(false);
+  const [selectedScale, setSelectedScale] = useState(null)
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleViewDetails = (scale) => {
+    setSelectedScale(scale);
+    setIsModalOpen(true);
+  }
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedScale(null);
+  }
+  const filterByName = (scaleName) => {
+    const filtered = UserScaleData.scales.filter((scale) => scale.scaleName === scaleName);
+    setFilteredScales(filtered);
+  };
+  const filterByDate = (startDate, endDate) => {
+    const filtered = UserScaleData.scales.filter((scale) => {
+      const scaleDate = new Date(scale.date);
+      return scaleDate >= startDate && scaleDate <= endDate;
+    });
+    setFilteredScales(filtered);
+  };
 
   const handleOpenSelect = () => {
     setOpenSelect(!openSelect);
   };
+
   const handleScaleOpen = () => {
     setOpenScale(!openScale);
   };
 
   const handleResetFilter = () => {
+    setFilteredScales(UserScaleData.scales); // Reset to the original data
     setOpenSelect(false);
     setOpenScale(false);
-  }
+  };
 
   useEffect(() => {
     if (!currentUserDetailLoading) {
@@ -49,11 +75,15 @@ const HomePage = () => {
   }, [currentUser, currentUserDetailLoading]);
 
   return (
-    <div className="max-w-full min-h-screen bg-dowellBg">
+    <div className="max-w-full min-h-screen bg-dowellBg overflow-y-auto">
+      {/* Header */}
       <div>
         <CustomHeader />
       </div>
-      <div className="max-h-full my-8 md:mx-6 mx-3 max-w-full">
+
+      {/* Main Content */}
+      <div className="mt-8 md:mx-6 mx-3 max-w-full">
+        {/* Favorites Section */}
         <div className="flex flex-col gap-4">
           <div className="flex justify-between">
             <div className="flex items-center gap-2">
@@ -103,21 +133,32 @@ const HomePage = () => {
                             scaleName={item.scaleName}
                             scaleImage={item.scaleImg}
                             scaleDescription={item.scaleDescription}
+                            onView={() => handleViewDetails(item)}
                           />
                         </div>
                       ))
                     : null}
                 </div>
               )}
+                {isModalOpen && (
+             <ScaleViewModal onClose={handleCloseModal} className="z-30">
+              <img src={selectedScale.scaleImg} alt={selectedScale.scaleName} className="w-full  object-cover" />
+             <h2 className="font-montserrat font-black tracking-tight text-2xl text-gray-800 mt-4">{selectedScale.scaleName}</h2>
+            <p className="font-poppins font-normal tracking-tight text-sm text-gray-700 mt-2">{selectedScale.scaleDescription}</p>
+           <p className="font-bold font-montserrat tracking-tight mt-2 ">Type: <span className="font-normal font-poppins text-[15px]">{selectedScale.scaleType}</span></p>
+          {/* Add more details as needed */}
+        </ScaleViewModal>
+      )}
             </div>
           )}
         </div>
-        <div className="my-20 h-screen">
+        {/* Filter Section */}
+        <div className="my-20">
           <div className="flex justify-between items-center flex-wrap">
             <h2 className="font-montserrat font-black tracking-tight text-2xl text-gray-800 pr-12 md:pr-0">Scales Details</h2>
-            <div className="py-4 md:px-6 px-[9px] rounded-xl bg-white flex items-center gap-2  md:gap-3 relative">
+            <div className="py-4 md:px-6 px-[9px] rounded-xl bg-white flex items-center gap-2  md:gap-3 relative z-10">
               {/* Filter Icon */}
-              <div className="pr-3 border-r-[2px] border-gray-300 ">
+              <div className="pr-3 border-r-[2px] border-gray-300">
                 <FaFilter />
               </div>
               {/* Filter By */}
@@ -132,7 +173,14 @@ const HomePage = () => {
                 <p className="font-poppins font-normal tracking-tight text-[12px] md:text-[15px] hover:scale-105">Date</p>
                 {openSelect ? <MdKeyboardArrowUp className="md:size-7 size-4 hover:scale-105" /> : <MdKeyboardArrowDown className="md:size-7 size-4 hover:scale-105" />}
               </div>
-              <div className="absolute top-16 right-12">{openSelect && <DateRangeComp onClose={() => setOpenSelect(false)} />}</div>
+              <div className="absolute top-16 right-12">
+                {openSelect && (
+                  <DateRangeComp
+                    onClose={() => setOpenSelect(false)}
+                    onSelect={filterByDate}
+                  />
+                )}
+              </div>
               {/* Scale Type */}
               <div
                 className="flex gap-3 items-center pr-3 border-r-[2px] border-gray-300 cursor-pointer"
@@ -144,22 +192,41 @@ const HomePage = () => {
               <div className="absolute md:top-16 md:right-32 top-12 right-12">
                 {openScale && (
                   <div className="bg-white rounded-xl shadow-md p-4 md:w-50 w-30 flex flex-col gap-1">
-                    {UserScaleData.scalesList.map((item, index) => (
+                    {UserScaleData.scales.map((item, index) => (
                       <div key={index}>
-                        <p className="text-[15px] font-poppins tracking-tight uppercase cursor-pointer hover:text-dowellDeepGreen hover:scale-105 transition-all ease-in-out duration-100 hover:font-semibold ">{item}</p>
+                        <p
+                          className="text-[15px] font-poppins tracking-tight uppercase cursor-pointer hover:text-dowellDeepGreen hover:scale-105 transition-all ease-in-out duration-100 hover:font-semibold"
+                          onClick={() => (filterByName(item.scaleName), setOpenScale(false))}
+                        >
+                          {item.scaleName}
+                        </p>
                       </div>
                     ))}
                   </div>
                 )}
               </div>
               {/* Reset Filter */}
-              <div className="flex gap-1 md:gap-3 items-center cursor-pointer">
-                <BiReset className="md:size-6 size-4 hover:scale-105 text-red-500" onClick={handleResetFilter}/>
+              <div className="flex gap-1 md:gap-3 items-center cursor-pointer"      onClick={handleResetFilter}>
+                <BiReset
+                  className="md:size-6 size-4  text-red-500"
+                  onClick={handleResetFilter}
+                />
                 <p className="font-poppins font-normal tracking-tight text-[12px] md:text-[15px] hover:scale-105 text-red-500">Reset filter</p>
               </div>
             </div>
           </div>
-         {/* Scale Details */}
+
+          {/* Scale Details */}
+          <div className="my-8 rounded-md">
+            {filteredScales.map((item, index) => (
+              <div
+                key={index}
+                className="bg-white mb-2 px-6 py-4 rounded-xl cursor-pointer"
+              >
+                <p className="uppercase font-poppins tracking-tight font-medium">{item.scaleName}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>

@@ -7,5 +7,5 @@ urlpatterns = [
     path("voc/scale-management/",ScaleManagement.as_view()),
     path("scale/scale-services/",ScaleCreateAPI.as_view()),
     path('kitchen-sink/',KitchenSinkServices.as_view()),
-
+    path('user-services/',user_details_services.as_view()),
 ]

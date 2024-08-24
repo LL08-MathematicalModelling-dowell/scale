@@ -57,3 +57,14 @@ class CreateCollectionSerializer(serializers.Serializer):
     workspace_id = serializers.CharField(max_length=100,allow_null= False, allow_blank=False)
     collection_name = serializers.CharField(max_length=100,allow_null= False, allow_blank=False)
     database_type = serializers.ChoiceField(choices=DATABASE_CHOICES)
+
+
+class UserDetailsSerializer(serializers.Serializer):
+    username = serializers.CharField(max_length=100, allow_null= False, allow_blank=False)
+    workspace_id = serializers.CharField(max_length=100,allow_null= False, allow_blank=False)
+    timestamp= serializers.CharField(max_length=100,allow_null= False, allow_blank=False)
+
+class UpdateUserDetailsSerializer(serializers.Serializer):
+    document_id = serializers.CharField(max_length=100,allow_null= False, allow_blank=False)
+    workspace_id = serializers.CharField(max_length=100,allow_null= False, allow_blank=False)
+    

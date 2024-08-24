@@ -48,6 +48,12 @@ class KitchenSinkServices(APIView):
         else: 
             return self.handle_error(request)
     
+    def set_db_details(self,workspace_id):
+        # self.database = f'{workspace_id}_scale_meta_data'
+        self.user_info_collection = f'{workspace_id}_user_info'
+        self.scale_response_database = f'{workspace_id}_scale_response_data'
+        self.scale_data_database = f'{workspace_id}_scale_meta_data'
+
     def create_collection(self,request):
         
         database_type = request.data.get('database_type')
@@ -64,12 +70,13 @@ class KitchenSinkServices(APIView):
         if not serializer.is_valid():
             return CustomResponse(False, "Posting wrong data to API",serializer.errors, status.HTTP_400_BAD_REQUEST)
         
+        self.set_db_details(workspace_id=workspace_id)
 
         if database_type == "SCALE":
-            database_name  =  f'{workspace_id}_scale_meta_data'
+            database_name  =  self.scale_data_database
 
         elif database_type == "RESPONSE":
-            database_name = f'{workspace_id}_scale_response_data'
+            database_name = self.scale_response_database
 
         response = json.loads(datacube_create_collection(
             api_key,
@@ -90,9 +97,10 @@ class KitchenSinkServices(APIView):
             return CustomResponse(False, str(e), None, status.HTTP_401_UNAUTHORIZED)
             
         workspace_id = request.GET.get('workspace_id')
-        scale_data_database = f'{workspace_id}_scale_meta_data'
 
-        response_meta_data = json.loads(datacube_collection_retrieval(api_key, scale_data_database))
+        self.set_db_details(workspace_id=workspace_id)
+        
+        response_meta_data = json.loads(datacube_collection_retrieval(api_key, self.scale_data_database))
         print(response_meta_data)
 
         if not response_meta_data["success"]:
@@ -124,11 +132,12 @@ class KitchenSinkServices(APIView):
             return CustomResponse(False, str(e), None, status.HTTP_401_UNAUTHORIZED)
             
         workspace_id = request.GET.get('workspace_id')
-        date = request.GET.get('date')
 
-        response_database = f'{workspace_id}_scale_response_data'
 
-        response_data = json.loads(datacube_collection_retrieval(api_key, response_database))
+        self.set_db_details(workspace_id=workspace_id)
+
+
+        response_data = json.loads(datacube_collection_retrieval(api_key,self.scale_response_database))
 
         print(response_data)
         if not response_data["success"]:
@@ -153,6 +162,160 @@ class KitchenSinkServices(APIView):
             "success": False,
             "message": "Invalid request type"
         }, status=status.HTTP_400_BAD_REQUEST)
+
+@method_decorator(csrf_exempt, name='dispatch')
+class user_details_services(APIView):
+    
+    def post(self, request):
+        type_request = request.GET.get('type')
+
+        if type_request == "save_user_details":
+            return self.save_user_details(request)
+        elif type_request == "update_user_details":
+            return self.update_user_details(request)
+        elif type_request == "user_auth":
+            return self.user_auth(request)
+        else:
+            return self.handle_error(request)
+        
+    def set_db_details(self,workspace_id):
+        self.scale_data_database = f'{workspace_id}_scale_meta_data'
+        self.user_info_collection = f'{workspace_id}_user_info'
+
+
+    def get(self, request): 
+        type_request = request.GET.get('type')
+
+        if type_request == "retrieve_user_details":
+            return self.retrieve_user_details(request)
+        if type_request == "retrieve_user":
+            return self.retrieve_user(request)
+        else: 
+            return self.handle_error(request)
+
+    def save_user_details(self, request):
+        username = request.data.get('username')
+        workspace_id = request.data.get('workspace_id')
+        timestamp = request.data.get('timestamp')
+        try:
+            api_key = authorization_check(request.headers.get('Authorization'))
+        except InvalidTokenException as e:
+            return CustomResponse(False, str(e), None, status.HTTP_401_UNAUTHORIZED)
+        
+        serializer = UserDetailsSerializer(data=request.data)
+
+        if not serializer.is_valid():
+            return CustomResponse(False, "Posting wrong data to API",serializer.errors, status.HTTP_400_BAD_REQUEST)
+        
+        #Set the instance variables based on the workspace ID
+        self.set_db_details(workspace_id=workspace_id)
+
+        user_data = {
+            "username":username,
+            "timestamp":timestamp,
+            "isPaid":False,
+            "isActive":True,
+            "isDatabaseReady":False,
+            "isCollectionReady":False
+        }
+
+        response = json.loads(datacube_data_insertion(
+            api_key,
+            self.scale_data_database,
+            self.user_info_collection,
+            user_data,
+        ))
+
+        if not response["success"]:
+            return CustomResponse(True,"Failed to save user details", None, status.HTTP_400_BAD_REQUEST)
+        
+        return CustomResponse(True, "User details saved successfully",user_data, status.HTTP_201_CREATED)
+
+    def retrieve_user_details(self, request):
+        
+        workspace_id = request.GET.get('workspace_id')
+        try:
+            api_key = authorization_check(request.headers.get('Authorization'))
+        except InvalidTokenException as e:
+            return CustomResponse(False, str(e), None, status.HTTP_401_UNAUTHORIZED)
+        
+        self.set_db_details(workspace_id=workspace_id)
+
+        response = json.loads(datacube_data_retrieval(
+            api_key,
+            self.database,
+            self.user_info_collection,
+            {
+                "workspace_id":workspace_id
+            },
+            1,
+            0,
+            False
+        ))
+
+        if not response.get("data"):
+            return CustomResponse(False,"User details not found", None,status.HTTP_404_NOT_FOUND)
+        
+        return CustomResponse(True,"User details retrieved successfully",response["data"], status.HTTP_302_FOUND)
+    
+    def update_user_details(self, request):
+        
+        document_id = request.data.get('document_id')
+        update_data = request.data.get('update_data')
+        workspace_id = request.data.get('workspace_id')
+
+        try:
+            api_key = authorization_check(request.headers.get('Authorization'))
+        except InvalidTokenException as e:
+            return CustomResponse(False, str(e), None, status.HTTP_401_UNAUTHORIZED)
+    
+        serializer = UpdateUserDetailsSerializer(data=request.data)
+        if not serializer.is_valid():
+            return CustomResponse(False,"Posting wrong data to API",serializer.errors, status.HTTP_400_BAD_REQUEST)
+        
+        update_data["updated_at"] = dowell_time(timezone)["current_time"]
+        
+        self.set_db_details(workspace_id=workspace_id)
+
+        response = json.loads(datacube_data_update(
+            api_key,
+            self.scale_data_database,
+            self.user_info_collection,
+            {
+                "_id": document_id,
+            },
+            update_data
+        ))
+
+        if not response["success"] :
+            return CustomResponse(False, "Failed to update user details", None, status.HTTP_400_BAD_REQUEST)
+        
+        return CustomResponse(True,"User details updated successfully",None,status.HTTP_200_OK)
+    
+    
+    
+    def retrieve_user(self, request):
+        
+        workspace_id = request.GET.get('workspace_id')
+
+        self.set_db_details(workspace_id=workspace_id)
+        
+        response = json.loads(datacube_data_retrieval(
+            "1b834e07-c68b-4bf6-96dd-ab7cdc62f07f",
+            self.scale_data_database,
+            self.user_info_collection,
+            {
+                "workspace_id":workspace_id
+            },
+            1,
+            0,
+            False
+        ))
+
+        if not response.get("data"):
+            return CustomResponse(False,"User details not found", None,status.HTTP_404_NOT_FOUND)
+        
+        return CustomResponse(True,"User details retrieved successfully",response["data"], status.HTTP_302_FOUND)
 
     
 @method_decorator(csrf_exempt, name='dispatch')

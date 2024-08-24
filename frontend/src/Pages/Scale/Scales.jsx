@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useLocation } from 'react-router-dom';
 import npsScale from "../../assets/nps-scale.png";
 import { saveLocationData } from "../../services/api.services";
+import LikertScale from "../LikertScale/LikertScale";
 
 export default function Scales() {
   const [submitted, setSubmitted] = useState(-1);
@@ -19,9 +20,7 @@ export default function Scales() {
 
   const allParamsPresent = workspace_id && username && scale_id && channel && instance;
 
-  const buttons = (scaleType === "likert"
-    ? Array.from({ length: 5 }, (_, i) => i + 1)
-    : Array.from({ length: 11 }, (_, i) => i));
+  const buttons =  Array.from({ length: 11 }, (_, i) => i);
 
   useEffect(() => {
     if (!hasLocationDataBeenSaved.current && navigator.geolocation) {  // Check if the data has already been saved
@@ -52,7 +51,7 @@ export default function Scales() {
     if (!allParamsPresent) {
       return;
     }
-    const url = `https://100035.pythonanywhere.com/addons/create-response/v3/?user=True&scale_type=${scaleType}&channel=${channel}&instance=${instance}&workspace_id=${workspace_id}&username=${username}&scale_id=${scale_id}&item=${scaleType == "nps" ? index: index + 1}`;
+    const url = `https://100035.pythonanywhere.com/addons/create-response/v3/?user=True&scale_type=${scaleType}&channel=${channel}&instance=${instance}&workspace_id=${workspace_id}&username=${username}&scale_id=${scale_id}&item=${scaleType == "nps" ? index : index + 1}`;
 
     window.location.href = url;
   }
@@ -85,7 +84,7 @@ export default function Scales() {
   }
 
   return (
-    <div className="h-full w-screen relative pb-16 pt-5">
+    scaleType == 'nps' ? <div className="h-full w-screen relative pb-16 pt-5">
       <div className="w-full flex flex-col justify-center items-center p-2">
         <img
           className="w-[100px]"
@@ -135,13 +134,13 @@ export default function Scales() {
           </button>
         ))}
       </div>
-      {scaleType === "likert" && (<div className="flex w-full items-center justify-center my-8">
+      {/* {scaleType === "likert" && (<div className="flex w-full items-center justify-center my-8">
         <p>{'1- Won\'t Recommend'}</p>
         <p className="ml-4 sm:ml-28">{'5- Highly Recommend'}</p>
-      </div>)}
+      </div>)} */}
       <p className="w-full absolute bottom-0 mt-4 flex justify-center items-center text-[12px] sm:text-[14px]">
         Powered by uxlivinglab
       </p>
-    </div>
+    </div> : <LikertScale />
   );
 }

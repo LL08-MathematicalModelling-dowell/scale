@@ -9,6 +9,8 @@ const Login = () => {
   const location = useLocation();
   const [loading, setLoading] = useState(false);
   const [healthStatus, setHealthStatus] = useState(null);
+  const [latitude, setLatitude] = useState(null);
+  const [longitude, setLongitude] = useState(null);
   const [formData, setFormData] = useState({
     workspace_name: "",
     portfolio: "",
@@ -20,6 +22,7 @@ const Login = () => {
     portfolio: false,
     password: false,
   });
+
 
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
@@ -41,7 +44,7 @@ const Login = () => {
       setFormData((prevData) => ({
         ...prevData,
         portfolio: portfolio,
-        password: "manish",
+        password: "VocaB0090*",
       }));
       setIsReadOnly((prevReadOnly) => ({
         ...prevReadOnly,
@@ -51,6 +54,7 @@ const Login = () => {
     }
 
     checkServerHealth();
+    getLocation();
   }, [location.search]);
 
   const checkServerHealth = async () => {
@@ -61,6 +65,25 @@ const Login = () => {
       console.log(error);
       
       setHealthStatus("Unhealthy");
+    }
+  };
+  
+
+  const getLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLatitude(position.coords.latitude);
+          setLongitude(position.coords.longitude);
+        },
+        (error) => {
+          console.error("Error getting location:", error);
+          setStatusMessage("Unable to retrieve location.");
+        }
+      );
+    } else {
+      console.error("Geolocation is not supported by this browser.");
+      setStatusMessage("Geolocation is not supported by this browser.");
     }
   };
 
@@ -90,6 +113,8 @@ const Login = () => {
       workspace_name: formData.workspace_name,
       portfolio: formData.portfolio,
       password: formData.password,
+      latitude,
+      longitude,
     };
 
     try {

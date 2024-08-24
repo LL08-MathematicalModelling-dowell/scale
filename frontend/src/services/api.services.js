@@ -71,10 +71,12 @@ export const saveScaleDetailsType = async ({ hardCodedData, accessToken }) => {
     )
 }
 
-const emailServiceForUserDetails = async (email,userId) => {
+const emailServiceForUserDetails = async (email,userId,latitude,longitude) => {
     return await servicesAxiosInstance.post('/v1/voc/user-management/?type=send_customer_email',{
         email: email,
-        user_id: userId
+        user_id: userId,
+        latitude: latitude, 
+        longitude: longitude
     })
 }
 
@@ -93,8 +95,10 @@ const validateOtpServices = async (email, userId, otp) => {
     })
 }
 
-export const createScale = async (data) => {
-    return await otpAxiosInstance.post('/v1/scale/scale-services/?type=create_scale',data);
+const saveLocationData = async (data) => {
+    console.log(data);
+    
+    return await otpAxiosInstance.post('/v1/location-services/save-location',data);
 }
 
 export {
@@ -107,5 +111,6 @@ export {
     servicesAxiosInstance,
     emailServiceForUserDetails,
     sendOtpServices,
-    validateOtpServices
+    validateOtpServices,
+    saveLocationData
 }

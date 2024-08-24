@@ -1,9 +1,11 @@
-import npsScale from "../../assets/nps-scale.png";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation } from 'react-router-dom';
+import npsScale from "../../assets/nps-scale.png";
+import { saveLocationData } from "../../services/api.services";
 
 export default function Scales() {
   const [submitted, setSubmitted] = useState(-1);
+  const hasLocationDataBeenSaved = useRef(false); // Ref to track if location data is already saved
 
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
@@ -21,12 +23,36 @@ export default function Scales() {
     ? Array.from({ length: 5 }, (_, i) => i + 1)
     : Array.from({ length: 11 }, (_, i) => i));
 
+  useEffect(() => {
+    if (!hasLocationDataBeenSaved.current && navigator.geolocation) {  // Check if the data has already been saved
+      navigator.geolocation.getCurrentPosition(async (position) => {
+        const { latitude, longitude } = position.coords;
+
+        const locationData = {
+          latitude,
+          longitude,
+          workspaceId: workspace_id,
+          event: "scanned",
+          scaleId: scale_id
+        };
+
+        try {
+          await saveLocationData(locationData);
+          hasLocationDataBeenSaved.current = true; // Mark as saved
+          console.log("locationData saved", locationData);
+        } catch (error) {
+          console.error('Failed to save location data', error);
+        }
+      });
+    }
+  }, [workspace_id, scale_id]);
+
   async function handleClick(index) {
     setSubmitted(index);
     if (!allParamsPresent) {
       return;
     }
-    const url = `https://100035.pythonanywhere.com/addons/create-response/v3/?user=True&scale_type=${scaleType}&channel=${channel}&instance=${instance}&workspace_id=${workspace_id}&username=${username}&scale_id=${scale_id}&item=${index}`;
+    const url = `https://100035.pythonanywhere.com/addons/create-response/v3/?user=True&scale_type=${scaleType}&channel=${channel}&instance=${instance}&workspace_id=${workspace_id}&username=${username}&scale_id=${scale_id}&item=${scaleType == "nps" ? index: index + 1}`;
 
     window.location.href = url;
   }

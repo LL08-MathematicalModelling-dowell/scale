@@ -57,6 +57,7 @@ class ReportRedirectURL(APIView):
 class LoginsRedirectURL(APIView):
     def get(self, request):
         workspace_name = request.GET.get('workspace_name')
+        portfolio = request.GET.get('portfolio')
 
         if not workspace_name:
             return redirect("https://dowellresearch.sg/")
@@ -65,6 +66,9 @@ class LoginsRedirectURL(APIView):
             login_link = (
                 f"https://www.scales.uxlivinglab.online/voc/?workspace_name={workspace_name}"
             )
+
+            if portfolio:
+                login_link += f"&portfolio={portfolio}"
 
             return redirect(login_link)
         except Exception as e:

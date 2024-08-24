@@ -8,7 +8,10 @@ const config = {
     REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET ,
     REFRESH_TOKEN_EXPIRY: process.env.REFRESH_TOKEN_EXPIRY ,
     JWT_EXPIRY: process.env.JWT_EXPIRY ,
-    JWT_SECRET: process.env.JWT_SECRET
+    JWT_SECRET: process.env.JWT_SECRET,
+    redisHost: process.env.REDIS_HOST ,
+    redisPort: process.env.REDIS_PORT ,
+    redisPassword: process.env.REDIS_PASSWORD 
 };
 
 

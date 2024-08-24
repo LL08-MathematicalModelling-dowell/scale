@@ -256,6 +256,23 @@ def get_portfolio_details(workspace_name, portfolio_id):
             "message": f"Error parsing JSON response: {json_err}"
         }
 
+def save_location_data(workspaceId,latitude,longitude,userId,event):
+    url = "https://www.scales.uxlivinglab.online/services/v1/location-services/save-location"
+    
+    payload = {
+        "workspaceId": workspaceId,
+        "latitude": latitude,
+        "longitude": longitude,
+        "event":event,
+        "userId": userId
+    }
+    
+    response = requests.post(url, json=payload)
+
+    print(response.text)
+    
+    return response.text
+
 def build_urls(channel_instance,payload,instance_idx):
         urls = []
         print(payload)

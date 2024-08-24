@@ -38,6 +38,17 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
     command: mongod --bind_ip_all
     restart: always
+  cache:
+    container_name: cache_container
+    image: redis:latest
+    restart: always
+    ports:
+      - '6379:6379'
+    command: redis-server --save 20 1 --loglevel warning --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - cache:/data
+    networks:
+      - queue-net
   
   server:
     container_name: server_container
@@ -49,6 +60,7 @@ services:
       - /usr/src/app/node_modules
     depends_on:
       - mongo
+      - cache
     environment:
       PORT: ${PORT}
       MONGO_DB_URI: ${MONGO_DB_URI}
@@ -56,6 +68,9 @@ services:
       REFRESH_TOKEN_EXPIRY: ${REFRESH_TOKEN_EXPIRY}
       JWT_EXPIRY: ${JWT_EXPIRY}
       JWT_SECRET: ${JWT_SECRET}
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
     networks:
       - queue-net
 
@@ -86,3 +101,4 @@ networks:
 
 volumes:
   mongo-data:
+  cache:

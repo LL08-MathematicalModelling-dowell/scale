@@ -5,6 +5,8 @@ import routes from './src/routes/index.js';
 import { connectToDb } from './src/config/db.config.js';
 import config from './src/config/index.js';
 import { getCurrentTimestamp } from "./src/utils/helper.js"
+import { saveLocationWorker } from "./src/config/workers.config.js"
+
 const app = express();
 
 app.use(express.json());
@@ -38,9 +40,29 @@ const onListening = () => {
     console.log(`Listening on port ${config.PORT}`);
 };
 
+const initializeWorker = (worker, name) => {
+    worker.on('completed', (job) => {
+        console.log(`Job ${name} completed with result: ${job.returnvalue}`);
+    });
+
+    worker.on('failed', (job, err) => {
+        console.error(`Job ${name} ${job.id} failed with error: ${err.message}`);
+    });
+
+    worker
+        .waitUntilReady()
+        .then(() => {
+            console.log(`${name} started successfully`);
+        })
+        .catch((error) => {
+            console.error(`Failed to start ${name}:`, error);
+        });
+};
+
 
 connectToDb()
 .then(()=>{
+    initializeWorker(saveLocationWorker, 'Save Location Worker');
     app.listen(config.PORT, onListening);
 }).catch((error) => {
     return { error: 'Failed to connect to DB' }

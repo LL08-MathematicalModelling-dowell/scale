@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from 'react-router-dom';
-import { CircularProgress } from '@mui/material';
+import { CircularProgress, Alert } from '@mui/material'; // Import Alert
 import npsScale from "../../assets/nps-scale.png";
 import { saveLocationData, scaleResponse } from "../../services/api.services";
 import voc from '../../assets/VOC.png';
@@ -19,6 +19,8 @@ const LikertScale = () => {
     const [feedback, setFeedback] = useState('');
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
+    const [alertMessage, setAlertMessage] = useState(null); 
+    const [alertType, setAlertType] = useState('success');  
     const hasLocationDataBeenSaved = useRef(false);
 
     const location = useLocation();
@@ -56,9 +58,21 @@ const LikertScale = () => {
         }
     }, [workspace_id, scale_id]);
 
+    const showAlert = (message, type) => {
+        setAlertMessage(message);
+        setAlertType(type);
+
+        // Hide alert after 3 seconds
+        setTimeout(() => {
+            setAlertMessage(null);
+        }, 3000);
+    };
+
     const handleClick = async (index) => {
         setSubmitted(index);
         setLoadingEmoji(index);
+        showAlert(null, null);  
+
         if (!allParamsPresent) {
             return;
         }
@@ -75,9 +89,10 @@ const LikertScale = () => {
                 index
             );
             console.log('API Response:', response.data);
+            showAlert('Thank you for your response', 'success'); 
         } catch (error) {
             console.error('Failed to fetch scale response:', error);
-            alert("Unable to submit your response. Please try again.");
+            showAlert("Unable to submit your response. Please try again.", 'error');  
         } finally {
             setLoadingEmoji(null);
         }
@@ -87,12 +102,13 @@ const LikertScale = () => {
         setFeedback('');
         setName('');
         setEmail('');
+        showAlert(null, null);  
+        window.location.href = 'https://dowellresearch.sg/';
     };
-
 
     const handleSubmit = async () => {
         if (!email || !/\S+@\S+\.\S+/.test(email)) {
-            alert("Please enter a valid email address.");
+            showAlert("Please enter a valid email address.", 'warning'); 
             return;
         }
 
@@ -109,10 +125,11 @@ const LikertScale = () => {
                     username: name || username,
                 });
                 console.log("Email sent successfully.");
+                showAlert('Email sent successfully.', 'success');
             }
         } catch (error) {
             console.error("Error sending email:", error);
-            alert("Unable to send the email. Please try again.");
+            showAlert("Unable to send the email. Please try again.", 'error'); 
         } finally {
             setLoadingSubmit(false);
         }
@@ -122,16 +139,24 @@ const LikertScale = () => {
         <div className="flex items-center justify-center min-h-screen p-4 overflow-x-hidden">
             <div className="flex flex-col items-center p-4 bg-card rounded-lg max-w-full w-full md:max-w-md">
                 <h2 className="text-xl md:text-3xl font-bold text-[#FD4704] mb-4 text-center">Are you satisfied with our service?</h2>
+                
+                {/* Alert Component for messages */}
+                {alertMessage && (
+                    <Alert severity={alertType} className="w-full mb-4">
+                        {alertMessage}
+                    </Alert>
+                )}
+
                 <div className="flex items-center justify-evenly space-x-2 sm:space-x-4">
                     {[voc1, voc2, voc3, voc4, voc5].map((emoji, index) => (
-                        <div className="relative" key={index}>
+                        <div className="relative cursor-pointer" key={index} onClick={() => handleClick(index + 1)}>
                             {loadingEmoji === index + 1 ? (
                                 <CircularProgress
                                     size={24}
                                     className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
                                 />
                             ) : (
-                                <img src={emoji}/>
+                                <img src={emoji} alt={`emoji-${index + 1}`} />
                             )}
                         </div>
                     ))}
@@ -202,13 +227,13 @@ const LikertScale = () => {
                 </div>
 
                 <div className="flex flex-row items-center justify-between w-full">
-                    <img src={voc} className="h-[60px] w-[60px] md:h-[80px] md:w-[80px]" />
+                    <img src={voc} className="h-[60px] w-[60px] md:h-[80px] md:w-[80px]" alt="Voc logo" />
                     <footer className="text-center text-sm text-muted-foreground">
                         <strong className="text-[#5f5f5f] text-lg md:text-xl">DoWell Voice of Customers</strong>
                         <p className="text-[#8d6364] text-xs md:text-sm">Innovating from people’s minds</p>
                         <a href="mailto:dowell@dowellresearch.sg" className="text-[#5f5f5f] text-xs md:text-sm">dowell@dowellresearch.sg</a>
                     </footer>
-                    <img src={helpMe} className="h-[60px] w-[60px] md:h-[80px] md:w-[80px]" />
+                    <img src={helpMe} className="h-[60px] w-[60px] md:h-[80px] md:w-[80px]" alt="Help me emoji" />
                 </div>
             </div>
         </div>

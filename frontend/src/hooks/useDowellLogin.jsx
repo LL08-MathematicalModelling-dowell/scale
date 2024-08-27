@@ -9,7 +9,6 @@ const API_KEY_IN_SESSION_STORAGE = 'scale-api-key';
 
 const getSavedLoggedInUser = () => {
     let userDetails;
-
     try {
         userDetails = JSON.parse(
             sessionStorage.getItem(USER_KEY_IN_SESSION_STORAGE)
@@ -53,7 +52,8 @@ export default function useDowellLogin() {
             pathname === '/voc/scale' || pathname === '/voc/scale/' ||
             pathname === '/voc/scaledetails' || pathname === '/voc/scaledetails/' ||
             pathname === '/voc/userdetails' || pathname === '/voc/userdetails/' ||
-            pathname === '/voc/register' || pathname === '/voc/register/'
+            pathname === '/voc/register' || pathname === '/voc/register/' ||
+            pathname === '/likert-report' || pathname === '/likert-report/'
         )
 
         if (localAPIKey) {

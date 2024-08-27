@@ -1,10 +1,11 @@
+
 export const UserScaleData = {
   profileImage: "https://frontlinenews.com.ng/wp-content/uploads/2021/03/IMG-20210310-WA0006-678x381.jpg",
   // scalesList: ["nps", "nps lite", "    stapel", " likert", "percent", " percent sum", "    guttman", "    thurstone", " paired comparison", "    ranking", "q sort", "    mokken", "proximity", "  perceptual mapping", " learning level index"],
   scales:  [
     {
       scaleName: "nps",
-      scaleImg: "https://media.istockphoto.com/id/1494935138/photo/organic-cosmetics-with-ingredients.webp?b=1&s=170667a&w=0&k=20&c=093MogHUdEKEgX_d7X6BU9FBG4WoYJr4_3MzKMti008=",
+      scaleImg: '',
       scaleDescription: "The NPS scale is a comprehensive tool used to gauge customer loyalty and satisfaction over a predefined period. It is essential for businesses seeking deep insights into their customer base.",
       scaleType: "NPS Scale",
       scaleDate: {
@@ -184,54 +185,54 @@ export const UserScaleData = {
     },
   ],
   favorites: [
-    {
-      scaleName: "NPS Scale",
-      scaleImg: "https://bentoforbusiness.com/wp-content/uploads/meter.png",
-      scaleDescription: "The Lite NPS Scale is a streamlined, user-friendly tool for quickly gauging customer sentiment over a seven-day period, ideal for businesses seeking efficient feedback without the complexity.",
-      scaleType: "NPS Scale",
-      isFavorite: true,
-      scaleDate: {
-        type: "predefined",
-        value: "7 days",
-        startDate: null,
-        endDate: null,
-      },
-    },
-    {
-      scaleName: "NPS Lite scale",
-      scaleImg: "https://miro.medium.com/v2/resize:fit:1400/1*pHNF1C-Y81W234ZunvTQFw@2x.jpeg",
-      scaleDescription: "The Premium NPS Scale offers a deep analysis of customer satisfaction and loyalty over a 30-day period, providing actionable insights to enhance your business strategy.",
-      scaleType: "Percentage Scale",
-      scaleDate: {
-        type: "predefined",
-        value: "30 days",
-        startDate: null,
-        endDate: null,
-      },
-    },
-    {
-      scaleName: "Staple scale",
-      scaleImg: "https://qph.cf2.quoracdn.net/main-qimg-bf62d1710ed255e7df16a2482d324869-lq",
-      scaleDescription: "The Advanced NPS Scale delivers comprehensive insights into customer loyalty, with detailed metrics collected over a 90-day period, perfect for in-depth strategic planning.",
-      scaleType: "NPS Scale",
-      scaleDate: {
-        type: "predefined",
-        value: "90 days",
-        startDate: null,
-        endDate: null,
-      },
-    },
-    {
-      scaleName: "Likert scale",
-      scaleImg: "https://dk1q95wyquptk.cloudfront.net/wp-content/uploads/2022/06/nps1-1024x538-1.jpg",
-      scaleDescription: "The Express NPS Scale provides rapid feedback on customer satisfaction within a 1-year timeframe, ideal for businesses needing quick, actionable insights.",
-      scaleType: "NPS Scale",
-      scaleDate: {
-        type: "predefined",
-        value: "1 year",
-        startDate: null,
-        endDate: null,
-      },
-    },
+    // {
+    //   scaleName: "NPS Scale",
+    //   scaleImg: "https://bentoforbusiness.com/wp-content/uploads/meter.png",
+    //   scaleDescription: "The Lite NPS Scale is a streamlined, user-friendly tool for quickly gauging customer sentiment over a seven-day period, ideal for businesses seeking efficient feedback without the complexity.",
+    //   scaleType: "NPS Scale",
+    //   isFavorite: true,
+    //   scaleDate: {
+    //     type: "predefined",
+    //     value: "7 days",
+    //     startDate: null,
+    //     endDate: null,
+    //   },
+    // },
+    // {
+    //   scaleName: "NPS Lite scale",
+    //   scaleImg: "https://miro.medium.com/v2/resize:fit:1400/1*pHNF1C-Y81W234ZunvTQFw@2x.jpeg",
+    //   scaleDescription: "The Premium NPS Scale offers a deep analysis of customer satisfaction and loyalty over a 30-day period, providing actionable insights to enhance your business strategy.",
+    //   scaleType: "Percentage Scale",
+    //   scaleDate: {
+    //     type: "predefined",
+    //     value: "30 days",
+    //     startDate: null,
+    //     endDate: null,
+    //   },
+    // },
+    // {
+    //   scaleName: "Staple scale",
+    //   scaleImg: "https://qph.cf2.quoracdn.net/main-qimg-bf62d1710ed255e7df16a2482d324869-lq",
+    //   scaleDescription: "The Advanced NPS Scale delivers comprehensive insights into customer loyalty, with detailed metrics collected over a 90-day period, perfect for in-depth strategic planning.",
+    //   scaleType: "NPS Scale",
+    //   scaleDate: {
+    //     type: "predefined",
+    //     value: "90 days",
+    //     startDate: null,
+    //     endDate: null,
+    //   },
+    // },
+    // {
+    //   scaleName: "Likert scale",
+    //   scaleImg: "https://dk1q95wyquptk.cloudfront.net/wp-content/uploads/2022/06/nps1-1024x538-1.jpg",
+    //   scaleDescription: "The Express NPS Scale provides rapid feedback on customer satisfaction within a 1-year timeframe, ideal for businesses needing quick, actionable insights.",
+    //   scaleType: "NPS Scale",
+    //   scaleDate: {
+    //     type: "predefined",
+    //     value: "1 year",
+    //     startDate: null,
+    //     endDate: null,
+    //   },
+    // },
   ],
 };

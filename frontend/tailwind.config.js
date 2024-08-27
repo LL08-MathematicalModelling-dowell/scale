@@ -56,6 +56,7 @@ module.exports = {
         semiblue: '#95C6F2',
         dowellDeepGreen: '#005734',
         dowellBg: '#f9f9fb',
+        dowellLiteGreen: '#9BD7A3'
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -89,5 +90,13 @@ module.exports = {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    function ({ addUtilities }) {
+      addUtilities({
+        '.content-empty': {
+          content: "''", // Custom utility for empty content
+        },
+      }, ['before']); // Make it available for `::before` pseudo-element
+    },
+  ],
 }

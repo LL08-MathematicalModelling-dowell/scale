@@ -7,7 +7,7 @@ const ScaleCard = ({scaleName, scaleDescription, scaleImage, onView}) => {
     <div className="border shadow-xl rounded-lg w-full h-full flex flex-col">
       <img
         src={scaleImage}
-        className="w-full h-40 object-cover rounded-t-lg object-center"
+        className="w-full h-40 object-contain rounded-t-lg object-center"
         alt=""
       />
       <div className="flex flex-col flex-grow p-2">

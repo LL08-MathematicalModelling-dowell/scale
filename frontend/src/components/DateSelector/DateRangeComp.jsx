@@ -23,7 +23,7 @@ const DateRangeComp = ({ onClose }) => {
       document.removeEventListener('keydown', hideOnEscape, true);
       document.removeEventListener('click', hideOnClickOutside, true);
     };
-  }, []);
+  }, [ ]);
 
   const hideOnEscape = (e) => {
     if (e.key === 'Escape') {
@@ -37,10 +37,16 @@ const DateRangeComp = ({ onClose }) => {
     }
   };
 
+  const handleDateChange =(item) => {
+    setRange([item.selection]);
+    console.log(range);
+    
+  }
+
   return (
     <div ref={refOne}>
       <DateRange
-        onChange={(item) => setRange([item.selection])}
+        onChange={handleDateChange}
         editableDateInputs
         moveRangeOnFirstSelection={false}
         ranges={range}

@@ -164,7 +164,7 @@ class KitchenSinkServices(APIView):
         }, status=status.HTTP_400_BAD_REQUEST)
 
 @method_decorator(csrf_exempt, name='dispatch')
-class user_details_services(APIView):
+class UserDetailsServices(APIView):
     
     def post(self, request):
         type_request = request.GET.get('type')
@@ -173,8 +173,6 @@ class user_details_services(APIView):
             return self.save_user_details(request)
         elif type_request == "update_user_details":
             return self.update_user_details(request)
-        elif type_request == "user_auth":
-            return self.user_auth(request)
         else:
             return self.handle_error(request)
         
@@ -259,10 +257,9 @@ class user_details_services(APIView):
         return CustomResponse(True,"User details retrieved successfully",response["data"], status.HTTP_302_FOUND)
     
     def update_user_details(self, request):
-        
-        document_id = request.data.get('document_id')
-        update_data = request.data.get('update_data')
+        username = request.data.get('username')
         workspace_id = request.data.get('workspace_id')
+        update_data = request.data.get('update_data')
 
         try:
             api_key = authorization_check(request.headers.get('Authorization'))
@@ -282,7 +279,8 @@ class user_details_services(APIView):
             self.scale_data_database,
             self.user_info_collection,
             {
-                "_id": document_id,
+                "username":username,
+                "workspce_id":workspace_id
             },
             update_data
         ))

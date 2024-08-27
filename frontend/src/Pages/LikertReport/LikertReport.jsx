@@ -31,12 +31,32 @@ const LikertReport = () => {
     labels: ["20%", "30%", "40%", "50%", "60%", "70%", "80%", "90%", "100%"],
     datasets: [
       {
-        label: "Percentage Scores",
-        data: [10, 100, 300, 40, 640, 500, 900, 900, 700],
+        label: "Score one",
+        data: [80, 150, 250, 350, 450, 550, 650, 750, 850],
         borderColor: "rgb(34,197,94)",
-        
+      },
+      {
+        label: "Score two",
+        data: [20, 220, 320, 420, 520, 620, 720, 820, 920],
+        borderColor: "red",
+      },
+      {
+        label: "Score three",
+        data: [30, 130, 230, 330, 430, 530, 630, 730, 830],
+        borderColor: "purple",
+      },
+      {
+        label: "Score five",
+        data: [40, 240, 340, 440, 540, 640, 740, 840, 940],
+        borderColor: "blue",
+      },
+      {
+        label: "Score six",
+        data: [60, 160, 260, 360, 460, 560, 660, 760, 860],
+        borderColor: "orange",
       },
     ],
+    
   };
 
   const options = {};

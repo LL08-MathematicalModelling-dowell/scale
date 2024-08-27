@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Logo from "../../assets/VOC.png";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -12,8 +12,29 @@ const Registration = () => {
   const [statusMessage, setStatusMessage] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
-  const [otpValidated, setOtpValidated] = useState(false); // New state to track OTP validation status
+  const [otpValidated, setOtpValidated] = useState(false);
+  const [latitude, setLatitude] = useState(null);
+  const [longitude, setLongitude] = useState(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Get user's current location
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLatitude(position.coords.latitude);
+          setLongitude(position.coords.longitude);
+        },
+        (error) => {
+          console.log("Error getting location:", error);
+          setStatusMessage("Failed to get location. Please ensure location services are enabled.");
+          setIsSuccess(false);
+        }
+      );
+    } else {
+      console.log("Geolocation is not supported by this browser.");
+    }
+  }, []);
 
   const handleEmailChange = (e) => setEmail(e.target.value);
   const handleUserIdChange = (e) => setUserId(e.target.value);
@@ -72,7 +93,7 @@ const Registration = () => {
     setLoading(true);
 
     try {
-      const response = await emailServiceForUserDetails(email, userId);
+      const response = await emailServiceForUserDetails(email, userId,latitude, longitude);
       if (response.data.success) {
         setStatusMessage("Email sent successfully.");
         setIsSuccess(true);

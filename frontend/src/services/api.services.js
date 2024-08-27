@@ -14,23 +14,27 @@ const getUserLogin = async (credentials) => {
     )
 }
 
+const scaleResponse = async (user,scaleType,channel,instance,workspace_id,username,scale_id,index) => {
+    return await scaleAxiosInstance.get(`/addons/create-response/v3/?user=${user}&scale_type=${scaleType}&channel=${channel}&instance=${instance}&workspace_id=${workspace_id}&username=${username}&scale_id=${scale_id}&item=${index}`);
+}
+
 export const updateUserDetails = async (userId, data) => {
-    const token = localStorage.getItem("accessToken"); 
-  
+    const token = localStorage.getItem("accessToken");
+
     return await servicesAxiosInstance.post(
-      '/v1/voc/user-management/?type=update_profile',
-      {
-        _id: userId,
-        data: data
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`, 
+        '/v1/voc/user-management/?type=update_profile',
+        {
+            _id: userId,
+            data: data
         },
-      }
+        {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        }
     );
-  };
-  
+};
+
 
 const getUserReport = async (scale_id) => {
     return await scaleAxiosInstance.get(`/addons/get-response/?scale_id=${scale_id}`)
@@ -39,7 +43,7 @@ const getUserReport = async (scale_id) => {
 const getUserScales = async ({ workspace_id, portfolio, type_of_scale, accessToken }) => {
     return await servicesAxiosInstance.post(
         '/v1/voc/scale-management/?type=scale_details',
-        { workspace_id, portfolio,type_of_scale },
+        { workspace_id, portfolio, type_of_scale },
         {
             headers: {
                 "Content-Type": "application/json",
@@ -60,7 +64,7 @@ const saveScaleDetails = async ({ hardCodedData, accessToken }) => {
     )
 }
 
-export const saveScaleDetailsType = async ({ hardCodedData, accessToken }) => {
+const saveScaleDetailsType = async ({ hardCodedData, accessToken }) => {
     return await servicesAxiosInstance.post("/v1/voc/scale-management/?type=save_scale_details", hardCodedData,
         {
             headers: {
@@ -71,30 +75,36 @@ export const saveScaleDetailsType = async ({ hardCodedData, accessToken }) => {
     )
 }
 
-const emailServiceForUserDetails = async (email,userId) => {
-    return await servicesAxiosInstance.post('/v1/voc/user-management/?type=send_customer_email',{
+
+
+const emailServiceForUserDetails = async (email, userId, latitude, longitude) => {
+    return await servicesAxiosInstance.post('/v1/voc/user-management/?type=send_customer_email', {
         email: email,
-        user_id: userId
+        user_id: userId,
+        latitude: latitude,
+        longitude: longitude
     })
 }
 
-const sendOtpServices = async (email,userId) => {
-    return await otpAxiosInstance.post('/v1/otp-services/send-otp',{
+const sendOtpServices = async (email, userId) => {
+    return await otpAxiosInstance.post('/v1/otp-services/send-otp', {
         email: email,
         userId: userId
     })
 }
 
 const validateOtpServices = async (email, userId, otp) => {
-    return await otpAxiosInstance.post('/v1/otp-services/validate-otp',{
+    return await otpAxiosInstance.post('/v1/otp-services/validate-otp', {
         email: email,
         userId: userId,
         otp: otp
     })
 }
 
-export const createScale = async (data) => {
-    return await otpAxiosInstance.post('/v1/scale/scale-services/?type=create_scale',data);
+const saveLocationData = async (data) => {
+    console.log(data);
+
+    return await otpAxiosInstance.post('/v1/location-services/save-location', data);
 }
 
 export {
@@ -107,5 +117,8 @@ export {
     servicesAxiosInstance,
     emailServiceForUserDetails,
     sendOtpServices,
-    validateOtpServices
+    validateOtpServices,
+    saveLocationData,
+    scaleResponse,
+    saveScaleDetailsType
 }

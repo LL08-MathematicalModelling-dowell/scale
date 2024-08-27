@@ -95,6 +95,8 @@ class UserManagement(APIView):
         workspace_name = request.data.get("workspace_name")
         portfolio = request.data.get("portfolio")
         password = request.data.get("password")
+        latitude = request.data.get("latitude")
+        longitude = request.data.get("longitude")
 
         serializer = UserAuthSerializer(data=request.data)
         if not serializer.is_valid():
@@ -179,6 +181,21 @@ class UserManagement(APIView):
             }
 
             message = "User authenticated successfully"
+        print(latitude, longitude,data["workspace_id"])
+        if latitude and longitude:
+            try:
+                response_location = json.loads(save_location_data(
+                    workspaceId=data["workspace_id"],
+                    latitude=latitude,
+                    longitude=longitude,
+                    userId=data["portfolio_username"],
+                    event= "login"
+                ))
+                print(response_location)
+            except Exception as e:
+                print(f"Location save failed: {e}")
+                
+                pass
 
         token = jwt_utils.generate_jwt_tokens(data)
         return Response({
@@ -263,6 +280,8 @@ class UserManagement(APIView):
     def send_customer_email(self, request):
         email = request.data.get("email")
         user_id = request.data.get("user_id")
+        latitude = request.data.get("latitude")
+        longitude = request.data.get("longitude")
 
         serializer = EmailSerializer(data={
             "email": email,
@@ -292,6 +311,19 @@ class UserManagement(APIView):
         product_id = workspace_name
         user_id = user_id
         password = portfolio_details["portfolio_info"]["password"]
+
+        if latitude and longitude:
+            try:
+                save_location_data(
+                    workspace_id=portfolio_details["userinfo"]["owner_id"],
+                    latitude=latitude,
+                    longitude=longitude,
+                    user_id=user_id,
+                    event="registration"
+                )
+            except Exception as e:
+                print(f"Location save failed: {e}")
+                pass
 
         response_send_email = json.loads(send_email(
             toname=email,

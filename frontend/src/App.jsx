@@ -9,6 +9,8 @@ import OpenReportPage from "./Pages/Reports/OpenReportPage";
 import useDowellLogin from "./hooks/useDowellLogin";
 import HomePage from "./Pages/HomePage/HomePage";
 import Registration from './Pages/Registration/RegistrationPage';
+import LikertReport from "./Pages/LikertReport/LikertReport";
+import EditScale from "./Pages/EditScale/EditScale";
 
 const App = () => {
   useDowellLogin();
@@ -19,10 +21,13 @@ const App = () => {
       <Route path="/voc" element={<Login />} />
       <Route path="/voc/reports" element={<Report />} />
       <Route path="/voc/report" element={<OpenReportPage />} />
+      <Route path="/voc/likert-report" element={<LikertReport/>} />
       <Route path="/voc/scale" element={<Scales />} />
       <Route path="/voc/scaledetails" element={<ScaleDetails />} />
       <Route path="/voc/userdetails" element={<UserDetails />} />
       <Route path="/voc/register" element={<Registration />} />
+      {/* Route for creating or edit scale */}
+      <Route path='/edit-scale' element={<EditScale/>} />
     </Routes>
   );
 };

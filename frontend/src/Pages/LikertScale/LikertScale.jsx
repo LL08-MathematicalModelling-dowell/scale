@@ -149,19 +149,19 @@ const LikertScale = () => {
                     <span className="text-xl md:text-2xl font-bold text-green-700">+</span>
                 </div>
 
-                <p className="text-muted-foreground text-center mt-0 mb-4 text-sm md:text-base">
+                <p className="text-muted-foreground text-center mt-0 mb-8 text-sm md:text-base">
                     {submitted !== -1 ? "Thank you for your response" : "Select your response"}
                 </p>
 
                 <p className="text-muted-foreground text-center mb-0 italic text-sm md:text-base font-medium">Your feedback is valuable to serve you better</p>
                 <textarea
-                    className="w-full p-2 border border-border border-gray-400 mb-4 h-20"
+                    className="w-full p-2 border border-border border-gray-400 mb-2 h-20"
                     placeholder="Your Comments (Optional)"
                     aria-label="Your Comments"
                     value={feedback}
                     onChange={(e) => setFeedback(e.target.value)}
                 />
-                <div className="flex flex-col md:flex-row md:items-center md:space-x-4 mb-4 w-full">
+                <div className="flex flex-col md:flex-row md:items-center md:space-x-4 mb-10 w-full">
                     <input
                         type="text"
                         className="w-full md:w-1/2 p-2 border border-border mb-2 md:mb-0 border-gray-400"
@@ -179,7 +179,7 @@ const LikertScale = () => {
                         onChange={(e) => setEmail(e.target.value)}
                     />
                 </div>
-                <div className="flex justify-center space-x-4 w-full mb-4">
+                <div className="flex justify-center space-x-4 w-full mb-8">
                     <button
                         className="bg-[#9390a0] text-[#fff] py-1 px-4 rounded-full w-full md:w-auto"
                         onClick={handleCancel}

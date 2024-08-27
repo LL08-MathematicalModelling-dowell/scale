@@ -2,6 +2,9 @@ import json
 import requests
 
 api_key = "1b834e07-c68b-4bf6-96dd-ab7cdc62f07f"
+url = "https://www.dowelldatacube.uxlivinglab.online/db_api/crud/"
+# url = "https://datacube.uxlivinglab.online/db_api/crud/"
+
 def datacube_data_insertion(api_key, database_name, collection_name, data):
     """
     Insert data into a collection in the DataCube database.
@@ -10,10 +13,9 @@ def datacube_data_insertion(api_key, database_name, collection_name, data):
     :param database_name: The name of the database.
     :param collection_name: The name of the collection.
     :param data: The data to be inserted into the collection.
+    :param url: The server URL for the API.
     :return: The response text from the server.
     """
-    url = "https://datacube.uxlivinglab.online/db_api/crud/"
-
     payload = {
         "api_key": api_key,
         "db_name": database_name,
@@ -38,10 +40,9 @@ def datacube_data_retrieval(api_key, database_name, collection_name, data, limit
     :param limit: The maximum number of documents to retrieve.
     :param offset: The number of documents to skip before starting to collect data.
     :param payment: Whether payment is required for accessing the data.
+    :param url: The server URL for the API.
     :return: The response text from the server.
     """
-    url = "https://datacube.uxlivinglab.online/db_api/get_data/"
-
     payload = {
         "api_key": api_key,
         "db_name": database_name,
@@ -66,10 +67,9 @@ def datacube_data_update(api_key, db_name, coll_name, query, update_data):
     :param coll_name: The name of the collection.
     :param query: The query to select the documents to update.
     :param update_data: The data to be updated in the selected documents.
+    :param url: The server URL for the API.
     :return: The response text from the server.
     """
-    url = "https://datacube.uxlivinglab.online/db_api/crud/"
-
     payload = {
         "api_key": api_key,
         "db_name": db_name,
@@ -91,10 +91,9 @@ def datacube_create_collection(api_key, db_name, collection_name):
     :param api_key: The API key for authentication.
     :param db_name: The name of the database.
     :param collection_name: The name of the new collection.
+    :param url: The server URL for the API.
     :return: The response text from the server.
     """
-    url = "https://datacube.uxlivinglab.online/db_api/add_collection/"
-
     payload = {
         "api_key": api_key,
         "db_name": db_name,
@@ -112,9 +111,9 @@ def datacube_collection_retrieval(api_key, db_name):
 
     :param api_key: The API key for authentication.
     :param db_name: The name of the database.
+    :param url: The server URL for the API.
     :return: The response text from the server.
     """
-    url = "https://datacube.uxlivinglab.online/db_api/collections/"
     payload = {
         "api_key": api_key,
         "db_name": db_name,
@@ -132,9 +131,9 @@ def datacube_data_delete(api_key, db_name, collection_name, query):
     :param db_name: The name of the database.
     :param collection_name: The name of the collection.
     :param query: The query to select the documents to delete.
+    :param url: The server URL for the API.
     :return: The response text from the server.
     """
-    url = "https://datacube.uxlivinglab.online/db_api/crud/"
     payload = {
         "api_key": api_key,
         "db_name": db_name,

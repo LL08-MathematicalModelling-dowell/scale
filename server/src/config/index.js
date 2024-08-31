@@ -14,6 +14,7 @@ const config = {
     redisPassword: process.env.REDIS_PASSWORD 
 };
 
+console.log(config);
 
 export default config;
 

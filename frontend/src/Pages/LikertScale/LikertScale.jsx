@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from 'react-router-dom';
-import { CircularProgress } from '@mui/material';
+import { CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, Button } from '@mui/material'; // Import Dialog components
 import npsScale from "../../assets/nps-scale.png";
 import { saveLocationData, scaleResponse } from "../../services/api.services";
 import voc from '../../assets/VOC.png';
@@ -14,11 +14,11 @@ import helpMe from '../../assets/likertScaleEmojis/help me.svg';
 
 const LikertScale = () => {
     const [submitted, setSubmitted] = useState(-1);
-    // const [loadingEmoji, setLoadingEmoji] = useState(null);
     const [loadingSubmit, setLoadingSubmit] = useState(false);
     const [feedback, setFeedback] = useState('');
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
+    const [openModal, setOpenModal] = useState(false); 
     const hasLocationDataBeenSaved = useRef(false);
 
     const location = useLocation();
@@ -57,7 +57,6 @@ const LikertScale = () => {
     }, [workspace_id, scale_id]);
 
     const handleClick = async (index) => {
-        // setLoadingEmoji(index);
         if (!allParamsPresent) {
             return;
         }
@@ -77,8 +76,6 @@ const LikertScale = () => {
         } catch (error) {
             console.error('Failed to fetch scale response:', error);
             alert("Unable to submit your response. Please try again.");
-        } finally {
-            // setLoadingEmoji(null);
         }
     };
 
@@ -88,15 +85,12 @@ const LikertScale = () => {
         setEmail('');
     };
 
-
     const handleSubmit = async () => {
-        // Validate email only if it's provided
         if (email && !/\S+@\S+\.\S+/.test(email)) {
             alert("Please enter a valid email address.");
             return;
         }
     
-        // If email is valid or not provided, proceed with submission
         setLoadingSubmit(true);
         try {
             if (submitted !== -1) {
@@ -110,7 +104,7 @@ const LikertScale = () => {
                     username: name || username,
                 });
                 console.log("Email sent successfully.");
-                alert("Thank you for your response.");
+                setOpenModal(true); // Open modal instead of showing Snackbar
             }
         } catch (error) {
             console.error("Error sending email:", error);
@@ -118,7 +112,12 @@ const LikertScale = () => {
         } finally {
             setLoadingSubmit(false);
         }
-    };    
+    };
+
+    const handleClose = () => {
+        setOpenModal(false);
+        window.location.href = "https://dowellresearch.sg/"; // Redirect on close
+    };
 
     return (
         <div className="flex items-center justify-center min-h-screen p-4 overflow-x-hidden">
@@ -204,10 +203,9 @@ const LikertScale = () => {
                         {loadingSubmit ? <CircularProgress size={24} /> : 'Submit'}
                     </button>
                 </div>
-
-                <div className="w-full mt-2 flex items-center">
+                <div className="flex items-center justify-between w-full mb-4">
                     <hr className="border-t border-gray-300 flex-grow" />
-                    <span className="px-4 text-sm text-muted-foreground text-[#5f5f5f]">Powered by</span>
+                    <span className="text-sm text-[#5f5f5f]">Powered by</span>
                     <hr className="border-t border-gray-300 flex-grow" />
                 </div>
 
@@ -218,9 +216,23 @@ const LikertScale = () => {
                         <p className="text-[#8d6364] text-xs md:text-sm">Innovating from people’s minds</p>
                         <a href="mailto:dowell@dowellresearch.sg" className="text-[#5f5f5f] text-xs md:text-sm">dowell@dowellresearch.sg</a>
                     </footer>
-                    <img src={helpMe} className="h-[60px] w-[60px] md:h-[80px] md:w-[80px]" />
+                    <a href="https://l.ead.me/meetuxlivinglab" target="blank">
+                        <img src={helpMe} className="h-[60px] w-[60px] md:h-[80px] md:w-[80px] cursor-pointer" />
+                    </a>
                 </div>
             </div>
+
+            <Dialog open={openModal} onClose={handleClose}>
+                <DialogTitle>Thank You!</DialogTitle>
+                <DialogContent>
+                    <p>Thank you for your response.</p>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClose} color="primary">
+                        Close
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </div>
     );
 };

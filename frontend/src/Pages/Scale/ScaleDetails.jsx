@@ -5,6 +5,7 @@ import { FaCirclePlus } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
 import { decodeToken } from "../../utils/tokenUtils";
 import { getUserScales, saveScaleDetails, saveScaleDetailsType } from "../../services/api.services";
+import { useCurrentUserContext } from "@/contexts/CurrentUserContext";
 
 function getInstanceDisplayName(url) {
   try {
@@ -20,16 +21,18 @@ function getInstanceDisplayName(url) {
 }
 
 const ScaleDetails = () => {
+  const { defaultScaleOfUser } = useCurrentUserContext();
   const [qrCodes, setQrCodes] = useState([]);
   const [alert, setAlert] = useState("");
   const [loading, setLoading] = useState(false);
-  const [selectedScaleType, setSelectedScaleType] = useState("nps"); // Default scale type
+  const [selectedScaleType, setSelectedScaleType] = useState(defaultScaleOfUser == 'nps' ? 'nps' : 'likert'); // Default scale type
   const navigate = useNavigate();
   const accessToken = localStorage.getItem("accessToken");
   const refreshToken = localStorage.getItem("refreshToken");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentScaleType, setCurrentScaleType] = useState("");
   const [isCreateScaleLoading, setIsCreateScaleLoading] = useState(false);
+  const [isNoScaleFound, setIsNoScaleFound] = useState(false);
 
   const handleClick = () => {
     setIsModalOpen(true);
@@ -67,6 +70,7 @@ const ScaleDetails = () => {
       }
 
       setLoading(true);
+      setIsNoScaleFound(false)
       try {
         const decodedPayload = decodeToken(accessToken);
         const workspaceId = decodedPayload.workspace_id;
@@ -87,10 +91,11 @@ const ScaleDetails = () => {
           const scaleId = data.response[0].scale_id;
           localStorage.setItem("scale_id", scaleId);
         } else {
+          setIsNoScaleFound(true);
           setAlert("No scale found. Please create a scale for yourself.");
         }
       } catch (error) {
-        console.error("Error fetching scale details:", error.message);
+        console.error("Error fetching scale details:", error);
         setAlert("Error fetching scale details.");
       } finally {
         setLoading(false);
@@ -129,10 +134,10 @@ const ScaleDetails = () => {
 
       console.log('>>>>>>>>>>', hardCodedData, currentScaleType);
 
-      const response = currentScaleType === "nps" 
-      ? await saveScaleDetails({ hardCodedData, accessToken }) 
-      : await saveScaleDetailsType({ hardCodedData, accessToken });
-      console.log('resss>>',response);
+      const response = currentScaleType === "nps"
+        ? await saveScaleDetails({ hardCodedData, accessToken })
+        : await saveScaleDetailsType({ hardCodedData, accessToken });
+      console.log('resss>>', response);
 
       const data = response.data;
       console.log("Create Scale Response:", data);
@@ -155,10 +160,10 @@ const ScaleDetails = () => {
       }
     } catch (error) {
       console.error("Error creating card:", error);
-      if(error.response.status===400){
+      if (error.response.status === 400) {
         setAlert(error?.response?.data?.message);
       }
-      
+
     } finally {
       // setLoading(false);
       setIsCreateScaleLoading(false);
@@ -201,106 +206,111 @@ const ScaleDetails = () => {
               <p>Loading...</p>
             </div>
           ) : (
-            <div className="flex justify-center flex-col md:flex-row flex-wrap md:gap-4 p-1 gap-4">
-              {qrCodes.map((qrCode) => (
-                <div key={qrCode._id} className="flex flex-col gap-6">
-                  <div className="flex-col flex gap-2">
-                    <h1 className="text-[25px] font-bold font-poppins">
-                      Scale Details
-                    </h1>
-                    <div className="flex flex-col md:flex-row gap-6 flex-wrap">
-                      {qrCode.links_details?.map((link, idx) => (
-                        <QRCodeCard
-                          key={idx}
-                          imageSrc={link.qrcode_image_url}
-                          instanceName={getInstanceDisplayName(link.scale_link)}
-                          scaleLink={link.scale_link}
-                          qrCodeLink={qrCode.report_link.qrcode_image_url}
-                          type="scale"
-                        />
-                      ))}
-                    </div>
-                  </div>
-                  <div className="flex-col flex gap-2">
-                    <h1 className="text-[25px] font-bold font-poppins">
-                      Report Details
-                    </h1>
-                    <div className="flex flex-col md:flex-row gap-6">
-                      <QRCodeCard
-                        imageSrc={qrCode.report_link.qrcode_image_url}
-                        instanceName={qrCode.username}
-                        type="report"
-                        qrCodeLink={qrCode.report_link.qrcode_image_url}
-                        reportLink={qrCode.report_link.report_link}
-                      />
-                    </div>
-                  </div>
-                  <div className="flex-col flex gap-2">
-                    <h1 className="text-[25px] font-bold font-poppins">
-                      Login Details
-                    </h1>
-                    <div className="flex flex-col md:flex-row gap-6">
-                      {qrCode.login && (
-                        <QRCodeCard
-                          imageSrc={qrCode.login.qrcode_image_url}
-                          instanceName={qrCode.username}
-                          type="login"
-                          qrCodeLink={qrCode.login.qrcode_image_url}
-                          loginLink={qrCode.login.login_link}
-                        />
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-              <button
-                onClick={handleClick}
-                className="bg-deepblue text-white shadow-xl px-2 py-2 rounded-full mt-4 md:mt-0 fixed md:bottom-[90px] bottom-[50px] md:right-12 right-8 z-10"
-              >
-                <FaCirclePlus className="text-xl" />
-              </button>
-              {isModalOpen && (
-                <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center z-50">
-                  <div className="bg-white rounded-lg shadow-2xl p-8 w-full max-w-lg mx-4 md:mx-0">
-                    <h2 className="text-xl font-semibold text-gray-700 mb-6 text-center">
-                      Select Scale Type
-                    </h2>
-                    <div className="mb-6">
-                      <label htmlFor="scaleType" className="block text-sm font-medium text-gray-600 mb-2">
-                        Scale Type
-                      </label>
-                      <select
-                        id="scaleType"
-                        value={currentScaleType}
-                        onChange={handleScaleChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                      >
-                        <option value="">-- Select Scale Type --</option>
-                        {scaleOptions.map((type, index) => (
-                          <option key={index} value={type.value}>
-                            {type.label}
-                          </option>
+            isNoScaleFound ?
+              <p className="w-full text-center text-lg font-semibold text-red-600 p-4">
+                No scale found. Please create a scale for yourself.
+              </p>
+              :
+              <div className="flex justify-center flex-col md:flex-row flex-wrap md:gap-4 p-1 gap-4">
+                {qrCodes.map((qrCode) => (
+                  <div key={qrCode._id} className="flex flex-col gap-6">
+                    <div className="flex-col flex gap-2">
+                      <h1 className="text-[25px] font-bold font-poppins">
+                        Scale Details
+                      </h1>
+                      <div className="flex flex-col md:flex-row gap-6 flex-wrap">
+                        {qrCode.links_details?.map((link, idx) => (
+                          <QRCodeCard
+                            key={idx}
+                            imageSrc={link.qrcode_image_url}
+                            instanceName={getInstanceDisplayName(link.scale_link)}
+                            scaleLink={link.scale_link}
+                            qrCodeLink={qrCode.report_link.qrcode_image_url}
+                            type="scale"
+                          />
                         ))}
-                      </select>
+                      </div>
                     </div>
-                    <div className="flex justify-between items-center">
-                      <button
-                        onClick={handleButtonClick}
-                        className="bg-indigo-600 text-white px-5 py-2 rounded-md shadow-lg hover:bg-indigo-700 transition-colors"
-                      >
-                        {isCreateScaleLoading?'Loading...':'Create'}
-                      </button>
-                      <button
-                        onClick={handleCloseModal}
-                        className="text-gray-500 hover:text-gray-700 transition-colors"
-                      >
-                        Cancel
-                      </button>
+                    <div className="flex-col flex gap-2">
+                      <h1 className="text-[25px] font-bold font-poppins">
+                        Report Details
+                      </h1>
+                      <div className="flex flex-col md:flex-row gap-6">
+                        <QRCodeCard
+                          imageSrc={qrCode.report_link.qrcode_image_url}
+                          instanceName={qrCode.username}
+                          type="report"
+                          qrCodeLink={qrCode.report_link.qrcode_image_url}
+                          reportLink={qrCode.report_link.report_link}
+                        />
+                      </div>
+                    </div>
+                    <div className="flex-col flex gap-2">
+                      <h1 className="text-[25px] font-bold font-poppins">
+                        Login Details
+                      </h1>
+                      <div className="flex flex-col md:flex-row gap-6">
+                        {qrCode.login && (
+                          <QRCodeCard
+                            imageSrc={qrCode.login.qrcode_image_url}
+                            instanceName={qrCode.username}
+                            type="login"
+                            qrCodeLink={qrCode.login.qrcode_image_url}
+                            loginLink={qrCode.login.login_link}
+                          />
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
-            </div>
+                ))}
+                <button
+                  onClick={handleClick}
+                  className="bg-deepblue text-white shadow-xl px-2 py-2 rounded-full mt-4 md:mt-0 fixed md:bottom-[90px] bottom-[50px] md:right-12 right-8 z-10"
+                >
+                  <FaCirclePlus className="text-xl" />
+                </button>
+                {isModalOpen && (
+                  <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center z-50">
+                    <div className="bg-white rounded-lg shadow-2xl p-8 w-full max-w-lg mx-4 md:mx-0">
+                      <h2 className="text-xl font-semibold text-gray-700 mb-6 text-center">
+                        Select Scale Type
+                      </h2>
+                      <div className="mb-6">
+                        <label htmlFor="scaleType" className="block text-sm font-medium text-gray-600 mb-2">
+                          Scale Type
+                        </label>
+                        <select
+                          id="scaleType"
+                          value={currentScaleType}
+                          onChange={handleScaleChange}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                        >
+                          <option value="">-- Select Scale Type --</option>
+                          {scaleOptions.map((type, index) => (
+                            <option key={index} value={type.value}>
+                              {type.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <button
+                          onClick={handleButtonClick}
+                          className="bg-indigo-600 text-white px-5 py-2 rounded-md shadow-lg hover:bg-indigo-700 transition-colors"
+                        >
+                          {isCreateScaleLoading ? 'Loading...' : 'Create'}
+                        </button>
+                        <button
+                          onClick={handleCloseModal}
+                          className="text-gray-500 hover:text-gray-700 transition-colors"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
           )}
         </div>
       </div>

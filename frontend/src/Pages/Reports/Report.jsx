@@ -1,3 +1,4 @@
+import React from 'react';
 import Navbar from '../../components/Navbar/Navbar'
 import {useNavigate} from "react-router-dom";
 import {useState, useEffect} from "react";
@@ -149,9 +150,7 @@ const Report = () => {
     };
 
     const processedData = processData(arr);
-
     const transData = transformData(processedData, selectedDays);
-
     const objectPair = pickSevenKeys(transData);
     setTotalCount(totalResponses);
     setDateCountPair(objectPair);
@@ -350,6 +349,7 @@ const Report = () => {
         objectPair,
         totalResponses,
         score = 0;
+        
       if (dataForInstance.length == 0) {
         scoreCounts = dummyCount;
         percentages = dummyPercentages;
@@ -664,12 +664,14 @@ const Report = () => {
                 // onClick={handleFetch}
                 displayEmpty
                 fullWidth
+    
               >
-                <MenuItem value="">Select Channel</MenuItem>
+                <MenuItem value="" >Select Channel</MenuItem>
                 {channels.map((channel) => (
                   <MenuItem
                     key={channel}
                     value={channel}
+                 
                   >
                     {!channelNames[channel] ? "Channel_1" : channelNames[channel]}
                   </MenuItem>
@@ -756,7 +758,7 @@ const Report = () => {
                         align="left"
                         style={{marginTop: "26px"}}
                       >
-                        {index + 1}. {instanceNames[item?.instanceName.trim()]}
+                        {/* {index + 1}. {instanceNames[item?.instanceName.trim()]} */}
                       </Typography>
                       <div className="flex justify-center items-center gap-6 sm:gap-12 mt-10 flex-wrap">
                         <p className="text-[20px] font-bold text-blue-600 mb-2">Total Responses: {item?.totalResponses}</p>
@@ -850,30 +852,31 @@ const Report = () => {
                             border="1px solid #ddd"
                             text="black"
                           >
-                            {Object.entries(item?.scoreCounts).map(([score, data], index) => (
-                              <Box
-                                key={score}
-                                position="absolute"
-                                left={`${Object.entries(item?.scoreCounts)
-                                  .slice(0, index)
-                                  .reduce((acc, [_, val]) => acc + val.percentage, 0)}%`}
-                                width={`${data.percentage}%`}
-                                height="100%"
-                                bgcolor={score === "Detractor" ? "red" : score === "Passive" ? "yellow" : "green"}
-                                display="flex"
-                                flexDirection="column"
-                                alignItems="center"
-                                justifyContent="center"
-                                style={{
-                                  color: "black",
-                                  fontSize: "10px",
-                                  fontWeight: "bold",
-                                  whiteSpace: "nowrap",
-                                }}
-                              >
-                                {data.percentage.toFixed(1)}%
-                              </Box>
-                            ))}
+                          {Object.entries(item?.scoreCounts || {}).map(([score, data], index) => (
+  <Box
+    key={score}
+    position="absolute"
+    left={`${Object.entries(item?.scoreCounts || {})
+      .slice(0, index)
+      .reduce((acc, [_, val]) => acc + val.percentage, 0)}%`}
+    width={`${data.percentage}%`}
+    height="100%"
+    bgcolor={score === "Detractor" ? "red" : score === "Passive" ? "yellow" : "green"}
+    display="flex"
+    flexDirection="column"
+    alignItems="center"
+    justifyContent="center"
+    style={{
+      color: "black",
+      fontSize: "10px",
+      fontWeight: "bold",
+      whiteSpace: "nowrap",
+    }}
+  >
+    {data.percentage.toFixed(1)}%
+  </Box>
+))}
+
                           </Box>
                         </div>
                       </div>

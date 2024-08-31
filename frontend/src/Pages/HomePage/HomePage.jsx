@@ -5,6 +5,7 @@ import {BiReset} from "react-icons/bi";
 import smiley from "../../assets/smiley.png";
 import NoFavorites from "../../assets/NoFav.png";
 import DateRangeComp from "@/components/DateSelector/DateRangeComp";
+import {Separator} from "@/components/ui/separator";
 import CustomHeader from "../../components/CustomHeader/CustomHeader";
 import ScaleCard from "../../components/ScaleCard/ScaleCard";
 import {useCurrentUserContext} from "../../contexts/CurrentUserContext";
@@ -12,6 +13,7 @@ import ScaleCardSkeleton from "@/components/ScaleCard/ScaleCardSkeleton";
 import {CircularProgress} from "@mui/material";
 import {UserScaleData} from "../../data/DummyData";
 import ScaleViewModal from "@/components/Modals/ScaleViewModal";
+import CustomDate from "@/components/DateSelector/CustomDate";
 
 const HomePage = () => {
   const {currentUser, currentUserDetailLoading} = useCurrentUserContext();
@@ -21,6 +23,7 @@ const HomePage = () => {
   const [openScale, setOpenScale] = useState(false);
   const [selectedScale, setSelectedScale] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selected, setSelected] = useState(null);
 
   const handleViewDetails = (scale) => {
     setSelectedScale(scale);
@@ -41,15 +44,13 @@ const HomePage = () => {
     });
     setFilteredScales(filtered);
   };
-
   const handleOpenSelect = () => {
     setOpenSelect(!openSelect);
+    setSelected(null);
   };
-
   const handleScaleOpen = () => {
     setOpenScale(!openScale);
   };
-
   const handleResetFilter = () => {
     setFilteredScales(UserScaleData.scales); // Reset to the original data
     setOpenSelect(false);
@@ -159,7 +160,21 @@ const HomePage = () => {
                 <p className="font-poppins font-normal tracking-tight text-[12px] md:text-[15px] hover:scale-105">Date</p>
                 {openSelect ? <MdKeyboardArrowUp className="md:size-7 size-4 hover:scale-105" /> : <MdKeyboardArrowDown className="md:size-7 size-4 hover:scale-105" />}
               </div>
-              <div className="absolute top-16 right-12">{openSelect && <DateRangeComp onClose={() => setOpenSelect(false)} onSelect={filterByDate} />}</div>
+              {openSelect && (
+                <div className="w-4/5 py-3 px-5 top-16 right-12 bg-white rounded-lg absolute shadow-2xl flex flex-col gap-4 ">
+                  <h3 className="font-poppins tracking-tight text-[18px] font-semibold">Select date</h3>
+                  <div className="flex flex-wrap gap-4 ">
+                    <CustomDate setSelected={setSelected} selected={selected} setOpenSelect={setOpenSelect} />
+                    <Separator />
+                  </div>
+                  <div className="flex justify-center">
+                    <button className="py-2 px-6 border   rounded-xl font-poppins text-[14px] font-medium bg-dowellDeepGreen text-white">Apply now</button>
+                  </div>
+                </div>
+              )}
+              {selected === 5 ? (
+                 <div className="absolute top-16 right-12">{openSelect && <DateRangeComp onClose={() => setOpenSelect(false)} onSelect={filterByDate} />}</div>
+              ) : null}
               {/* Scale Type */}
               <div className="flex gap-3 items-center pr-3 border-r-[2px] border-gray-300 cursor-pointer" onClick={handleScaleOpen}>
                 <p className="font-poppins font-normal tracking-tight text-[12px] md:text-[15px] hover:scale-105">Scale Type</p>

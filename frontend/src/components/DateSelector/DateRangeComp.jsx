@@ -1,32 +1,32 @@
-import { useEffect, useRef, useState } from 'react';
-import { DateRange } from 'react-date-range';
-import { addDays } from 'date-fns';
-import 'react-date-range/dist/styles.css';
-import 'react-date-range/dist/theme/default.css';
+import {useEffect, useRef, useState} from "react";
+import {DateRange} from "react-date-range";
+import {addDays} from "date-fns";
+import "react-date-range/dist/styles.css";
+import "react-date-range/dist/theme/default.css";
 
-const DateRangeComp = ({ onClose }) => {
+const DateRangeComp = ({onClose}) => {
   const [range, setRange] = useState([
     {
       startDate: new Date(),
       endDate: addDays(new Date(), 7),
-      key: 'selection',
+      key: "selection",
     },
   ]);
 
   const refOne = useRef(null);
 
   useEffect(() => {
-    document.addEventListener('keydown', hideOnEscape, true);
-    document.addEventListener('click', hideOnClickOutside, true);
+    document.addEventListener("keydown", hideOnEscape, true);
+    document.addEventListener("click", hideOnClickOutside, true);
 
     return () => {
-      document.removeEventListener('keydown', hideOnEscape, true);
-      document.removeEventListener('click', hideOnClickOutside, true);
+      document.removeEventListener("keydown", hideOnEscape, true);
+      document.removeEventListener("click", hideOnClickOutside, true);
     };
-  }, [ ]);
+  }, []);
 
   const hideOnEscape = (e) => {
-    if (e.key === 'Escape') {
+    if (e.key === "Escape") {
       onClose();
     }
   };
@@ -37,23 +37,14 @@ const DateRangeComp = ({ onClose }) => {
     }
   };
 
-  const handleDateChange =(item) => {
+  const handleDateChange = (item) => {
     setRange([item.selection]);
     console.log(range);
-    
-  }
+  };
 
   return (
     <div ref={refOne}>
-      <DateRange
-        onChange={handleDateChange}
-        editableDateInputs
-        moveRangeOnFirstSelection={false}
-        ranges={range}
-        months={1}
-        direction="horizontal"
-        className="calendarElement"
-      />
+      <DateRange onChange={handleDateChange} editableDateInputs moveRangeOnFirstSelection={false} ranges={range} months={1} direction="horizontal" className="calendarElement" />
     </div>
   );
 };

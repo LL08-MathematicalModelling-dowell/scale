@@ -1,21 +1,34 @@
 import Navbar from '../../components/Navbar/Navbar'
-import {useNavigate} from "react-router-dom";
-import {useState, useEffect} from "react";
-import {Select, MenuItem, CircularProgress, Grid, Typography, Box} from "@mui/material";
-import {Chart as ChartJS, CategoryScale, LinearScale, LineElement, PointElement, Title, Tooltip, Legend} from "chart.js";
-import {Line} from "react-chartjs-2";
-import {getUserReport} from "../../services/api.services";
-import {getIndividualCounts, initialScoreData, channelNames, allChannelsNameTag, instanceNames} from "../../utils/helper";
-import { processData, filterDataWithinDays,  transformData, pickSevenKeys } from "../../utils/helper";
+import { useNavigate } from "react-router-dom";
+import { useState, useEffect, React, Children } from "react";
+import { Select, MenuItem, CircularProgress, Grid, Typography, Box } from "@mui/material";
+import { Chart as ChartJS, CategoryScale, LinearScale, LineElement, PointElement, Title, Tooltip, Legend } from "chart.js";
+import { Line } from "react-chartjs-2";
+import { getUserReport, getUserScales } from "../../services/api.services";
+import { getIndividualCounts, initialScoreData, channelNames, allChannelsNameTag, instanceNames } from "../../utils/helper";
+import { processData, filterDataWithinDays, transformData, pickSevenKeys } from "../../utils/helper";
 ChartJS.register(CategoryScale, LinearScale, LineElement, PointElement, Title, Tooltip, Legend);
+import { workspaceNamesForLikert, workspaceNamesForNPS } from '@/data/Constants';
+import { useCurrentUserContext } from '@/contexts/CurrentUserContext';
+import { decodeToken } from '@/utils/tokenUtils';
+import LikertReport from '../LikertReport/LikertReport';
 
 const Report = () => {
+  const { defaultScaleOfUser, setDefaultScaleOfUser } = useCurrentUserContext();
   const navigate = useNavigate();
   const accessToken = localStorage.getItem("accessToken");
   const refreshToken = localStorage.getItem("refreshToken");
   useEffect(() => {
     if (!accessToken || !refreshToken) {
       navigate("/voc/");
+    } else {
+      const decodedTokenForWorkspaceName = decodeToken(accessToken);
+      if (workspaceNamesForNPS.some(workspaceName => workspaceName == decodedTokenForWorkspaceName.workspace_owner_name)) {
+        console.log('contains');
+        setDefaultScaleOfUser('nps');
+      } else if (workspaceNamesForLikert.some(workspaceName => workspaceName == decodedTokenForWorkspaceName.workspace_owner_name)) {
+        setDefaultScaleOfUser('likert');
+      }
     }
   }, [accessToken, refreshToken, navigate]);
 
@@ -47,7 +60,7 @@ const Report = () => {
   useEffect(() => {
     fetchData();
     setMountLoading(true);
-  }, [ ]);
+  }, []);
 
   useEffect(() => {
     if (selectedChannel.length == 0 || selectedInstance.length == 0 || selectedChannel == allChannelsNameTag) {
@@ -166,30 +179,30 @@ const Report = () => {
       (labels = [1, 2, 3, 4, 5]),
         (datasetsInfo = [0, 0, 0, 0, 0]),
         (options = npsOptions =
-          {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-              y: {
-                min: 0,
-                max: 5,
-                ticks: {
-                  stepSize: 1,
-                },
-                beginAtZero: true,
+        {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              min: 0,
+              max: 5,
+              ticks: {
+                stepSize: 1,
               },
-              x: {
-                type: "linear",
-                position: "bottom",
-                min: 0,
-                max: 5,
-                ticks: {
-                  stepSize: 1,
-                },
-                beginAtZero: true,
-              },
+              beginAtZero: true,
             },
-          });
+            x: {
+              type: "linear",
+              position: "bottom",
+              min: 0,
+              max: 5,
+              ticks: {
+                stepSize: 1,
+              },
+              beginAtZero: true,
+            },
+          },
+        });
     } else {
       const isSmallScreen = window.innerWidth < 600;
       labels = Object.keys(objectPair);
@@ -219,7 +232,7 @@ const Report = () => {
         scales: {
           x: {
             ticks: {
-              maxRotation: isSmallScreen ? 90 : 0, 
+              maxRotation: isSmallScreen ? 90 : 0,
               minRotation: isSmallScreen ? 90 : 0,
             },
           },
@@ -250,12 +263,12 @@ const Report = () => {
             },
           },
           y: {
-            min: minNps < 0 ? -100 : minNps, 
-            max: 100, 
+            min: minNps < 0 ? -100 : minNps,
+            max: 100,
             ticks: {
               stepSize: 25,
               callback: function (value) {
-                return value; 
+                return value;
               },
             },
             beginAtZero: true,
@@ -411,30 +424,30 @@ const Report = () => {
         (labels = [1, 2, 3, 4, 5]),
           (datasetsInfo = [0, 0, 0, 0, 0]),
           (options = npsOptions =
-            {
-              responsive: true,
-              maintainAspectRatio: false,
-              scales: {
-                y: {
-                  min: 0,
-                  max: 5,
-                  ticks: {
-                    stepSize: 1,
-                  },
-                  beginAtZero: true,
+          {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                min: 0,
+                max: 5,
+                ticks: {
+                  stepSize: 1,
                 },
-                x: {
-                  type: "linear",
-                  position: "bottom",
-                  min: 0,
-                  max: 5,
-                  ticks: {
-                    stepSize: 1,
-                  },
-                  beginAtZero: true,
-                },
+                beginAtZero: true,
               },
-            });
+              x: {
+                type: "linear",
+                position: "bottom",
+                min: 0,
+                max: 5,
+                ticks: {
+                  stepSize: 1,
+                },
+                beginAtZero: true,
+              },
+            },
+          });
       } else {
         const isSmallScreen = window.innerWidth < 600;
         labels = Object.keys(objectPair);
@@ -466,7 +479,7 @@ const Report = () => {
             x: {
               ticks: {
                 maxRotation: isSmallScreen ? 90 : 0,
-                minRotation: isSmallScreen ? 90 : 0, 
+                minRotation: isSmallScreen ? 90 : 0,
               },
             },
             y: {
@@ -499,8 +512,8 @@ const Report = () => {
               },
             },
             y: {
-              min: minNps < 0 ? -100 : minNps, 
-              max: 100, 
+              min: minNps < 0 ? -100 : minNps,
+              max: 100,
               ticks: {
                 stepSize: 25,
                 callback: function (value) {
@@ -561,7 +574,36 @@ const Report = () => {
   }, [selectedChannel, responseData, instances, selectedDays]);
 
   const fetchData = async () => {
-    const scale_id = "66b326e41f6cf39544a2b438";
+    //check in local storage if present use scale_id = scale_id from local storage
+    //if not in local storage hit get scale details api
+    //getscale details api needs workspace id portafolio and typr of scale
+    //type of scale = scale type from array of workspace name (constant values)
+    //getScaleDetails.scaleId = scaleId
+    //save to local storage = if likert scale = likert_scale_id else nps_scale = nps_scale_id
+    let scale_id;
+    const LocalStorageScaleId = localStorage.getItem("scale_id");
+    if (LocalStorageScaleId != null) {
+      scale_id = LocalStorageScaleId;
+    }
+    else {
+      try {
+        const decodedToken = decodeToken(accessToken);
+        const response = await getUserScales({
+          workspace_id: decodedToken.workspace_id,
+          portfolio: decodedToken.portfolio,
+          type_of_scale: defaultScaleOfUser,
+          accessToken
+        });
+        console.log('Scales:', response.data.response[0].scale_id);
+        scale_id = response?.data?.response[0]?.scale_id;
+      } catch (error) {
+        console.error('Error fetching user scales:', error);
+      }
+
+    }
+    console.log('scale ki id', scale_id);
+    // return;
+    // const scale_id = "66b326e41f6cf39544a2b438";
     try {
       const response = await getUserReport(scale_id);
       const data = response?.data?.data;
@@ -593,12 +635,12 @@ const Report = () => {
       setLoading(false);
     } catch (error) {
       console.error("Error fetching data:", error);
-      setLoading(false); 
+      setLoading(false);
     }
   };
 
   const handleFetch = () => {
-    setLoading(true); 
+    setLoading(true);
     fetchData();
   };
 
@@ -637,7 +679,7 @@ const Report = () => {
       </div>
 
       <div className="-z10 relative align-center ">
-        <Box p={1} >
+        {defaultScaleOfUser == 'nps' ? <Box p={1} >
           {mountloading && (
             <div className="flex items-center gap-3 fixed md:top-18">
               <CircularProgress size="1rem" />
@@ -686,9 +728,9 @@ const Report = () => {
                 onChange={handleInstanceSelect}
                 displayEmpty
                 fullWidth
-                // disabled={selectedChannel === allChannelsNameTag ||
-                //   selectedChannel.length == 0
-                // }
+              // disabled={selectedChannel === allChannelsNameTag ||
+              //   selectedChannel.length == 0
+              // }
               >
                 <MenuItem
                   value=""
@@ -700,7 +742,7 @@ const Report = () => {
                   <MenuItem
                     key={instance}
                     value={instance}
-                    // onClick={handleFetch}
+                  // onClick={handleFetch}
                   >
                     {instanceNames[instance]}
                   </MenuItem>
@@ -747,14 +789,14 @@ const Report = () => {
           </Grid>
           {selectedChannel === allChannelsNameTag ? (
             <>
-              {React.Children.toArray(
+              {React?.Children?.toArray(
                 displayDataForAllSelection.map((item, index) => {
                   return (
                     <>
                       <Typography
                         variant="h6"
                         align="left"
-                        style={{marginTop: "26px"}}
+                        style={{ marginTop: "26px" }}
                       >
                         {index + 1}. {instanceNames[item?.instanceName.trim()]}
                       </Typography>
@@ -889,7 +931,7 @@ const Report = () => {
                             sx={{
                               mt: 4,
                               width: "100%",
-                              height: {xs: "300px", sm: "400px"},
+                              height: { xs: "300px", sm: "400px" },
                               maxWidth: "900px",
                               mx: "auto",
                             }}
@@ -903,7 +945,7 @@ const Report = () => {
                             sx={{
                               my: 4,
                               width: "100%",
-                              height: {xs: "300px", sm: "400px"},
+                              height: { xs: "300px", sm: "400px" },
                               maxWidth: "900px",
                               mx: "auto",
                             }}
@@ -925,7 +967,7 @@ const Report = () => {
                           <Box
                             sx={{
                               width: "600px",
-                              height: {xs: "300px", sm: "380px"},
+                              height: { xs: "300px", sm: "380px" },
                             }}
                           >
                             <Line
@@ -942,7 +984,7 @@ const Report = () => {
                           <Box
                             sx={{
                               width: "600px",
-                              height: {xs: "300px", sm: "380px"},
+                              height: { xs: "300px", sm: "380px" },
                             }}
                           >
                             <Line
@@ -1091,7 +1133,7 @@ const Report = () => {
                       sx={{
                         mt: 4,
                         width: "100%",
-                        height: {xs: "300px", sm: "400px"},
+                        height: { xs: "300px", sm: "400px" },
                         maxWidth: "900px",
                         mx: "auto",
                       }}
@@ -1105,7 +1147,7 @@ const Report = () => {
                       sx={{
                         my: 4,
                         width: "100%",
-                        height: {xs: "300px", sm: "400px"},
+                        height: { xs: "300px", sm: "400px" },
                         maxWidth: "900px",
                         mx: "auto",
                       }}
@@ -1129,7 +1171,7 @@ const Report = () => {
                       <Box
                         sx={{
                           width: "600px",
-                          height: {xs: "300px", sm: "380px"},
+                          height: { xs: "300px", sm: "380px" },
                         }}
                       >
                         <Line
@@ -1146,7 +1188,7 @@ const Report = () => {
                       <Box
                         sx={{
                           width: "600px",
-                          height: {xs: "300px", sm: "380px"},
+                          height: { xs: "300px", sm: "380px" },
                         }}
                       >
                         <Line
@@ -1160,7 +1202,7 @@ const Report = () => {
               </div>
             </>
           )}
-        </Box>
+        </Box> : <LikertReport/>}
       </div>
     </div>
   );

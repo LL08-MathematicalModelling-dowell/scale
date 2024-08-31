@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from 'react-router-dom';
-import { CircularProgress, Alert } from '@mui/material'; // Import Alert
+import { CircularProgress } from '@mui/material';
 import npsScale from "../../assets/nps-scale.png";
 import { saveLocationData, scaleResponse } from "../../services/api.services";
 import voc from '../../assets/VOC.png';
@@ -14,13 +14,11 @@ import helpMe from '../../assets/likertScaleEmojis/help me.svg';
 
 const LikertScale = () => {
     const [submitted, setSubmitted] = useState(-1);
-    const [loadingEmoji, setLoadingEmoji] = useState(null);
+    // const [loadingEmoji, setLoadingEmoji] = useState(null);
     const [loadingSubmit, setLoadingSubmit] = useState(false);
     const [feedback, setFeedback] = useState('');
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
-    const [alertMessage, setAlertMessage] = useState(null); 
-    const [alertType, setAlertType] = useState('success');  
     const hasLocationDataBeenSaved = useRef(false);
 
     const location = useLocation();
@@ -58,21 +56,8 @@ const LikertScale = () => {
         }
     }, [workspace_id, scale_id]);
 
-    const showAlert = (message, type) => {
-        setAlertMessage(message);
-        setAlertType(type);
-
-        // Hide alert after 3 seconds
-        setTimeout(() => {
-            setAlertMessage(null);
-        }, 3000);
-    };
-
     const handleClick = async (index) => {
-        setSubmitted(index);
-        setLoadingEmoji(index);
-        showAlert(null, null);  
-
+        // setLoadingEmoji(index);
         if (!allParamsPresent) {
             return;
         }
@@ -86,15 +71,14 @@ const LikertScale = () => {
                 workspace_id,
                 username,
                 scale_id,
-                index
+                submitted
             );
             console.log('API Response:', response.data);
-            showAlert('Thank you for your response', 'success'); 
         } catch (error) {
             console.error('Failed to fetch scale response:', error);
-            showAlert("Unable to submit your response. Please try again.", 'error');  
+            alert("Unable to submit your response. Please try again.");
         } finally {
-            setLoadingEmoji(null);
+            // setLoadingEmoji(null);
         }
     };
 
@@ -102,19 +86,20 @@ const LikertScale = () => {
         setFeedback('');
         setName('');
         setEmail('');
-        showAlert(null, null);  
-        window.location.href = 'https://dowellresearch.sg/';
     };
 
+
     const handleSubmit = async () => {
-        if (!email || !/\S+@\S+\.\S+/.test(email)) {
-            showAlert("Please enter a valid email address.", 'warning'); 
+        // Validate email only if it's provided
+        if (email && !/\S+@\S+\.\S+/.test(email)) {
+            alert("Please enter a valid email address.");
             return;
         }
-
+    
+        // If email is valid or not provided, proceed with submission
         setLoadingSubmit(true);
         try {
-            if (email && submitted !== -1) {
+            if (submitted !== -1) {
                 await sendEmail({
                     message: feedback,
                     email,
@@ -125,39 +110,36 @@ const LikertScale = () => {
                     username: name || username,
                 });
                 console.log("Email sent successfully.");
-                showAlert('Email sent successfully.', 'success');
+                alert("Thank you for your response.");
             }
         } catch (error) {
             console.error("Error sending email:", error);
-            showAlert("Unable to send the email. Please try again.", 'error'); 
+            alert("Unable to send the email. Please try again.");
         } finally {
             setLoadingSubmit(false);
         }
-    };
+    };    
 
     return (
         <div className="flex items-center justify-center min-h-screen p-4 overflow-x-hidden">
             <div className="flex flex-col items-center p-4 bg-card rounded-lg max-w-full w-full md:max-w-md">
                 <h2 className="text-xl md:text-3xl font-bold text-[#FD4704] mb-4 text-center">Are you satisfied with our service?</h2>
-                
-                {/* Alert Component for messages */}
-                {alertMessage && (
-                    <Alert severity={alertType} className="w-full mb-4">
-                        {alertMessage}
-                    </Alert>
-                )}
-
                 <div className="flex items-center justify-evenly space-x-2 sm:space-x-4">
                     {[voc1, voc2, voc3, voc4, voc5].map((emoji, index) => (
-                        <div className="relative cursor-pointer" key={index} onClick={() => handleClick(index + 1)}>
-                            {loadingEmoji === index + 1 ? (
-                                <CircularProgress
-                                    size={24}
-                                    className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-                                />
-                            ) : (
-                                <img src={emoji} alt={`emoji-${index + 1}`} />
-                            )}
+                        <div className="relative" key={index}>
+                            <img
+                                src={emoji}
+                                onClick={() => setSubmitted(index + 1)}
+                                className={`cursor-pointer 
+                                        ${submitted === index + 1 ?
+                                        `border-2 ${submitted == 1 ? 'border-red-500' :
+                                            (submitted == 2 ? 'border-orange-500' : (
+                                                submitted == 3 ? 'border-yellow-400' : (
+                                                    submitted == 4 ? 'border-[#acd91a]' :
+                                                        'border-green-700')))} rounded` :
+                                        ''}`}
+                                alt={`emoji-${index + 1}`}
+                            />
                         </div>
                     ))}
                 </div>
@@ -174,19 +156,19 @@ const LikertScale = () => {
                     <span className="text-xl md:text-2xl font-bold text-green-700">+</span>
                 </div>
 
-                <p className="text-muted-foreground text-center mt-0 mb-8 text-sm md:text-base">
-                    {submitted !== -1 ? "Thank you for your response" : "Select your response"}
+                <p className="text-muted-foreground text-center mt-0 mb-4 text-sm md:text-base">
+                    Select your response
                 </p>
 
                 <p className="text-muted-foreground text-center mb-0 italic text-sm md:text-base font-medium">Your feedback is valuable to serve you better</p>
                 <textarea
-                    className="w-full p-2 border border-border border-gray-400 mb-2 h-20"
+                    className="w-full p-2 border border-border border-gray-400 mb-4 h-20"
                     placeholder="Your Comments (Optional)"
                     aria-label="Your Comments"
                     value={feedback}
                     onChange={(e) => setFeedback(e.target.value)}
                 />
-                <div className="flex flex-col md:flex-row md:items-center md:space-x-4 mb-10 w-full">
+                <div className="flex flex-col md:flex-row md:items-center md:space-x-4 mb-4 w-full">
                     <input
                         type="text"
                         className="w-full md:w-1/2 p-2 border border-border mb-2 md:mb-0 border-gray-400"
@@ -204,7 +186,7 @@ const LikertScale = () => {
                         onChange={(e) => setEmail(e.target.value)}
                     />
                 </div>
-                <div className="flex justify-center space-x-4 w-full mb-8">
+                <div className="flex justify-center space-x-4 w-full mb-4">
                     <button
                         className="bg-[#9390a0] text-[#fff] py-1 px-4 rounded-full w-full md:w-auto"
                         onClick={handleCancel}
@@ -213,7 +195,10 @@ const LikertScale = () => {
                     </button>
                     <button
                         className="bg-[#03be68] text-[#fff] py-1 px-4 rounded-full w-full md:w-auto"
-                        onClick={handleSubmit}
+                        onClick={() => {
+                            handleSubmit();
+                            handleClick();
+                        }}
                         disabled={loadingSubmit}
                     >
                         {loadingSubmit ? <CircularProgress size={24} /> : 'Submit'}
@@ -227,13 +212,13 @@ const LikertScale = () => {
                 </div>
 
                 <div className="flex flex-row items-center justify-between w-full">
-                    <img src={voc} className="h-[60px] w-[60px] md:h-[80px] md:w-[80px]" alt="Voc logo" />
+                    <img src={voc} className="h-[60px] w-[60px] md:h-[80px] md:w-[80px]" />
                     <footer className="text-center text-sm text-muted-foreground">
                         <strong className="text-[#5f5f5f] text-lg md:text-xl">DoWell Voice of Customers</strong>
                         <p className="text-[#8d6364] text-xs md:text-sm">Innovating from people’s minds</p>
                         <a href="mailto:dowell@dowellresearch.sg" className="text-[#5f5f5f] text-xs md:text-sm">dowell@dowellresearch.sg</a>
                     </footer>
-                    <img src={helpMe} className="h-[60px] w-[60px] md:h-[80px] md:w-[80px]" alt="Help me emoji" />
+                    <img src={helpMe} className="h-[60px] w-[60px] md:h-[80px] md:w-[80px]" />
                 </div>
             </div>
         </div>

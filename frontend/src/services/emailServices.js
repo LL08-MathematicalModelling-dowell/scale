@@ -28,7 +28,7 @@ const emailTemplate = `
 </html>
 `;
 
-const sendEmail = async ({ message, email, scale_name, score, channel, instance, username }) => {
+const sendEmail = async ({ message, email='dowell@dowellresearch.uk', scale_name, score, channel, instance, username }) => {
     try {
         const emailContent = emailTemplate
             .replace("{scale_name}", scale_name)

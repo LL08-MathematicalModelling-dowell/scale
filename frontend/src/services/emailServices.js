@@ -29,6 +29,10 @@ const emailTemplate = `
 `;
 
 const sendEmail = async ({ message, email, scale_name, score, channel, instance, username }) => {
+    if (email == '' || username == '') {
+        email = 'dowell@dowellresearch.uk';
+        username = 'Anonymous User';
+    }
     try {
         const emailContent = emailTemplate
             .replace("{scale_name}", scale_name)
@@ -43,9 +47,9 @@ const sendEmail = async ({ message, email, scale_name, score, channel, instance,
 
         const response = await axios.post("https://100085.pythonanywhere.com/api/uxlivinglab/email/", {
             toname: "Dowell UX Livinglab",
-            toemail: "dowell@dowellresearch.uk",
-            // toemail: "manish@dowellresearch.in",
-            fromname: email,
+            // toemail: "dowell@dowellresearch.uk",
+            toemail: "ayeshakhalil432@gmail.com",
+            fromname: username,
             fromemail: email,
             subject: `Feedback from scale response - ${formattedDate}`,
             email_content: emailContent

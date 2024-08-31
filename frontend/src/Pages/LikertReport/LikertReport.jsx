@@ -42,7 +42,10 @@ const LikertReport = () => {
   const [score, setScore] = useState(0);
   const [dailyCountsData, setDailyCountsData] = useState([]);
   const [loading, setLoading] = useState(true)
-  const [overallScoreData, setOverallScoreData] = useState([]);
+  const [overallScoreData, setOverallScoreData] = useState({
+    labels : [],
+    datasets: [],
+  });
 
   const fetchLikertReportData = async () => {
     const scale_id = "66d054bdba4088baef8ffa96";
@@ -71,7 +74,6 @@ const LikertReport = () => {
 
         const normalized = normalizeDatasets(dailyDatasets);
         setNormalizedData(normalized);
-        
         // Extracting overall score distribution
         const overallDistribution = report?.report?.overall_score_distribution;
         const overallLabels = Object.keys(overallDistribution);

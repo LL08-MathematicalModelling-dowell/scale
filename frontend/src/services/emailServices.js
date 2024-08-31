@@ -47,8 +47,8 @@ const sendEmail = async ({ message, email, scale_name, score, channel, instance,
 
         const response = await axios.post("https://100085.pythonanywhere.com/api/uxlivinglab/email/", {
             toname: "Dowell UX Livinglab",
-            // toemail: "dowell@dowellresearch.uk",
-            toemail: "ayeshakhalil432@gmail.com",
+            toemail: "dowell@dowellresearch.uk",
+            // toemail: "ayeshakhalil432@gmail.com",
             fromname: username,
             fromemail: email,
             subject: `Feedback from scale response - ${formattedDate}`,

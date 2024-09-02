@@ -84,6 +84,8 @@ const [duration, setDuration] = useState(null)
       }
     } catch (error) {
       console.log("Failed to fetch Likert report data", error);
+      setAlert(true); 
+      setMessage("An error occurred while fetching channel instances.");  
     }
   };
   useEffect(() => {
@@ -134,7 +136,7 @@ const [duration, setDuration] = useState(null)
 
         const normalized = normalizeDatasets(dailyDatasets);
         setNormalizedData(normalized);
-        // Extracting the overall score distribution
+ 
         const overallDistribution = reportResponse?.data?.report?.overall_score_distribution;
         console.log("Overall Score Distribution:", overallDistribution);
 
@@ -147,18 +149,24 @@ const [duration, setDuration] = useState(null)
           },
         ];
         setOverallScoreData({labels: overallLabels, datasets: overallDataset});
-      } else {
+        
+      }else if (reportResponse.status === 404){
+        setAlert(true); 
+        setMessage("Report Not Found"); 
+      } 
+      else {
         console.log("Report Response API call was not successful:", reportResponse);
         setAlert(true)
         setMessage("Failed to fetch Likert Scale Report")
       }
     } catch (error) {
       console.log("Failed to fetch Likert report data", error);
+      setAlert(true); 
+      setMessage("An error occurred while fetching the Likert Scale Report."); 
     }
   };
 
   useEffect(() => {
-    // Check if both values are non-empty
     if (channelValue && instanceValue && duration) {
       fetchLikertReport();
     }
@@ -245,17 +253,22 @@ const [duration, setDuration] = useState(null)
   const averageScoreYellowPercent = averageScore;
 
   return (
-    <div className="min-h-screen max-w-full">
+    <div className="min-h-screen max-w-full relative">
       <Navbar />
-      <div className="my-12 mx-8">
-       
+      <div className="my-12 mx-8 ">
         <div className="flex flex-col justify-center items-center gap-10">
+    
           <div className="flex justify-center gap-5 flex-col md:flex-row">
             <SelectField handleInputChange={handleInputChange} triggerClass="w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins" placeholder="Select Channel Name" data={channelName} />
             <SelectField handleInputChange={handleInputChange} triggerClass="w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins" placeholder="Select Instances" data={instanceName} />
             <SelectField handleInputChange={handleInputChange} triggerClass="w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins" placeholder="Duration" data={Duration} />
           </div>
-          <h2>{alert}</h2>
+          {alert && (
+            <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 my-4 rounded-md font-poppins absolute top-20 right-4">
+              <p>{message}</p>
+            </div>
+          )}
+
           <h2 className="font-montserrat tracking-tight text-xl font-bold">
             Total Response: <span className="font-poppins text-xl text-green-800">{totalResponse}</span>
           </h2>

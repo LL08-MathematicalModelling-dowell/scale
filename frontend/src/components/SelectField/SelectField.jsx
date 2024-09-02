@@ -2,6 +2,7 @@ import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/c
 import PropTypes from 'prop-types';
 
 const SelectField = ({triggerClass, placeholder, data, handleInputChange}) => {
+  
   return (
     <div>
       <Select onValueChange={(value) => handleInputChange(value, data.label)

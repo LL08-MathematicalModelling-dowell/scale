@@ -98,8 +98,27 @@ const saveLocationData = async (data) => {
   return await otpAxiosInstance.post("/v1/location-services/save-location", data);
 };
 
-const getLikertReport = async (scale_id) => {
-  return await scaleAxiosInstance.get(`/addons/get-response/?scale_id=${scale_id}`);
+const getLikertReport = async (payload) => {
+  return await scaleAxiosInstance.post(`/addons/get-report/?scale_type=likert`, payload);
 };
 
-export {getUserLogin, getServerStatus, getAPIServerStatus, getUserReport, getUserScales, saveScaleDetails, servicesAxiosInstance, emailServiceForUserDetails, sendOtpServices, validateOtpServices, saveLocationData, scaleResponse, saveScaleDetailsType, getLikertReport};
+const getLikertChannelsInstances = async (scale_id)=> {
+  return await scaleAxiosInstance.get(`/addons/create-scale/v3/?scale_id=${scale_id}`);
+}
+
+export {getUserLogin, 
+  getServerStatus, 
+  getAPIServerStatus, 
+  getUserReport, 
+  getUserScales, 
+  saveScaleDetails,
+  servicesAxiosInstance,
+  emailServiceForUserDetails, 
+  sendOtpServices, 
+  validateOtpServices, 
+  saveLocationData,
+  scaleResponse, 
+   saveScaleDetailsType, 
+   getLikertReport,
+  getLikertChannelsInstances
+  };

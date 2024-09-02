@@ -58,20 +58,21 @@ const LikertReport = () => {
         const maxScore = data.total_no_of_responses * 5;
         setScore(maxScore);
         const totalScoresAvailable = data.data.map((item) => item.score);
-        console.log(totalScoresAvailable.length);
+        // console.log(totalScoresAvailable.length);
 
         const AddScores = data.data.reduce((sum, item) => sum + item.score, 0);
         const averageScore = AddScores / totalScoresAvailable.length;
         setAverageScore(Math.round(averageScore, 1));
-        console.log(averageScore);
-
+        // console.log(averageScore);
         setLikertData(data?.data);
-        setLikertData(data?.data);
+    
 
         setLoading(false);
 
         // My first step: Extracting the daily counts
-        const dailyCounts = report?.report?.daily_counts;
+        const dailyCounts = data.data.map(item => item.current_response_count)
+        console.log("This is the array of daily counts", dailyCounts);
+        
         const dailyLabels = Object.keys(dailyCounts);
         const dailyDatasets = [1, 2, 3, 4, 5].map((count) => ({
           label: `${count}`,
@@ -94,7 +95,6 @@ const LikertReport = () => {
             borderColor: "rgb(34,197,94)",
           },
         ];
-
         setOverallScoreData({labels: overallLabels, datasets: overallDataset});
       }
     } catch (error) {
@@ -118,7 +118,7 @@ const LikertReport = () => {
 
   useEffect(() => {
     fetchLikertReportData();
-  }, []);
+  }, [ ]);
 
   const modifiedChannelName = likertData
     .map((item) => ({

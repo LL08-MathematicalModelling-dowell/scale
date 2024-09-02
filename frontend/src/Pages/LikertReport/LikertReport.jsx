@@ -6,15 +6,15 @@ import PropTypes from "prop-types";
 import {useState, useEffect} from "react";
 import {report} from "@/data/likertReport";
 
-const RectangleDiv = ({className = " ", score}) => {
-  const constrainedYellowPercent = score;
+const RectangleDiv = ({className = " ", scores}) => {
+  const constrainedYellowPercent = scores;
   const greenPercent = 100 - constrainedYellowPercent;
 
   return (
     <div className="flex flex-col">
       <div className={`relative flex w-full h-6 rounded-full overflow-hidden ${className}`}>
-        <div className="bg-yellow-500 flex justify-center items-center text-black font-bold" style={{width: `${constrainedYellowPercent}%`}}>
-          {constrainedYellowPercent}%
+        <div className="bg-yellow-500 flex justify-center items-center text-black font-bold px-4 " style={{width: `${constrainedYellowPercent}%`}}>
+          <p> {constrainedYellowPercent}%</p>
         </div>
         <div className="bg-green-500 flex justify-center items-center text-black font-bold" style={{width: `${greenPercent}%`}}>
           {"    "}
@@ -32,7 +32,7 @@ const RectangleDiv = ({className = " ", score}) => {
 
 RectangleDiv.propTypes = {
   className: PropTypes.string,
-  score: PropTypes.number.isRequired,
+  scores: PropTypes.number.isRequired,
 };
 
 const LikertReport = () => {
@@ -40,23 +40,34 @@ const LikertReport = () => {
   const [likertData, setLikertData] = useState([]);
   const [totalResponses, setTotalResponses] = useState(0);
   const [score, setScore] = useState(0);
+  const [averageScore, setAverageScore] = useState(0);
   const [dailyCountsData, setDailyCountsData] = useState([]);
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(true);
   const [overallScoreData, setOverallScoreData] = useState({
-    labels : [],
+    labels: [],
     datasets: [],
   });
 
   const fetchLikertReportData = async () => {
-    const scale_id = "66d054bdba4088baef8ffa96";
+    const scale_id = "66c9d22a8739f31401f29fd5";
     try {
       const response = await getLikertReport(scale_id);
       const data = response?.data;
       if (data.success === "true") {
         setTotalResponses(data.total_no_of_responses);
         const maxScore = data.total_no_of_responses * 5;
-        setLikertData(data?.data);
         setScore(maxScore);
+        const totalScoresAvailable = data.data.map((item) => item.score);
+        console.log(totalScoresAvailable.length);
+
+        const AddScores = data.data.reduce((sum, item) => sum + item.score, 0);
+        const averageScore = AddScores / totalScoresAvailable.length;
+        setAverageScore(Math.round(averageScore, 1));
+        console.log(averageScore);
+
+        setLikertData(data?.data);
+        setLikertData(data?.data);
+
         setLoading(false);
 
         // My first step: Extracting the daily counts
@@ -77,14 +88,15 @@ const LikertReport = () => {
         // Extracting overall score distribution
         const overallDistribution = report?.report?.overall_score_distribution;
         const overallLabels = Object.keys(overallDistribution);
-        const overallDataset = [{
-          label: "Score Distribution",
-          data: overallLabels.map(score => overallDistribution[score]),
-          borderColor: "rgb(34,197,94)",
-        }];
+        const overallDataset = [
+          {
+            label: "Score Distribution",
+            data: overallLabels.map((score) => overallDistribution[score]),
+            borderColor: "rgb(34,197,94)",
+          },
+        ];
 
-        setOverallScoreData({ labels: overallLabels, datasets: overallDataset });
-
+        setOverallScoreData({labels: overallLabels, datasets: overallDataset});
       }
     } catch (error) {
       console.log("Failed to fetch Likert report data", error);
@@ -104,7 +116,7 @@ const LikertReport = () => {
   // useEffect(() => {
 
   // }, []);
-  
+
   useEffect(() => {
     fetchLikertReportData();
   }, []);
@@ -170,38 +182,7 @@ const LikertReport = () => {
     },
   };
 
-  // const lineChartData = {
-  //   labels: ["01/01/2024", "02/01/2024", "03/01/2024", "04/01/2024", "05/01/2024", "06/01/2024"],
-  //   datasets: [
-  //     {
-  //       label: "1",
-  //       data: [80, 150, 250, 350, 450, 550, 650, 750, 850],
-  //       borderColor: "rgb(34,197,94)",
-  //     },
-  //     {
-  //       label: "2",
-  //       data: [20, 220, 320, 420, 520, 620, 720, 820, 920],
-  //       borderColor: "red",
-  //     },
-  //     {
-  //       label: "3",
-  //       data: [30, 130, 230, 330, 430, 530, 630, 730, 830],
-  //       borderColor: "purple",
-  //     },
-  //     {
-  //       label: "4",
-  //       data: [40, 240, 340, 440, 540, 640, 740, 840, 940],
-  //       borderColor: "blue",
-  //     },
-  //     {
-  //       label: "5",
-  //       data: [60, 160, 260, 360, 460, 560, 660, 760, 860],
-  //       borderColor: "orange",
-  //     },
-  //   ],
-  // };
-
-  const lineChartDataTwo = overallScoreData
+  const lineChartDataTwo = overallScoreData;
 
   const handleInputChange = (value) => {
     console.log(value);
@@ -214,11 +195,11 @@ const LikertReport = () => {
   ];
 
   const totalScoreYellowPercent = score;
-  const averageScoreYellowPercent = 60;
+  const averageScoreYellowPercent = averageScore;
 
   return (
     <div className="min-h-screen max-w-full">
-      {/* <Navbar /> */}
+      <Navbar />
       <div className="my-12 mx-8">
         <div className="flex flex-col justify-center items-center gap-10">
           <div className="flex justify-center gap-5 flex-col md:flex-row">
@@ -235,7 +216,7 @@ const LikertReport = () => {
           {/* First Chart */}
           <div className="flex flex-col gap-2 md:w-3/5 w-screen px-7">
             <p className="font-poppins tracking-tight text-[18px] font-medium">Total Score</p>
-            <RectangleDiv score={totalScoreYellowPercent} />
+            <RectangleDiv scores={totalScoreYellowPercent} />
             <div className="mt-8">
               <LineGraph options={optionsWithPercentage} data={{labels: dailyCountsData.labels, datasets: normalizedData}} />
             </div>
@@ -243,7 +224,7 @@ const LikertReport = () => {
           {/* Second Chart */}
           <div className="flex flex-col md:w-3/5 w-screen gap-2 px-7">
             <p className="font-poppins tracking-tight text-[18px] font-medium">Average Score</p>
-            <RectangleDiv className="rounded-lg" score={averageScoreYellowPercent} />
+            <RectangleDiv className="rounded-lg" scores={averageScoreYellowPercent} />
             <div className="mt-8">
               <LineGraph options={optionsWithoutPercentage} data={lineChartDataTwo} />
             </div>

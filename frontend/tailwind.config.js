@@ -87,6 +87,7 @@ module.exports = {
         montserrat: ['Montserrat', 'sans-serif'],
         lato: ['Lato', 'sans-serif'],
         poppins: ['Poppins', 'sans-serif'],
+        pacifico: ["Pacifico", 'cursive'],
       },
     },
   },

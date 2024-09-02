@@ -2,6 +2,7 @@ import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/c
 import PropTypes from 'prop-types';
 
 const SelectField = ({triggerClass, placeholder, data, handleInputChange}) => {
+  
   return (
     <div>
       <Select onValueChange={(value) => handleInputChange(value, data.label)
@@ -11,7 +12,7 @@ const SelectField = ({triggerClass, placeholder, data, handleInputChange}) => {
         </SelectTrigger>
         <SelectContent>
           {data.map((item, index) => (
-            <SelectItem key={index} value={item.value} className="font-normal font-poppins">{item.label}</SelectItem>
+            <SelectItem key={index} value={item.value} className="font-normal font-poppins">{item.label }</SelectItem>
           ))}
         </SelectContent>
       </Select>

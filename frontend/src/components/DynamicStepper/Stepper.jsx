@@ -2,7 +2,7 @@ import {useState} from "react";
 import "./CSS/Stepper.css";
 import {Link} from "react-router-dom";
 import {FaCheckCircle} from "react-icons/fa";
-import ScaleSelectForm from "../ScaleSelectForm/ScaleSelectForm";
+
 
 const Stepper = () => {
   const steps = ["Select ", "Customize", "Finish Up"];
@@ -38,7 +38,7 @@ const Stepper = () => {
       </div>
        {currentStep === 1 && (
         <div className=" ">
-            <ScaleSelectForm/>
+
         </div>
       )}
       </div>

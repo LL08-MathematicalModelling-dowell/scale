@@ -82,10 +82,9 @@ const LikertReport = () => {
           labels: dailyLabels,
           datasets: dailyDatasets,
         });
-
         const normalized = normalizeDatasets(dailyDatasets);
         setNormalizedData(normalized);
-        // Extracting overall score distribution
+        // My second step: Extracting the overall score distribution
         const overallDistribution = report?.report?.overall_score_distribution;
         const overallLabels = Object.keys(overallDistribution);
         const overallDataset = [

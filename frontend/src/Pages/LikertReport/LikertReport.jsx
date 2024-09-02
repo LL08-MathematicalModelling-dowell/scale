@@ -245,7 +245,7 @@ const [duration, setDuration] = useState(null)
 
   return (
     <div className="min-h-screen max-w-full">
-      <Navbar />
+      {/* <Navbar /> */}
       <div className="my-12 mx-8">
        
         <div className="flex flex-col justify-center items-center gap-10">

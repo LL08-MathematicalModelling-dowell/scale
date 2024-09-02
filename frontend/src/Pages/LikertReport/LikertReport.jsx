@@ -76,10 +76,11 @@ const [duration, setDuration] = useState(null)
           }))
         );
         setInstanceName(instances);
-
-
+   
       } else {
         console.log("Channel API call was not successful:", channelDetailsResponse);
+        setAlert(true);  
+        setMessage("Failed to fetch channel instances."); 
       }
     } catch (error) {
       console.log("Failed to fetch Likert report data", error);

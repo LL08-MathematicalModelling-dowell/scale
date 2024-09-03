@@ -48,6 +48,7 @@ const LikertReport = () => {
 const [duration, setDuration] = useState(null)
   const [instanceValue, setInstanceValue] = useState(null);
   const [channelValue, setChannelValue] = useState(null);
+  const [instanceLoading, setInstanceLoading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [overallScoreData, setOverallScoreData] = useState({
     labels: [],
@@ -56,19 +57,18 @@ const [duration, setDuration] = useState(null)
 
   const fetchLikertChannelInstances = async () => {
     const scale_id = "66c9d22a8739f31401f29fd5";
+    setInstanceLoading(true);  // Start loading
     try {
       const channelDetailsResponse = await getLikertChannelsInstances(scale_id);
-
+  
       if (channelDetailsResponse.status === 200) {
         const data = channelDetailsResponse.data;
-
         const channels = data?.scale_data?.channel_instance_details.map((item) => ({
           label: item.channel_display_name,
           value: item.channel_name,
         }));
         setChannelName(channels);
-
-
+  
         const instances = data?.scale_data?.channel_instance_details.flatMap((item) =>
           item.instances_details.map((instance) => ({
             label: instance.instance_display_name,
@@ -76,7 +76,6 @@ const [duration, setDuration] = useState(null)
           }))
         );
         setInstanceName(instances);
-   
       } else {
         console.log("Channel API call was not successful:", channelDetailsResponse);
         setAlert(true);  
@@ -86,8 +85,11 @@ const [duration, setDuration] = useState(null)
       console.log("Failed to fetch Likert report data", error);
       setAlert(true); 
       setMessage("An error occurred while fetching channel instances.");  
+    } finally {
+      setInstanceLoading(false);  // End loading
     }
   };
+  
   useEffect(() => {
     fetchLikertChannelInstances();
   }, [ ]);
@@ -100,26 +102,27 @@ const [duration, setDuration] = useState(null)
   };
 
   const fetchLikertReport = async () => {
+    setLoading(true);
     try {
       const reportResponse = await getLikertReport(payload);
-      setLoading(true)
+  
+      console.log("Report Response Status:", reportResponse.status); // Log the response status
+  
       if (reportResponse.status === 200) {
-        setLoading(false)
         const reportResult = reportResponse.data;
         console.log("Report Result:", reportResult);
         
         setReportData(reportResult);
         setTotalResponse(reportResult?.report.no_of_responses);
         const totalScoreString = reportResult?.report?.total_score;
-
+  
         const score = parseInt(totalScoreString.split("/")[0], 10);
         setTotalScore(score);
-
+  
         const reportAverageScore = reportResult?.report?.average_score;
         const roundedAverageScore = parseFloat(reportAverageScore.toFixed(2));
         setAverageScore(roundedAverageScore);
         
-
         const dailyCounts = reportResult?.report?.daily_counts;
         console.log("Array of Daily Counts:", dailyCounts);
         const dailyLabels = dailyCounts ? Object.keys(dailyCounts) : [];
@@ -128,18 +131,18 @@ const [duration, setDuration] = useState(null)
           data: dailyLabels.map((date) => dailyCounts[date]?.[count] || 0),
           borderColor: `hsl(${count * 72}, 70%, 50%)`,
         }));
-
+  
         setDailyCountsData({
           labels: dailyLabels,
           datasets: dailyDatasets,
         });
-
+  
         const normalized = normalizeDatasets(dailyDatasets);
         setNormalizedData(normalized);
- 
+  
         const overallDistribution = reportResponse?.data?.report?.overall_score_distribution;
         console.log("Overall Score Distribution:", overallDistribution);
-
+  
         const overallLabels = overallDistribution ? Object.keys(overallDistribution) : [];
         const overallDataset = [
           {
@@ -148,23 +151,26 @@ const [duration, setDuration] = useState(null)
             borderColor: "rgb(34,197,94)",
           },
         ];
-        setOverallScoreData({labels: overallLabels, datasets: overallDataset});
-        
-      }else if (reportResponse.status === 404){
-        setAlert(true); 
-        setMessage("Report Not Found"); 
-      } 
-      else {
-        console.log("Report Response API call was not successful:", reportResponse);
-        setAlert(true)
-        setMessage("Failed to fetch Likert Scale Report")
+        setOverallScoreData({ labels: overallLabels, datasets: overallDataset });
+   
+      } else {
+        console.log("Non-200/404 Response:", reportResponse);
+        setAlert(true);
+        setMessage("Failed to fetch Likert Scale Report");
       }
     } catch (error) {
-      console.log("Failed to fetch Likert report data", error);
-      setAlert(true); 
-      setMessage("An error occurred while fetching the Likert Scale Report."); 
+      console.log("Catch Error: Failed to fetch Likert report data", error?.response);
+   if (error?.response.status === 404) {
+    console.log("404 Error: Report not found:", error?.response.data?.message);
+    setAlert(true);
+    setMessage("REPORT NOT FOUND");
+   }
+    } finally {
+      setLoading(false);
     }
   };
+  
+  
 
   useEffect(() => {
     if (channelValue && instanceValue && duration) {
@@ -254,6 +260,7 @@ const [duration, setDuration] = useState(null)
 
   return (
     <div className="min-h-screen max-w-full relative">
+
       <Navbar />
       <div className="my-12 mx-8 ">
         <div className="flex flex-col justify-center items-center gap-10">
@@ -293,6 +300,10 @@ const [duration, setDuration] = useState(null)
           </div>
         </div>
       </div>
+       {instanceLoading == true ? (
+     <div className="bg-gray-100 min-h-screen w-full absolute flex items-center justify-center">How are you</div>
+      ):null}
+
     </div>
   );
 };

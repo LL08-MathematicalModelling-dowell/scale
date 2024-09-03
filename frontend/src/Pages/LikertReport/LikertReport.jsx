@@ -4,6 +4,7 @@ import SelectField from "@/components/SelectField/SelectField";
 import {getLikertChannelsInstances, getLikertReport} from "@/services/api.services";
 import PropTypes from "prop-types";
 import {useState, useEffect} from "react";
+import NotFound from "../../assets/NotFound.jpg";
 
 const RectangleDiv = ({className = " ", scores, type}) => {
   const constrainedYellowPercent = scores;
@@ -104,9 +105,9 @@ const LikertReport = () => {
 
   const fetchLikertReport = async () => {
     setLoading(true);
+
     try {
       const reportResponse = await getLikertReport(payload);
-
       console.log("Report Response Status:", reportResponse.status); // Log the response status
 
       if (reportResponse.status === 200) {
@@ -167,6 +168,7 @@ const LikertReport = () => {
         console.log("404 Error: Report not found:", error?.response.data?.message);
         setAlert(true);
         setMessage("REPORT NOT FOUND");
+        setDisplayData(false);
       }
     } finally {
       setLoading(false);
@@ -192,7 +194,7 @@ const LikertReport = () => {
         beginAtZero: true,
         ticks: {
           callback: function (value) {
-            return value + " "; // Append '%' to y-axis labels
+            return value + " %"; // Append '%' to y-axis labels
           },
         },
       },
@@ -201,7 +203,7 @@ const LikertReport = () => {
       tooltip: {
         callbacks: {
           label: function (context) {
-            return context.dataset.label + ": " + context.raw + " "; // Append '%' to tooltip labels
+            return context.dataset.label + ": " + context.raw + " %"; // Append '%' to tooltip labels
           },
         },
       },
@@ -223,7 +225,7 @@ const LikertReport = () => {
       tooltip: {
         callbacks: {
           label: function (context) {
-            return context.dataset.label + ": " + context.raw + "%"; // No '%' symbol
+            return context.dataset.label + ": " + context.raw + " "; // No '%' symbol
           },
         },
       },
@@ -265,17 +267,22 @@ const LikertReport = () => {
             <SelectField handleInputChange={handleInputChange} triggerClass="w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins" placeholder="Select Instances" data={instanceName} />
             <SelectField handleInputChange={handleInputChange} triggerClass="w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins" placeholder="Duration" data={Duration} />
           </div>
-          {alert && (
-            <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 my-4 rounded-md font-poppins absolute top-20 right-4">
-              <p>{message}</p>
-            </div>
-          )}
+   
 
           <h2 className="font-montserrat tracking-tight text-xl font-bold">
             Total Response: <span className="font-poppins text-xl text-green-800">{totalResponse}</span>
           </h2>
         </div>
-
+        {displayData === false && alert === true && (
+              <div className="flex items-center justify-center mt-12  gap-x-3">
+                <img src={NotFound} alt="" className="w-64"/>
+           <div className="">
+           <h3 className="font-bold text-2xl tracking-tight font-poppins text-gray-500">{message}</h3>
+           <p className="font-poppins text-gray-800 text-[15px] tracking-tight mt-1">Please contact admin if possibly you have this report</p>
+           </div>
+            </div>
+        )
+          }
         {displayData && (
           <div className="flex justify-between items-center md:flex-row flex-col md:gap-16 gap-10 text-center mx-12 mt-8">
             {/* First Chart */}
@@ -284,7 +291,7 @@ const LikertReport = () => {
               <RectangleDiv scores={totalScoreYellowPercent} />
               <div className="mt-8">
                 <p className="font-poppins text-[13px] font-medium">Daywise Response Insights</p>
-                <LineGraph options={optionsWithPercentage} data={{labels: dailyCountsData.labels, datasets: normalizedData}} />
+                <LineGraph options={optionsWithoutPercentage} data={{labels: dailyCountsData.labels, datasets: normalizedData}} />
               </div>
             </div>
             {/* Second Chart */}
@@ -293,7 +300,7 @@ const LikertReport = () => {
               <RectangleDiv className="rounded-lg" scores={averageScoreYellowPercent} type="averageScore" />
               <div className="mt-8">
                 <p className="font-poppins text-[13px] font-medium">Overall Score Distribution</p>
-                <LineGraph options={optionsWithoutPercentage} data={lineChartDataTwo} />
+                <LineGraph options={optionsWithPercentage} data={lineChartDataTwo} />
               </div>
             </div>
           </div>
@@ -301,9 +308,7 @@ const LikertReport = () => {
       </div>
       {instanceLoading == true ? (
         <div
-          className="bg-gray-100 min-h-screen w-full absolute flex items-center justify-center  top-0 right-0
-      "
-        >
+          className="bg-gray-100 min-h-screen w-full absolute flex items-center justify-center  top-0 right-0 " >
       <p className="font-poppins text-xl text-green-800 font-semibold tracking-tight">Please wait,  while fetching your report...</p>
         </div>
       ) : null}

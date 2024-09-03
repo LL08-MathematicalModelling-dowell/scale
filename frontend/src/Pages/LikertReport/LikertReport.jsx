@@ -125,12 +125,16 @@ const [duration, setDuration] = useState(null)
         
         const dailyCounts = reportResult?.report?.daily_counts;
         console.log("Array of Daily Counts:", dailyCounts);
+        
         const dailyLabels = dailyCounts ? Object.keys(dailyCounts) : [];
         const dailyDatasets = [1, 2, 3, 4, 5].map((count) => ({
           label: `${count}`,
           data: dailyLabels.map((date) => dailyCounts[date]?.[count] || 0),
           borderColor: `hsl(${count * 72}, 70%, 50%)`,
         }));
+
+        console.log(dailyDatasets);
+        
   
         setDailyCountsData({
           labels: dailyLabels,
@@ -146,7 +150,7 @@ const [duration, setDuration] = useState(null)
         const overallLabels = overallDistribution ? Object.keys(overallDistribution) : [];
         const overallDataset = [
           {
-            label: "Score Distribution",
+            label: " ",
             data: overallLabels.map((score) => overallDistribution[score] || 0),
             borderColor: "rgb(34,197,94)",
           },
@@ -179,15 +183,10 @@ const [duration, setDuration] = useState(null)
   }, [channelValue, instanceValue, duration]);
 
 
-  
-
   const normalizeDatasets = (datasets) => {
-    let maxValue = Math.max(...datasets.flatMap((dataset) => dataset.data));
-    let maxPercentage = maxValue <= 100 ? 100 : 200;
-
     return datasets.map((dataset) => ({
       ...dataset,
-      data: dataset.data.map((value) => (value / maxValue) * maxPercentage),
+      data: dataset.data.map((value) => (value)),
     }));
   };
 
@@ -197,7 +196,7 @@ const [duration, setDuration] = useState(null)
         beginAtZero: true,
         ticks: {
           callback: function (value) {
-            return value + "%"; // Append '%' to y-axis labels
+            return value + " "; // Append '%' to y-axis labels
           },
         },
       },
@@ -206,7 +205,7 @@ const [duration, setDuration] = useState(null)
       tooltip: {
         callbacks: {
           label: function (context) {
-            return context.dataset.label + ": " + context.raw + "%"; // Append '%' to tooltip labels
+            return context.dataset.label + ": " + context.raw + " "; // Append '%' to tooltip labels
           },
         },
       },
@@ -217,13 +216,18 @@ const [duration, setDuration] = useState(null)
     scales: {
       y: {
         beginAtZero: true,
+        ticks: {
+          callback: function (value) {
+            return value + " "; // Append '%' to y-axis labels
+          },
+        },
       },
     },
     plugins: {
       tooltip: {
         callbacks: {
           label: function (context) {
-            return context.dataset.label + ": " + context.raw; // No '%' symbol
+            return context.dataset.label + ": " + context.raw + "%"; // No '%' symbol
           },
         },
       },
@@ -287,6 +291,7 @@ const [duration, setDuration] = useState(null)
             <p className="font-poppins tracking-tight text-[18px] font-medium">Total Score </p>
             <RectangleDiv scores={totalScoreYellowPercent} />
             <div className="mt-8">
+            <p className="font-poppins text-[13px] font-medium">Daywise Response Insights</p>
               <LineGraph options={optionsWithPercentage} data={{labels: dailyCountsData.labels, datasets: normalizedData}} />
             </div>
           </div>
@@ -295,6 +300,7 @@ const [duration, setDuration] = useState(null)
             <p className="font-poppins tracking-tight text-[18px] font-medium">Average Score</p>
             <RectangleDiv className="rounded-lg" scores={averageScoreYellowPercent} type="averageScore" />
             <div className="mt-8">
+              <p className="font-poppins text-[13px] font-medium">Overall Score Distribution</p>
               <LineGraph options={optionsWithoutPercentage} data={lineChartDataTwo} />
             </div>
           </div>

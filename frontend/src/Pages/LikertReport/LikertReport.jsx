@@ -41,11 +41,12 @@ const LikertReport = () => {
   const [totalScore, setTotalScore] = useState(0);
   const [averageScore, setAverageScore] = useState(0);
   const [reportData, setReportData] = useState([]);
+  const [displayData, setDisplayData] = useState(false);
   const [alert, setAlert] = useState(false);
   const [message, setMessage] = useState(" ");
   const [totalResponse, setTotalResponse] = useState(0);
   const [dailyCountsData, setDailyCountsData] = useState([]);
-const [duration, setDuration] = useState(null)
+  const [duration, setDuration] = useState(null);
   const [instanceValue, setInstanceValue] = useState(null);
   const [channelValue, setChannelValue] = useState(null);
   const [instanceLoading, setInstanceLoading] = useState(false);
@@ -57,10 +58,10 @@ const [duration, setDuration] = useState(null)
 
   const fetchLikertChannelInstances = async () => {
     const scale_id = "66c9d22a8739f31401f29fd5";
-    setInstanceLoading(true);  // Start loading
+    setInstanceLoading(true); // Start loading
     try {
       const channelDetailsResponse = await getLikertChannelsInstances(scale_id);
-  
+
       if (channelDetailsResponse.status === 200) {
         const data = channelDetailsResponse.data;
         const channels = data?.scale_data?.channel_instance_details.map((item) => ({
@@ -68,7 +69,7 @@ const [duration, setDuration] = useState(null)
           value: item.channel_name,
         }));
         setChannelName(channels);
-  
+
         const instances = data?.scale_data?.channel_instance_details.flatMap((item) =>
           item.instances_details.map((instance) => ({
             label: instance.instance_display_name,
@@ -78,54 +79,54 @@ const [duration, setDuration] = useState(null)
         setInstanceName(instances);
       } else {
         console.log("Channel API call was not successful:", channelDetailsResponse);
-        setAlert(true);  
-        setMessage("Failed to fetch channel instances."); 
+        setAlert(true);
+        setMessage("Failed to fetch channel instances.");
       }
     } catch (error) {
       console.log("Failed to fetch Likert report data", error);
-      setAlert(true); 
-      setMessage("An error occurred while fetching channel instances.");  
+      setAlert(true);
+      setMessage("An error occurred while fetching channel instances.");
     } finally {
-      setInstanceLoading(false);  // End loading
+      setInstanceLoading(false); // End loading
     }
   };
-  
+
   useEffect(() => {
     fetchLikertChannelInstances();
-  }, [ ]);
+  }, []);
 
   const payload = {
     scale_id: "66c9d22a8739f31401f29fd5",
     channel_names: [`${channelValue}`],
     instance_names: [`${instanceValue}`],
-    period: `${duration}`
+    period: `${duration}`,
   };
 
   const fetchLikertReport = async () => {
     setLoading(true);
     try {
       const reportResponse = await getLikertReport(payload);
-  
+
       console.log("Report Response Status:", reportResponse.status); // Log the response status
-  
+
       if (reportResponse.status === 200) {
+        setDisplayData(true)
         const reportResult = reportResponse.data;
         console.log("Report Result:", reportResult);
-        
         setReportData(reportResult);
         setTotalResponse(reportResult?.report.no_of_responses);
         const totalScoreString = reportResult?.report?.total_score;
-  
+
         const score = parseInt(totalScoreString.split("/")[0], 10);
         setTotalScore(score);
-  
+
         const reportAverageScore = reportResult?.report?.average_score;
         const roundedAverageScore = parseFloat(reportAverageScore.toFixed(2));
         setAverageScore(roundedAverageScore);
-        
+
         const dailyCounts = reportResult?.report?.daily_counts;
         console.log("Array of Daily Counts:", dailyCounts);
-        
+
         const dailyLabels = dailyCounts ? Object.keys(dailyCounts) : [];
         const dailyDatasets = [1, 2, 3, 4, 5].map((count) => ({
           label: `${count}`,
@@ -134,19 +135,18 @@ const [duration, setDuration] = useState(null)
         }));
 
         console.log(dailyDatasets);
-        
-  
+
         setDailyCountsData({
           labels: dailyLabels,
           datasets: dailyDatasets,
         });
-  
+
         const normalized = normalizeDatasets(dailyDatasets);
         setNormalizedData(normalized);
-  
+
         const overallDistribution = reportResponse?.data?.report?.overall_score_distribution;
         console.log("Overall Score Distribution:", overallDistribution);
-  
+
         const overallLabels = overallDistribution ? Object.keys(overallDistribution) : [];
         const overallDataset = [
           {
@@ -155,8 +155,7 @@ const [duration, setDuration] = useState(null)
             borderColor: "rgb(34,197,94)",
           },
         ];
-        setOverallScoreData({ labels: overallLabels, datasets: overallDataset });
-   
+        setOverallScoreData({labels: overallLabels, datasets: overallDataset});
       } else {
         console.log("Non-200/404 Response:", reportResponse);
         setAlert(true);
@@ -164,17 +163,15 @@ const [duration, setDuration] = useState(null)
       }
     } catch (error) {
       console.log("Catch Error: Failed to fetch Likert report data", error?.response);
-   if (error?.response.status === 404) {
-    console.log("404 Error: Report not found:", error?.response.data?.message);
-    setAlert(true);
-    setMessage("REPORT NOT FOUND");
-   }
+      if (error?.response.status === 404) {
+        console.log("404 Error: Report not found:", error?.response.data?.message);
+        setAlert(true);
+        setMessage("REPORT NOT FOUND");
+      }
     } finally {
       setLoading(false);
     }
   };
-  
-  
 
   useEffect(() => {
     if (channelValue && instanceValue && duration) {
@@ -182,11 +179,10 @@ const [duration, setDuration] = useState(null)
     }
   }, [channelValue, instanceValue, duration]);
 
-
   const normalizeDatasets = (datasets) => {
     return datasets.map((dataset) => ({
       ...dataset,
-      data: dataset.data.map((value) => (value)),
+      data: dataset.data.map((value) => value),
     }));
   };
 
@@ -244,13 +240,10 @@ const [duration, setDuration] = useState(null)
       setChannelValue(value);
     }
 
-    if(value.endsWith("days")){
-      setDuration(value)
+    if (value.endsWith("days")) {
+      setDuration(value);
     }
   };
-
-  
-
 
   const Duration = [
     {label: "7 days", value: "seven_days"},
@@ -264,11 +257,9 @@ const [duration, setDuration] = useState(null)
 
   return (
     <div className="min-h-screen max-w-full relative">
-
       <Navbar />
       <div className="my-12 mx-8 ">
         <div className="flex flex-col justify-center items-center gap-10">
-    
           <div className="flex justify-center gap-5 flex-col md:flex-row">
             <SelectField handleInputChange={handleInputChange} triggerClass="w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins" placeholder="Select Channel Name" data={channelName} />
             <SelectField handleInputChange={handleInputChange} triggerClass="w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins" placeholder="Select Instances" data={instanceName} />
@@ -285,31 +276,31 @@ const [duration, setDuration] = useState(null)
           </h2>
         </div>
 
-        <div className="flex justify-between items-center md:flex-row flex-col md:gap-16 gap-10 text-center mx-12 mt-8">
-          {/* First Chart */}
-          <div className="flex flex-col gap-2 md:w-3/5 w-screen px-7">
-            <p className="font-poppins tracking-tight text-[18px] font-medium">Total Score </p>
-            <RectangleDiv scores={totalScoreYellowPercent} />
-            <div className="mt-8">
-            <p className="font-poppins text-[13px] font-medium">Daywise Response Insights</p>
-              <LineGraph options={optionsWithPercentage} data={{labels: dailyCountsData.labels, datasets: normalizedData}} />
-            </div>
-          </div>
-          {/* Second Chart */}
-          <div className="flex flex-col md:w-3/5 w-screen gap-2 px-7">
-            <p className="font-poppins tracking-tight text-[18px] font-medium">Average Score</p>
-            <RectangleDiv className="rounded-lg" scores={averageScoreYellowPercent} type="averageScore" />
-            <div className="mt-8">
-              <p className="font-poppins text-[13px] font-medium">Overall Score Distribution</p>
-              <LineGraph options={optionsWithoutPercentage} data={lineChartDataTwo} />
-            </div>
-          </div>
-        </div>
+       {displayData && (
+         <div className="flex justify-between items-center md:flex-row flex-col md:gap-16 gap-10 text-center mx-12 mt-8">
+         {/* First Chart */}
+         <div className="flex flex-col gap-2 md:w-3/5 w-screen px-7">
+           <p className="font-poppins tracking-tight text-[18px] font-medium">Total Score </p>
+           <RectangleDiv scores={totalScoreYellowPercent} />
+           <div className="mt-8">
+             <p className="font-poppins text-[13px] font-medium">Daywise Response Insights</p>
+             <LineGraph options={optionsWithPercentage} data={{labels: dailyCountsData.labels, datasets: normalizedData}} />
+           </div>
+         </div>
+         {/* Second Chart */}
+         <div className="flex flex-col md:w-3/5 w-screen gap-2 px-7">
+           <p className="font-poppins tracking-tight text-[18px] font-medium">Average Score</p>
+           <RectangleDiv className="rounded-lg" scores={averageScoreYellowPercent} type="averageScore" />
+           <div className="mt-8">
+             <p className="font-poppins text-[13px] font-medium">Overall Score Distribution</p>
+             <LineGraph options={optionsWithoutPercentage} data={lineChartDataTwo} />
+           </div>
+         </div>
+       </div>
+       )}
       </div>
-       {instanceLoading == true ? (
-     <div className="bg-gray-100 min-h-screen w-full absolute flex items-center justify-center">How are you</div>
-      ):null}
-
+      {instanceLoading == true ? <div className="bg-gray-100 min-h-screen w-full absolute flex items-center justify-center  top-0 right-0
+      ">How are you</div> : null}
     </div>
   );
 };

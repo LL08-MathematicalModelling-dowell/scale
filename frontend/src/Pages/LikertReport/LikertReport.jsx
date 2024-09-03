@@ -110,7 +110,7 @@ const LikertReport = () => {
       console.log("Report Response Status:", reportResponse.status); // Log the response status
 
       if (reportResponse.status === 200) {
-        setDisplayData(true)
+        setDisplayData(true);
         const reportResult = reportResponse.data;
         console.log("Report Result:", reportResult);
         setReportData(reportResult);
@@ -276,31 +276,37 @@ const LikertReport = () => {
           </h2>
         </div>
 
-       {displayData && (
-         <div className="flex justify-between items-center md:flex-row flex-col md:gap-16 gap-10 text-center mx-12 mt-8">
-         {/* First Chart */}
-         <div className="flex flex-col gap-2 md:w-3/5 w-screen px-7">
-           <p className="font-poppins tracking-tight text-[18px] font-medium">Total Score </p>
-           <RectangleDiv scores={totalScoreYellowPercent} />
-           <div className="mt-8">
-             <p className="font-poppins text-[13px] font-medium">Daywise Response Insights</p>
-             <LineGraph options={optionsWithPercentage} data={{labels: dailyCountsData.labels, datasets: normalizedData}} />
-           </div>
-         </div>
-         {/* Second Chart */}
-         <div className="flex flex-col md:w-3/5 w-screen gap-2 px-7">
-           <p className="font-poppins tracking-tight text-[18px] font-medium">Average Score</p>
-           <RectangleDiv className="rounded-lg" scores={averageScoreYellowPercent} type="averageScore" />
-           <div className="mt-8">
-             <p className="font-poppins text-[13px] font-medium">Overall Score Distribution</p>
-             <LineGraph options={optionsWithoutPercentage} data={lineChartDataTwo} />
-           </div>
-         </div>
-       </div>
-       )}
+        {displayData && (
+          <div className="flex justify-between items-center md:flex-row flex-col md:gap-16 gap-10 text-center mx-12 mt-8">
+            {/* First Chart */}
+            <div className="flex flex-col gap-2 md:w-3/5 w-screen px-7">
+              <p className="font-poppins tracking-tight text-[18px] font-medium">Total Score </p>
+              <RectangleDiv scores={totalScoreYellowPercent} />
+              <div className="mt-8">
+                <p className="font-poppins text-[13px] font-medium">Daywise Response Insights</p>
+                <LineGraph options={optionsWithPercentage} data={{labels: dailyCountsData.labels, datasets: normalizedData}} />
+              </div>
+            </div>
+            {/* Second Chart */}
+            <div className="flex flex-col md:w-3/5 w-screen gap-2 px-7">
+              <p className="font-poppins tracking-tight text-[18px] font-medium">Average Score</p>
+              <RectangleDiv className="rounded-lg" scores={averageScoreYellowPercent} type="averageScore" />
+              <div className="mt-8">
+                <p className="font-poppins text-[13px] font-medium">Overall Score Distribution</p>
+                <LineGraph options={optionsWithoutPercentage} data={lineChartDataTwo} />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
-      {instanceLoading == true ? <div className="bg-gray-100 min-h-screen w-full absolute flex items-center justify-center  top-0 right-0
-      ">How are you</div> : null}
+      {instanceLoading == true ? (
+        <div
+          className="bg-gray-100 min-h-screen w-full absolute flex items-center justify-center  top-0 right-0
+      "
+        >
+      <p className="font-poppins text-xl text-green-800 font-semibold tracking-tight">Please wait,  while fetching your report...</p>
+        </div>
+      ) : null}
     </div>
   );
 };

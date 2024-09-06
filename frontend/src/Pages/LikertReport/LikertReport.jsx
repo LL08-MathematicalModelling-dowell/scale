@@ -187,15 +187,36 @@ const LikertReport = () => {
       data: dataset.data.map((value) => value),
     }));
   };
-
   const optionsWithPercentage = {
     scales: {
       y: {
         beginAtZero: true,
         ticks: {
           callback: function (value) {
-            return value + " %"; // Append '%' to y-axis labels
+            return value + " %"; 
           },
+        },
+        title: {
+          display: true,
+          text: 'Percentage', 
+          font: {
+            size: 15,
+            weight: 'bold',
+            family: 'poppins'
+          },
+          color: '#005734'
+        },
+      },
+      x: {
+        title: {
+          display: true,
+          text: 'Score', 
+          font: {
+            size: 15,
+            weight: 'bold',
+            family: 'poppins'
+          },
+          color: '#005734'
         },
       },
     },
@@ -203,21 +224,43 @@ const LikertReport = () => {
       tooltip: {
         callbacks: {
           label: function (context) {
-            return context.dataset.label + ": " + context.raw + " %"; // Append '%' to tooltip labels
+            return context.dataset.label + ": " + context.raw + " %"; 
           },
         },
       },
     },
   };
-
+  
   const optionsWithoutPercentage = {
     scales: {
       y: {
         beginAtZero: true,
         ticks: {
           callback: function (value) {
-            return value + " "; // Append '%' to y-axis labels
+            return value; 
           },
+        },
+        title: {
+          display: true,
+          text: 'Count', 
+          font: {
+            size: 15,
+            weight: 'bold',
+            family: 'poppins'
+          },
+          color: '#005734'
+        },
+      },
+      x: {
+        title: {
+          display: true,
+          text: 'Days', 
+          font: {
+            size: 16,
+            weight: 'bold',
+            family: 'poppins'
+          },
+          color: '#005734'
         },
       },
     },
@@ -225,12 +268,13 @@ const LikertReport = () => {
       tooltip: {
         callbacks: {
           label: function (context) {
-            return context.dataset.label + ": " + context.raw + " "; // No '%' symbol
+            return context.dataset.label + ": " + context.raw; 
           },
         },
       },
     },
   };
+  
 
   const lineChartDataTwo = overallScoreData;
 

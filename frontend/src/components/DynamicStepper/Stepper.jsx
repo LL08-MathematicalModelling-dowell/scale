@@ -26,7 +26,7 @@ const Stepper = () => {
 
   return (
     <>
-      <div className="flex flex-col gap-9 ">
+      <div className="flex flex-col gap-9 md:max-w-full">
         <div className="flex justify-between">
           {steps.map((step, index) => (
             <div key={index} className={`relative flex flex-col justify-center items-center md:w-full w-64 step-item gap-2 ${currentStep === index + 1 && "active"} ${(index + 1 < currentStep || complete) && "complete"}`}>
@@ -37,25 +37,25 @@ const Stepper = () => {
         </div>
         {/* Step 1 */}
         {currentStep === 1 && (
-          <div className="mt-4 md:mx-32 max-w-full">
+          <div className="mt-4 md:mx-32 ">
             <Configure />
           </div>
         )}
         {/* Step 2 */}
         {currentStep === 2 && (
-          <div className="mt-4 md:mx-32 max-w-full">
+          <div className="mt-4 md:mx-32">
             <Customize />
           </div>
         )}
         {/* Step 3 */}
         {currentStep === 3 && (
-          <div className="mt-4 md:mx-32 max-w-full">
+          <div className="mt-4 md:mx-32">
             <Configure />
           </div>
         )}
       </div>
 
-      <div className={`flex items-center  px-52 mt-20  gap-8 w-full ${currentStep > 1 ? "justify-between" : "justify-center"}`}>
+      <div className={`flex items-center  mt-20  gap-8 w-full justify-center py-10`}>
         <Link className={`previous ${currentStep === 1 && "hidden"}`} onClick={handlePrevious}>
           Previous
         </Link>

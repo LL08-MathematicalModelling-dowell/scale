@@ -20,7 +20,7 @@ const EditScale = () => {
           {/* bg-gradient-to-r from-green-400 via-cyan-900 to-blue-500 */}
         </div>
       </div>
-      <div className="flex justify-center items-center mt-3">
+      <div className="flex justify-center items-center pb-9 ">
         <Link to="/scale-creating" className="py-3 px-5 bg-dowellDeepGreen text-white rounded-lg font-poppins font-medium text-[15px] hover:shadow-2xl hover:scale-105 transition-all duration-300 ease-in-out">Start Creating</Link>
       </div>
     </div>

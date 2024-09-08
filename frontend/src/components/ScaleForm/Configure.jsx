@@ -15,7 +15,7 @@ const Configure = () => {
     }
   };
   return (
-    <div className=" max-w-full">
+    <div className=" max-w-sm md:max-w-full">
       <h2 className="font-poppins text-2xl tracking-tight font-bold text-dowellDeepGreen text-center">Configure your scale</h2>
       <div className="mt-12  flex md:flex-row flex-col md:gap-2 gap-8 justify-evenly px-5  relative">
         <div className="md:w-[40%] w-full flex flex-col gap-8">

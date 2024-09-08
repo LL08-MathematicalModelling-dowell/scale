@@ -16,13 +16,13 @@ const Configure = () => {
   };
   return (
     <div className=" max-w-full">
-      <h2 className="font-poppins text-3xl tracking-tight font-bold text-dowellDeepGreen text-center">Configure your scale</h2>
-      <div className="mt-12  flex md:flex-row flex-col md:gap-2 gap-10 justify-evenly px-5  relative">
-        <div className="md:w-[40%] w-full flex flex-col gap-10">
+      <h2 className="font-poppins text-2xl tracking-tight font-bold text-dowellDeepGreen text-center">Configure your scale</h2>
+      <div className="mt-12  flex md:flex-row flex-col md:gap-2 gap-8 justify-evenly px-5  relative">
+        <div className="md:w-[40%] w-full flex flex-col gap-8">
           <ScaleInput type="text" placeholder="Enter scale name" label="Scale Name" />
           <ScaleInput type="text" placeholder="Enter channel name" label="Specify Channel" />
         </div>
-        <div className="md:w-[40%] flex flex-col gap-10 w-full">
+        <div className="md:w-[40%] flex flex-col gap-8 w-full">
           <ScaleInput type="text" placeholder="Enter number" label="No. response per instance" />
           {instances.map((item, index) => (
             <ScaleInput key={index} type="text" placeholder={`Enter instance name ${item}`} label={`Specify instances ${item}`} />

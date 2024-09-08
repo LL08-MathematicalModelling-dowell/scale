@@ -3,7 +3,7 @@ import "./CSS/Stepper.css";
 import {Link} from "react-router-dom";
 import {FaCheckCircle} from "react-icons/fa";
 import Configure from "../ScaleForm/Configure";
-
+import Customize from "../ScaleForm/Customize";
 
 const Stepper = () => {
   const steps = ["Configure ", "Customize", "Finish Up"];
@@ -13,40 +13,49 @@ const Stepper = () => {
   const handlePrevious = () => {
     if (currentStep > 1) {
       setCurrentStep((prev) => prev - 1);
-      if (complete) setComplete(false); 
+      if (complete) setComplete(false);
     }
   };
   const handleNext = () => {
     if (currentStep === steps.length) {
-      setComplete(true); 
+      setComplete(true);
     } else {
       setCurrentStep((prev) => prev + 1);
     }
   };
 
-
-
   return (
     <>
       <div className="flex flex-col gap-9 ">
-      <div className="flex justify-between">
-        {steps.map((step, index) => (
-          <div key={index} className={`relative flex flex-col justify-center items-center md:w-full w-64 step-item gap-2 ${currentStep === index + 1 && "active"} ${(index + 1 < currentStep || complete) && "complete"}`}>
-            <div className={`step ${currentStep > index + 1 || complete ? "text-white bg-dowellDeepGreen" : null}`}>{currentStep > index + 1 || complete ? <FaCheckCircle /> : index + 1}</div>
-            <p className={`text-center pl-[7px] font-poppins text-black text-[13px] ${currentStep > index + 1 || complete ? "font-bold" : null}`}>{step}</p>
-          </div>
-        ))}
-      </div>
-       {currentStep === 1 && (
-        <div className="mt-4 md:mx-32 max-w-full">
-            <Configure/>
+        <div className="flex justify-between">
+          {steps.map((step, index) => (
+            <div key={index} className={`relative flex flex-col justify-center items-center md:w-full w-64 step-item gap-2 ${currentStep === index + 1 && "active"} ${(index + 1 < currentStep || complete) && "complete"}`}>
+              <div className={`step ${currentStep > index + 1 || complete ? "text-white bg-dowellDeepGreen" : null}`}>{currentStep > index + 1 || complete ? <FaCheckCircle /> : index + 1}</div>
+              <p className={`text-center pl-[7px] font-poppins text-black text-[13px] ${currentStep > index + 1 || complete ? "font-bold" : null}`}>{step}</p>
+            </div>
+          ))}
         </div>
-      )}
+        {/* Step 1 */}
+        {currentStep === 1 && (
+          <div className="mt-4 md:mx-32 max-w-full">
+            <Configure />
+          </div>
+        )}
+        {/* Step 2 */}
+        {currentStep === 2 && (
+          <div className="mt-4 md:mx-32 max-w-full">
+            <Customize />
+          </div>
+        )}
+        {/* Step 3 */}
+        {currentStep === 3 && (
+          <div className="mt-4 md:mx-32 max-w-full">
+            <Configure />
+          </div>
+        )}
       </div>
-     
-     
 
-      <div className="flex items-center justify-center mt-20  gap-8 w-full">
+      <div className={`flex items-center  px-52 mt-20  gap-8 w-full ${currentStep > 1 ? "justify-between" : "justify-center"}`}>
         <Link className={`previous ${currentStep === 1 && "hidden"}`} onClick={handlePrevious}>
           Previous
         </Link>

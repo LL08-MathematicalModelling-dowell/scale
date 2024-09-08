@@ -29,6 +29,7 @@ const ScaleSelectForm = () => {
     scaleImg: item.scaleImg,
   }));
 
+  console.log(selectedScale)
   const handleScaleChange = (value) => {
     const selected = data.find((item) => item.scaleName === value);
     setSelectedScale(selected);

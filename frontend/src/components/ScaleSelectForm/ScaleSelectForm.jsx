@@ -2,6 +2,9 @@ import {useState, useEffect} from "react";
 import {UserScaleData} from "@/data/DummyData";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 import NoImage from "./../../assets/NoImg.png";
+import NpsPreview from "../ScaleTypePreviews/NpsPreview";
+import NpsLitePreview from "../ScaleTypePreviews/NpsLitePreview";
+import StaplePreview from "../ScaleTypePreviews/StaplePreview";
 
 const ScaleSelectForm = () => {
   const [selectedScale, setSelectedScale] = useState(null);
@@ -38,11 +41,19 @@ const ScaleSelectForm = () => {
     }
     switch (selectedScale.scaleName) {
       case "nps":
-        return <div>Hey</div>;
+        return (
+          <div>
+            <NpsPreview />
+          </div>
+        );
       case "nps lite":
-        return <div>Lite NPS</div>;
+        return (
+          <div>
+            <NpsLitePreview />
+          </div>
+        );
       case "stapel":
-        return <div>Stapel</div>;
+        return <div><StaplePreview/></div>;
       case "likert":
         return <div>Likert</div>;
       case "percent":
@@ -93,17 +104,17 @@ const ScaleSelectForm = () => {
         </div>
         <h2 className="font-montserrat tracking-tight text-2xl font-bold">Scale Description</h2>
         {selectedScale && <p className="font-poppins md:text-[18px] text-[13.5px] tracking-tight">{selectedScale.scaleDescription}</p>}
-        <div className="flex items-center gap-x-6">
-          <p className="text-[18px] font-poppins tracking-tight font-normal">
+        <div className="flex gap-4 md:items-center  md:gap-x-6 flex-col md:flex-row">
+          <p className="md:text-[18px] font-poppins tracking-tight font-normal text-[16px]">
             Are you <span className="font-black">Curious</span> to see your scale? ❤️
           </p>
-          <button onClick={handleModal} className="py-2 px-7 bg-gradient-to-r from-green-400 via-cyan-900 to-blue-500 text-white rounded-lg font-pacifico font-regular text-[15px] shadow-2xl hover:shadow-2xl hover:scale-105 transition-all duration-300 ease-in-out">
+          <button onClick={handleModal} className="py-2 px-7 bg-green-700 text-white rounded-lg font-pacifico tracking-wider font-regular text-[15px] shadow-2xl hover:shadow-2xl hover:scale-105 transition-all duration-300 ease-in-out">
             Preview Scale
           </button>
         </div>
         {openModal && (
           <div onClick={() => setOpenModal(false)} className="bg-black/80 fixed top-0 left-0 w-full h-full flex items-center justify-center z-50">
-            <div className="bg-white w-[90%] md:w-[50%] h-[90%] md:h-[80%] rounded-xl flex flex-col items-center justify-center gap-4">{renderPreviewComponent()}</div>
+            <div className="bg-white w-[90%] md:w-[70%] h-[50%] md:h-[60%]  rounded-xl flex flex-col items-center  gap-4">{renderPreviewComponent()}</div>
           </div>
         )}
       </div>

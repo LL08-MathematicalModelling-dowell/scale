@@ -14,6 +14,8 @@ import {CircularProgress} from "@mui/material";
 import {UserScaleData} from "../../data/DummyData";
 import ScaleViewModal from "@/components/Modals/ScaleViewModal";
 import CustomDate from "@/components/DateSelector/CustomDate";
+import {FaPlusCircle} from "react-icons/fa";
+import {Link} from "react-router-dom";
 
 const HomePage = () => {
   const {currentUser, currentUserDetailLoading} = useCurrentUserContext();
@@ -96,7 +98,10 @@ const HomePage = () => {
                 <CircularProgress size={20} /> Hang tight!, just a moment...
               </p>
             ) : (
-              message
+              <Link to="/edit-scale" className="flex gap-2 font-medium font-poppins tracking-tight py-2 px-4 rounded-md bg-dowellDeepGreen hover:bg-green-800 text-white transition-all duration-300 ease-in-out items-center">
+                {" "}
+                <FaPlusCircle /> New Scale
+              </Link>
             )}
           </div>
           {currentUserDetailLoading ? (
@@ -172,9 +177,7 @@ const HomePage = () => {
                   </div>
                 </div>
               )}
-              {selected === 5 ? (
-                 <div className="absolute top-16 right-12">{openSelect && <DateRangeComp onClose={() => setOpenSelect(false)} onSelect={filterByDate} />}</div>
-              ) : null}
+              {selected === 5 ? <div className="absolute top-16 right-12">{openSelect && <DateRangeComp onClose={() => setOpenSelect(false)} onSelect={filterByDate} />}</div> : null}
               {/* Scale Type */}
               <div className="flex gap-3 items-center pr-3 border-r-[2px] border-gray-300 cursor-pointer" onClick={handleScaleOpen}>
                 <p className="font-poppins font-normal tracking-tight text-[12px] md:text-[15px] hover:scale-105">Scale Type</p>

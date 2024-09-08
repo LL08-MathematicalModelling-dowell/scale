@@ -2,10 +2,11 @@ import {useState} from "react";
 import "./CSS/Stepper.css";
 import {Link} from "react-router-dom";
 import {FaCheckCircle} from "react-icons/fa";
+import Configure from "../ScaleForm/Configure";
 
 
 const Stepper = () => {
-  const steps = ["Select ", "Customize", "Finish Up"];
+  const steps = ["Configure ", "Customize", "Finish Up"];
   const [currentStep, setCurrentStep] = useState(1);
   const [complete, setComplete] = useState(false);
 
@@ -27,7 +28,7 @@ const Stepper = () => {
 
   return (
     <>
-      <div className="flex flex-col gap-9">
+      <div className="flex flex-col gap-9 ">
       <div className="flex justify-between">
         {steps.map((step, index) => (
           <div key={index} className={`relative flex flex-col justify-center items-center md:w-full w-64 step-item gap-2 ${currentStep === index + 1 && "active"} ${(index + 1 < currentStep || complete) && "complete"}`}>
@@ -37,20 +38,20 @@ const Stepper = () => {
         ))}
       </div>
        {currentStep === 1 && (
-        <div className=" ">
-
+        <div className="mt-4 md:mx-32 max-w-full">
+            <Configure/>
         </div>
       )}
       </div>
      
      
 
-      <div className="flex items-center justify-center my-4 gap-8">
+      <div className="flex items-center justify-center mt-20  gap-8 w-full">
         <Link className={`previous ${currentStep === 1 && "hidden"}`} onClick={handlePrevious}>
           Previous
         </Link>
         {!complete && (
-          <Link className="next" onClick={handleNext}>
+          <Link className="py-2 px-12 font-poppins text-center text-white text-[15px] font-medium bg-dowellDeepGreen hover:bg-transparent hover:text-dowellDeepGreen rounded-md cursor-pointer hover:shadow-xl transition ease-in-out duration-300" onClick={handleNext}>
             {currentStep === steps.length ? "Finish" : "Next"}
           </Link>
         )}

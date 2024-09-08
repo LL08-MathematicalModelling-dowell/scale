@@ -4,6 +4,7 @@ import {useState} from "react";
 
 const Customize = () => {
   const [activeFontFamily, setActiveFontFamily] = useState("Open Sans");
+  const googleApiKey = import.meta.env.VITE_GOOGLE_API_KEY;
 
   return (
     <div className="max-w-full">
@@ -13,7 +14,7 @@ const Customize = () => {
         <div className="w-[50%]">
           <p className="font-poppins text-sm font-medium text-dowellDeepGreen mb-2">-- Font style -- </p>
           <div className="bg-white rounded-lg shadow-md px-4 py-2">
-            <FontPicker apiKey="AIzaSyC4FjDCzZ1HekaXMLfdlYrATjT3fmSZtto" activeFontFamily={activeFontFamily} onChange={(nextFont) => setActiveFontFamily(nextFont.family)} />
+            <FontPicker apiKey={googleApiKey} activeFontFamily={activeFontFamily} onChange={(nextFont) => setActiveFontFamily(nextFont.family)} />
           </div>
           <p style={{ fontFamily: activeFontFamily }}>Here is the preview of font style</p>
         </div>

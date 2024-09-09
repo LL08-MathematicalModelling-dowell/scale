@@ -6,6 +6,7 @@ import { connectToDb } from './src/config/db.config.js';
 import config from './src/config/index.js';
 import { getCurrentTimestamp } from "./src/utils/helper.js"
 import { saveLocationWorker } from "./src/config/workers.config.js"
+import os from 'os';
 
 const app = express();
 
@@ -24,6 +25,14 @@ app.get('/', (req, res) => {
         status: "UP",
         timestamp: now,
         server_time: now,
+        cpuUsage: os.loadavg(),
+        totalMemory: `${(os.totalmem() / 1024 / 1024).toFixed(2)} MB`,
+        freeMemory: `${(os.freemem() / 1024 / 1024).toFixed(2)} MB`,
+        uptime: `${process.uptime().toFixed(2)} Second`,
+        memoryUsage: {
+            heapTotal: `${(process.memoryUsage().heapTotal / 1024 / 1024).toFixed(2)} MB`,
+            heapUsed: `${(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2)} MB`
+        },
         message: "Microservices is running fine" 
     });
 });

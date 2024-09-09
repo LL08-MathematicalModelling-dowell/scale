@@ -8,6 +8,14 @@ const getAPIServerStatus = async () => {
   return await servicesAxiosInstance.get("/v1/");
 };
 
+const microServicesServerStatus = async () => {
+  return await otpAxiosInstance.get("/");
+};
+
+const microServicesAPIServerStatus = async () => {
+  return await otpAxiosInstance.get("/v1/healtcheckup");
+}
+
 const getUserLogin = async (credentials) => {
   return await servicesAxiosInstance.post("/v1/voc/user-management/?type=authenticate_user", credentials);
 };
@@ -120,5 +128,7 @@ export {getUserLogin,
   scaleResponse, 
    saveScaleDetailsType, 
    getLikertReport,
-  getLikertChannelsInstances
+  getLikertChannelsInstances,
+  microServicesServerStatus,
+  microServicesAPIServerStatus,
   };

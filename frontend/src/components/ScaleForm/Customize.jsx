@@ -1,5 +1,5 @@
 // import ScaleInput from "./SelectField/ScaleInput";
-import FontPicker from "font-picker-react";
+// import FontPicker from "font-picker-react";
 import {useState} from "react";
 import SelectInput from "./SelectField/SelectInput";
 
@@ -24,35 +24,35 @@ const Customize = () => {
 
   return (
     <div className="w-full px-5 ">
-      <h2 className="font-poppins text-2xl tracking-tight font-bold text-dowellDeepGreen text-center">Customize your scale</h2>
+      <h2 className="text-2xl font-bold tracking-tight text-center font-poppins text-dowellDeepGreen">Customize your scale</h2>
 
-      <div className="w-full  my-12  flex flex-col gap-6">
+      <div className="flex flex-col w-full gap-6 my-12">
         <div>
-          <p className="font-poppins text-sm font-medium text-dowellDeepGreen mb-1">Scale Orientation</p>
+          <p className="mb-1 text-sm font-medium font-poppins text-dowellDeepGreen">Scale Orientation</p>
          {screenOrientation.length > 0 && (
              <SelectInput data={screenOrientation} className="md:w-[30%] py-6 font-poppins text-[13px] font-medium text-dowellDeepGreen focus:ring-dowellDeepGreen" placeholder="-- Select Orientation --" />
          )}
         </div>
         {/* For Font, color and size */}
 
-        <div className="flex gap-6 md:flex-row flex-col w-full">
+        <div className="flex flex-col w-full gap-6 md:flex-row">
           <div className="w-[80%] md:w-[30%]">
-            <p className="font-poppins text-sm font-medium text-dowellDeepGreen mb-1">-- Font style -- </p>
-            <div className="bg-white rounded-lg shadow-md px-4 py-2">
+            <p className="mb-1 text-sm font-medium font-poppins text-dowellDeepGreen">-- Font style -- </p>
+            <div className="px-4 py-2 bg-white rounded-lg shadow-md">
               <FontPicker apiKey={googleApiKey} activeFontFamily={activeFontFamily} onChange={(nextFont) => setActiveFontFamily(nextFont.family)} />
             </div>
             <p style={{fontFamily: activeFontFamily, fontSize: 13, marginTop: 2}}>-- Here is the preview of font style --</p>
           </div>
           {/* For Font Color */}
           <div className="md:w-[19%] w-[40%]">
-            <p className="font-poppins text-sm font-medium text-dowellDeepGreen mb-2">-- Font Color --</p>
+            <p className="mb-2 text-sm font-medium font-poppins text-dowellDeepGreen">-- Font Color --</p>
             <div className="bg-white rounded-lg shadow-md px-7 py-[10px]">
               <input type="color" />
             </div>
           </div>
           {/* For Font Sizes */}
           <div className="w-full">
-            <p className="font-poppins text-sm font-medium text-dowellDeepGreen mb-2">-- Font Size --</p>
+            <p className="mb-2 text-sm font-medium font-poppins text-dowellDeepGreen">-- Font Size --</p>
             {fontSizes.length > 0 && <SelectInput data={fontSizes} className="md:w-[30%] font-poppins text-[13px] font-medium text-dowellDeepGreen focus:ring-dowellDeepGreen py-6" placeholder="16px" />}
           </div>
         </div>

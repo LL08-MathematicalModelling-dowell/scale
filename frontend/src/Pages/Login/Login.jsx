@@ -63,11 +63,11 @@ const Login = () => {
       setHealthStatus(response.data.success ? "healthy" : "Unhealthy");
     } catch (error) {
       console.log(error);
-      
+
       setHealthStatus("Unhealthy");
     }
   };
-  
+
 
   const getLocation = () => {
     if (navigator.geolocation) {
@@ -89,7 +89,7 @@ const Login = () => {
 
   const login = async (credentials) => {
     try {
-      const response = await getUserLogin(credentials); 
+      const response = await getUserLogin(credentials);
       if (response.status === 200 && response.data.success) {
         const result = response.data;
         localStorage.setItem("refreshToken", result.refresh_token);
@@ -149,7 +149,14 @@ const Login = () => {
   };
 
   const handleRegister = () => {
-    navigate("/voc/register");
+    const queryParams = new URLSearchParams(location.search);
+    const workspaceName = queryParams.get("workspace_name")
+    console.log(workspaceName);
+    if (!workspaceName) {
+      navigate(`/voc/register`);
+    } else {
+      navigate(`/voc/register/?workspace_name=${workspaceName}`);
+    }
   };
 
   return (
@@ -158,11 +165,10 @@ const Login = () => {
         <div className="fixed right-8 top-5">
           {healthStatus && (
             <div
-              className={`w-6 h-6 rounded-full ${
-                healthStatus === "healthy"
+              className={`w-6 h-6 rounded-full ${healthStatus === "healthy"
                   ? "bg-green-500 animate-pulse"
                   : "bg-red-500 animate-pulse"
-              }`}
+                }`}
               title={`Server status: ${healthStatus}`}
             />
           )}
@@ -204,11 +210,10 @@ const Login = () => {
           />
           <button
             type="submit"
-            className={`w-40 py-2 text-sm font-semibold rounded-md transition-colors duration-300 ${
-              loading
+            className={`w-40 py-2 text-sm font-semibold rounded-md transition-colors duration-300 ${loading
                 ? "bg-blue-300 cursor-not-allowed text-gray-700"
                 : "bg-blue-600 hover:bg-blue-700 text-white"
-            }`}
+              }`}
             disabled={loading}
           >
             {loading ? (

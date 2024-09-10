@@ -2,21 +2,20 @@ from services.datacube import *
 from utils.eventID import get_event_id
 from itertools import chain
 
-class scaleServices:
-    def __init__(self, npsScale, likertScale, npsLiteScale, stapelScale):
-        self.npsScale = npsScale
-        self.likertScale = likertScale
-        self.npsLiteScale = npsLiteScale
-        self.stapelScale = stapelScale
+class scaleServicesClass:
+    def __init__(self):
+        pass
 
     def get_nps_scale(self, payload):
             scale_range = range(0,11)
             no_of_buttons = 11
 
             scale_details = {
-                 "scale_name": payload["username"],
+                 "workspace_id": payload["workspace_id"],
+                 "username": payload["username"],
+                 "scale_name": payload["scale_name"],
                  "scale_type": payload["scale_type"],
-                 "user_type": payload["user"],
+                 "user_type": payload["user_type"],
                  "channel_instance_list": payload["channel_instance_list"],
                  "no_of_channels":len(payload["channel_instance_list"]),
                  "no_of_buttons": no_of_buttons,
@@ -37,6 +36,9 @@ class scaleServices:
 
             scale_response = {
                 "scale_id": scale_id,
+                "scale_name":payload["scale_name"],
+                "user_type":payload["user_type"],
+                "no_of_channels":len(payload["channel_instance_list"]),
                 "instance_urls": urls
             }
                 
@@ -47,9 +49,11 @@ class scaleServices:
         no_of_buttons = 3
 
         scale_details = {
-                "scale_name": payload["username"],
+                "workspace_id": payload["workspace_id"],
+                "username": payload["username"],
+                "scale_name": payload["scale_name"],
                 "scale_type": payload["scale_type"],
-                "user_type": payload["user"],
+                "user_type": payload["user_type"],
                 "channel_instance_list": payload["channel_instance_list"],
                 "no_of_channels":len(payload["channel_instance_list"]),
                 "no_of_buttons": no_of_buttons,
@@ -69,9 +73,12 @@ class scaleServices:
         datacube_data_update(api_key, "livinglab_scales", "collection_3", {"_id": scale_id}, {"urls":urls})
 
         scale_response = {
-            "scale_id": scale_id,
-            "instance_urls": urls
-        }
+                "scale_id": scale_id,
+                "scale_name":payload["scale_name"],
+                "user_type":payload["user_type"],
+                "no_of_channels":len(payload["channel_instance_list"]),
+                "instance_urls": urls
+            }
             
         return scale_response
     
@@ -81,9 +88,11 @@ class scaleServices:
         no_of_buttons = no_of_pointers
 
         scale_details = {
-                "scale_name": payload["username"],
+                "workspace_id": payload["workspace_id"],
+                "username": payload["username"],
+                "scale_name": payload["scale_name"],
                 "scale_type": payload["scale_type"],
-                "user_type": payload["user"],
+                "user_type": payload["user_type"],
                 "channel_instance_list": payload["channel_instance_list"],
                 "no_of_channels":len(payload["channel_instance_list"]),
                 "no_of_buttons": no_of_buttons,
@@ -104,9 +113,12 @@ class scaleServices:
         datacube_data_update(api_key, "livinglab_scales", "collection_3", {"_id": scale_id}, {"urls":urls})
 
         scale_response = {
-            "scale_id": scale_id,
-            "instance_urls": urls
-        }
+                "scale_id": scale_id,
+                "scale_name":payload["scale_name"],
+                "user_type":payload["user_type"],
+                "no_of_channels":len(payload["channel_instance_list"]),
+                "instance_urls": urls
+            }
             
         return scale_response
     
@@ -116,9 +128,11 @@ class scaleServices:
         no_of_buttons = 2*axis_limit
 
         scale_details = {
-                "scale_name": payload["username"],
+                "workspace_id": payload["workspace_id"],
+                "username": payload["username"],
+                "scale_name": payload["scale_name"],
                 "scale_type": payload["scale_type"],
-                "user_type": payload["user"],
+                "user_type": payload["user_type"],
                 "channel_instance_list": payload["channel_instance_list"],
                 "no_of_channels":len(payload["channel_instance_list"]),
                 "no_of_buttons": no_of_buttons,
@@ -139,12 +153,55 @@ class scaleServices:
         datacube_data_update(api_key, "livinglab_scales", "collection_3", {"_id": scale_id}, {"urls":urls})
 
         scale_response = {
-            "scale_id": scale_id,
-            "instance_urls": urls
-        }
+                "scale_id": scale_id,
+                "scale_name":payload["scale_name"],
+                "user_type":payload["user_type"],
+                "no_of_channels":len(payload["channel_instance_list"]),
+                "instance_urls": urls
+            }
             
         return scale_response
     
+    def get_learning_index_scale(self, payload):
+        scale_range = range(0,11)
+        no_of_buttons = 11
+
+        scale_details = {
+                "workspace_id": payload["workspace_id"],
+                "username": payload["username"],
+                "scale_name": payload["scale_name"],
+                "scale_type": payload["scale_type"],
+                "user_type": payload["user_type"],
+                "channel_instance_list": payload["channel_instance_list"],
+                "no_of_channels":len(payload["channel_instance_list"]),
+                "no_of_buttons": no_of_buttons,
+                "scale_range": list(scale_range),
+                "event_id": get_event_id()
+        }
+        
+        # save data to db
+        response = json.loads(datacube_data_insertion(api_key,"livinglab_scales","collection_3",scale_details))
+        scale_id = response['data'].get("inserted_id")
+        scale_details["scale_id"] = scale_id
+
+        # generate the button urls
+        urls = self.generate_urls(scale_details)
+
+        # insert urls into the db
+        datacube_data_update(api_key, "livinglab_scales", "collection_3", {"_id": scale_id}, {"urls":urls})
+
+        scale_response = {
+                "scale_id": scale_id,
+                "scale_name":payload["scale_name"],
+                "user_type":payload["user_type"],
+                "no_of_channels":len(payload["channel_instance_list"]),
+                "instance_urls": urls
+            }
+            
+        return scale_response
+
+
+
     # helper functions to create the button links
     def build_urls(self, channel_instance,scale_details,instance_idx):
         urls = []

@@ -56,3 +56,22 @@ class UserUpdateSerializer(serializers.Serializer):
     profile_image = serializers.CharField(required=False,allow_blank=True)
 
 
+class InstanceDetailsSerializer(serializers.Serializer):
+    instance_name = serializers.CharField()
+    instance_display_name = serializers.CharField()
+
+class ChannelInstanceSerializer(serializers.Serializer):
+    channel_name = serializers.CharField()
+    channel_display_name = serializers.CharField()
+    instances_details = InstanceDetailsSerializer(many=True)
+
+class ScaleServiceSerializer(serializers.Serializer):
+    workspace_id = serializers.CharField(max_length=100, allow_blank=False)
+    username = serializers.CharField(max_length=100, allow_blank=False)
+    scale_name = serializers.CharField(max_length=100, allow_blank=False)
+    scale_type = serializers.CharField(max_length=100, allow_blank=False)
+    user_type = serializers.BooleanField()
+    no_of_responses = serializers.IntegerField(allow_null=False)
+    pointers = serializers.IntegerField(required=False)
+    axis_limit = serializers.IntegerField(required=False)
+    channel_instance_list = ChannelInstanceSerializer(many=True)

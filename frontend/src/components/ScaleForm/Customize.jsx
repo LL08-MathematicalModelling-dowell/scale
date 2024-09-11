@@ -12,7 +12,7 @@ const Customize = () => {
       return JSON.parse(savedData);
     }else {
       return{
-        scaleType: null, // Start with null or a default value
+        scaleType: null, 
         fontColor: "#f3f3f3",
         leftScaleColor: "#f3f3f3",
         rightScaleColor: "#f3f3f3",

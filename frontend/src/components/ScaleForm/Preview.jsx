@@ -45,7 +45,7 @@ const Preview = () => {
           <div className="mt-5">
             {devicePreview ? (
               <>
-                <p style={{fontFamily: customizeDetails?.fontFamily, fontSize: customizeDetails?.fontSize}} className="tracking-wider text-sm font-normal">
+                <p style={{fontFamily: customizeDetails?.fontFamily, }} className="tracking-wider md:text-md text-sm font-normal">
                   How was your experience using our product? Please rate your experience below.
                 </p>
                 <div className="flex items-center justify-center mt-5 gap-8">
@@ -71,16 +71,16 @@ const Preview = () => {
 
         {/* NPS SCALE */}
         {customizeDetails?.scaleType === "nps" && (
-          <div className="mt-5">
+          <div className="mt-5 ">
             {devicePreview ? (
               <>
                 <p style={{fontFamily: customizeDetails?.fontFamily}} className="tracking-tight md:text-md text-sm font-normal">
                   How was your experience using our product? Please rate your experience below.
                 </p>
                 <div className="flex items-center justify-center mt-5 gap-2 flex-col">
-                  <div style={{borderColor: customizeDetails.scaleColor}} className="flex flex-row items-center justify-center border  rounded-md py-2 px-4 w-full gap-8">
+                  <div style={{borderColor: customizeDetails.scaleColor}} className="flex flex-row items-center justify-center border  rounded-md py-2 px-4 w-full gap-2 md:gap-8">
                     {npsLength?.map((item, index) => (
-                      <div key={index} style={{backgroundColor: customizeDetails.scaleBackgroundColor, color: customizeDetails.fontColor}} className={`w-10 h-10 flex items-center justify-center rounded-full`}>
+                      <div key={index} style={{backgroundColor: customizeDetails.scaleBackgroundColor, color: customizeDetails.fontColor}} className={`md:w-10 md:h-10 w-6 h-6 flex items-center justify-center rounded-full`}>
                         {item}
                       </div>
                     ))}

@@ -1,9 +1,10 @@
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import PropTypes from 'prop-types';
 
-const SelectInput = ({className, placeholder, data}) => {
+const SelectInput = ({ className, placeholder, data, onChange = () => {} }) => {
   return (
     <div>
-      <Select>
+      <Select onValueChange={(value) => onChange(value)}>
         <SelectTrigger className={className}>
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
@@ -18,5 +19,12 @@ const SelectInput = ({className, placeholder, data}) => {
     </div>
   );
 };
+
+SelectInput.propTypes = {
+  className: PropTypes.string,
+  placeholder: PropTypes.string,
+  data: PropTypes.array,
+  onChange: PropTypes.func,
+}
 
 export default SelectInput;

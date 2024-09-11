@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import desktop from '../../assets/desktop.jpg';
+import { Separator } from "../ui/separator";
 
 const Preview = () => {
   const [customizeDetails, setCustomizeDetails] = useState({});
@@ -35,22 +36,23 @@ const Preview = () => {
         </h2>
         <p className="font-poppins text-sm font-normal">After confirmation, your scale will be saved and ready for use</p>
       </div>
+      <Separator className="md:mt-10 mt-8"/>
       <div className="flex items-center justify-center mt-8">
         {customizeDetails?.scaleType === "nps lite" && (
           <div className="mt-5">
             {devicePreview ? (
               <>
-                <p style={{ fontFamily: customizeDetails?.fontFamily, fontSize: customizeDetails?.fontSize, fontWeight: "600" }} className="tracking-wider text-sm font-normal">
+                <p style={{ fontFamily: customizeDetails?.fontFamily, fontSize: customizeDetails?.fontSize,  }} className="tracking-wider text-sm font-normal">
                   How was your experience using our product? Please rate your experience below.
                 </p>
                 <div className="flex items-center justify-center mt-5 gap-8">
-                  <div style={{ fontFamily: customizeDetails?.fontFamily, backgroundColor: customizeDetails?.leftScaleColor, color: customizeDetails?.fontColor, fontSize: customizeDetails?.fontSize }} className="py-3 px-14 rounded-md bg-gray-300">
+                  <div style={{ fontFamily: customizeDetails?.fontFamily, backgroundColor: customizeDetails?.leftScaleColor, color: customizeDetails?.fontColor, fontSize: customizeDetails?.fontSize }} className="md:py-3 md:px-14 rounded-md py-2 px-4 bg-gray-300">
                     Bad
                   </div>
-                  <div style={{ fontFamily: customizeDetails?.fontFamily, backgroundColor: customizeDetails?.centerScaleColor, color: customizeDetails?.fontColor, fontSize: customizeDetails?.fontSize }} className="py-3 px-14 rounded-md bg-gray-300">
+                  <div style={{ fontFamily: customizeDetails?.fontFamily, backgroundColor: customizeDetails?.centerScaleColor, color: customizeDetails?.fontColor, fontSize: customizeDetails?.fontSize }} className="md:py-3 md:px-14 rounded-md py-2 px-4 bg-gray-300">
                     Average
                   </div>
-                  <div style={{ fontFamily: customizeDetails?.fontFamily, backgroundColor: customizeDetails?.rightScaleColor, color: customizeDetails?.fontColor, fontSize: customizeDetails?.fontSize }} className="py-3 px-14 rounded-md bg-gray-300">
+                  <div style={{ fontFamily: customizeDetails?.fontFamily, backgroundColor: customizeDetails?.rightScaleColor, color: customizeDetails?.fontColor, fontSize: customizeDetails?.fontSize }} className="md:py-3 py-2 px-4 md:px-14 rounded-md bg-gray-300">
                     Excellent
                   </div>
                 </div>

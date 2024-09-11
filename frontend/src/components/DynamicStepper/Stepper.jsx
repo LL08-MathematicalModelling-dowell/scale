@@ -76,7 +76,7 @@ const Stepper = () => {
           Previous
         </Link>
         {!complete && (
-          <Link
+          <Link to="/confirmed"
             className="py-2 px-12 font-poppins text-center text-white text-[15px] font-medium bg-dowellDeepGreen hover:bg-transparent hover:text-dowellDeepGreen rounded-md cursor-pointer hover:shadow-xl transition ease-in-out duration-300"
             onClick={handleNext}
           >

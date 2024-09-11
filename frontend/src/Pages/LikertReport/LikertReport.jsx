@@ -6,24 +6,24 @@ import PropTypes from "prop-types";
 import {useState, useEffect} from "react";
 import NotFound from "../../assets/NotFound.jpg";
 
-const RectangleDiv = ({className = " ", scores, type}) => {
+const RectangleDiv = ({className = "", scores, type}) => {
   const constrainedYellowPercent = scores;
   const greenPercent = 100 - constrainedYellowPercent;
 
   return (
     <div className="flex flex-col">
       <div className={`relative flex w-full h-6 rounded-full overflow-hidden ${className}`}>
-        <div className="bg-yellow-500 flex justify-center items-center text-black font-bold px-4 " style={{width: `${constrainedYellowPercent + 100}%`}}>
+        <div className="flex items-center justify-center px-4 font-bold text-black bg-yellow-500 " style={{width: `${constrainedYellowPercent + 100}%`}}>
           <p> {constrainedYellowPercent}</p>
         </div>
-        <div className="border-gray-200 border-2 flex justify-center items-center text-black font-bold" style={{width: `${greenPercent}%`}}>
+        <div className="flex items-center justify-center font-bold text-black border-2 border-gray-200" style={{width: `${greenPercent}%`}}>
           {"    "}
         </div>
       </div>
       {/* Labels */}
       <div className="flex justify-between w-full gap-y-2">
-        <p className="font-poppins font-medium text-sm">0</p>
-        <p className="font-poppins font-medium text-sm"> {type === "averageScore" ? "5" : "30"}</p>
+        <p className="text-sm font-medium font-poppins">0</p>
+        <p className="text-sm font-medium font-poppins"> {type === "averageScore" ? "5" : "30"}</p>
       </div>
     </div>
   );
@@ -56,9 +56,9 @@ const LikertReport = () => {
     labels: [],
     datasets: [],
   });
-
+  
   const fetchLikertChannelInstances = async () => {
-    const scale_id = "66c9d22a8739f31401f29fd5";
+    const scale_id = "66c9d21e9090b1529d108a63";
     setInstanceLoading(true); // Start loading
     try {
       const channelDetailsResponse = await getLikertChannelsInstances(scale_id);
@@ -97,7 +97,7 @@ const LikertReport = () => {
   }, []);
 
   const payload = {
-    scale_id: "66c9d22a8739f31401f29fd5",
+    scale_id: "66c9d21e9090b1529d108a63",
     channel_names: [`${channelValue}`],
     instance_names: [`${instanceValue}`],
     period: `${duration}`,
@@ -302,34 +302,34 @@ const LikertReport = () => {
   const averageScoreYellowPercent = averageScore;
 
   return (
-    <div className="min-h-screen max-w-full relative">
-      <div className="my-12 mx-8 ">
-        <div className="flex flex-col justify-center items-center gap-10">
-          <div className="flex justify-center gap-5 flex-col md:flex-row">
+    <div className="relative max-w-full min-h-screen">
+      <div className="mx-8 my-12 ">
+        <div className="flex flex-col items-center justify-center gap-10">
+          <div className="flex flex-col justify-center gap-5 md:flex-row">
             <SelectField handleInputChange={handleInputChange} triggerClass="w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins" placeholder="Select Channel Name" data={channelName} />
             <SelectField handleInputChange={handleInputChange} triggerClass="w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins" placeholder="Select Instances" data={instanceName} />
             <SelectField handleInputChange={handleInputChange} triggerClass="w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins" placeholder="Duration" data={Duration} />
           </div>
    
 
-          <h2 className="font-montserrat tracking-tight text-xl font-bold">
-            Total Response: <span className="font-poppins text-xl text-green-800">{totalResponse}</span>
+          <h2 className="text-xl font-bold tracking-tight font-montserrat">
+            Total Response: <span className="text-xl text-green-800 font-poppins">{totalResponse}</span>
           </h2>
         </div>
         {displayData === false && alert === true && (
-              <div className="flex items-center justify-center mt-12  gap-x-3">
+              <div className="flex items-center justify-center mt-12 gap-x-3">
                 <img src={NotFound} alt="" className="w-64"/>
            <div className="">
-           <h3 className="font-bold text-2xl tracking-tight font-poppins text-gray-500">{message}</h3>
+           <h3 className="text-2xl font-bold tracking-tight text-gray-500 font-poppins">{message}</h3>
            <p className="font-poppins text-gray-800 text-[15px] tracking-tight mt-1">Please contact admin if possibly you have this report</p>
            </div>
             </div>
         )
           }
         {displayData && (
-          <div className="flex justify-between items-center md:flex-row flex-col md:gap-16 gap-10 text-center mx-12 mt-8">
+          <div className="flex flex-col items-center justify-between gap-10 mx-12 mt-8 text-center md:flex-row md:gap-16">
             {/* First Chart */}
-            <div className="flex flex-col gap-2 md:w-3/5 w-screen px-7">
+            <div className="flex flex-col w-screen gap-2 md:w-3/5 px-7">
               <p className="font-poppins tracking-tight text-[18px] font-medium">Total Score </p>
               <RectangleDiv scores={totalScoreYellowPercent} />
               <div className="mt-8">
@@ -338,7 +338,7 @@ const LikertReport = () => {
               </div>
             </div>
             {/* Second Chart */}
-            <div className="flex flex-col md:w-3/5 w-screen gap-2 px-7">
+            <div className="flex flex-col w-screen gap-2 md:w-3/5 px-7">
               <p className="font-poppins tracking-tight text-[18px] font-medium">Average Score</p>
               <RectangleDiv className="rounded-lg" scores={averageScoreYellowPercent} type="averageScore" />
               <div className="mt-8">
@@ -351,8 +351,8 @@ const LikertReport = () => {
       </div>
       {instanceLoading == true ? (
         <div
-          className="bg-gray-100 min-h-screen w-full absolute flex items-center justify-center  top-0 right-0 " >
-      <p className="font-poppins text-xl text-green-800 font-semibold tracking-tight">Please wait,  while fetching your report...</p>
+          className="absolute top-0 right-0 flex items-center justify-center w-full min-h-screen bg-gray-100 " >
+      <p className="text-xl font-semibold tracking-tight text-green-800 font-poppins">Please wait,  while fetching your report...</p>
         </div>
       ) : null}
     </div>

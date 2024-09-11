@@ -23,7 +23,7 @@ class healthCheck(APIView):
         return Response({
             "success":True,
             "status": "UP",
-            "version": "1.2.0",
+            "version": "1.7.0",
             "timestamp": now,
             "server_time": now,
             "message":"The API server is healthy"

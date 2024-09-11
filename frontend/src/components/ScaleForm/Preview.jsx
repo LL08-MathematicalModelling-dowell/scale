@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
-import desktop from '../../assets/desktop.jpg';
-import { Separator } from "../ui/separator";
+import {useEffect, useState} from "react";
+import desktop from "../../assets/desktop.jpg";
+import {Separator} from "../ui/separator";
 
 const Preview = () => {
   const [customizeDetails, setCustomizeDetails] = useState({});
@@ -9,13 +9,13 @@ const Preview = () => {
   useEffect(() => {
     const userAgent = navigator.userAgent;
     const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
-    const isDesktopWidth = window.innerWidth >= 768; 
+    const isDesktopWidth = window.innerWidth >= 768;
 
     if (isMobile && !isDesktopWidth) {
-      setDevicePreview(false); 
+      setDevicePreview(false);
       console.log("Mobile");
     } else {
-      setDevicePreview(true); 
+      setDevicePreview(true);
       console.log("Desktop");
     }
   }, []);
@@ -27,6 +27,8 @@ const Preview = () => {
     }
   }, []);
 
+  const npsLength = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
   return (
     <div className="w-full px-5">
       <h2 className="font-poppins text-2xl tracking-tight font-bold text-dowellDeepGreen text-center">Preview your scale</h2>
@@ -36,24 +38,57 @@ const Preview = () => {
         </h2>
         <p className="font-poppins text-sm font-normal">After confirmation, your scale will be saved and ready for use</p>
       </div>
-      <Separator className="md:mt-10 mt-8"/>
+      <Separator className="md:mt-10 mt-8" />
       <div className="flex items-center justify-center mt-8">
+        {/* NPS LITE PREVIEW */}
         {customizeDetails?.scaleType === "nps lite" && (
           <div className="mt-5">
             {devicePreview ? (
               <>
-                <p style={{ fontFamily: customizeDetails?.fontFamily, fontSize: customizeDetails?.fontSize,  }} className="tracking-wider text-sm font-normal">
+                <p style={{fontFamily: customizeDetails?.fontFamily, fontSize: customizeDetails?.fontSize}} className="tracking-wider text-sm font-normal">
                   How was your experience using our product? Please rate your experience below.
                 </p>
                 <div className="flex items-center justify-center mt-5 gap-8">
-                  <div style={{ fontFamily: customizeDetails?.fontFamily, backgroundColor: customizeDetails?.leftScaleColor, color: customizeDetails?.fontColor, fontSize: customizeDetails?.fontSize }} className="md:py-3 md:px-14 rounded-md py-2 px-4 bg-gray-300">
+                  <div style={{fontFamily: customizeDetails?.fontFamily, backgroundColor: customizeDetails?.leftScaleColor, color: customizeDetails?.fontColor, fontSize: customizeDetails?.fontSize}} className="md:py-3 md:px-14 rounded-md py-2 px-4 bg-gray-300">
                     Bad
                   </div>
-                  <div style={{ fontFamily: customizeDetails?.fontFamily, backgroundColor: customizeDetails?.centerScaleColor, color: customizeDetails?.fontColor, fontSize: customizeDetails?.fontSize }} className="md:py-3 md:px-14 rounded-md py-2 px-4 bg-gray-300">
+                  <div style={{fontFamily: customizeDetails?.fontFamily, backgroundColor: customizeDetails?.centerScaleColor, color: customizeDetails?.fontColor, fontSize: customizeDetails?.fontSize}} className="md:py-3 md:px-14 rounded-md py-2 px-4 bg-gray-300">
                     Average
                   </div>
-                  <div style={{ fontFamily: customizeDetails?.fontFamily, backgroundColor: customizeDetails?.rightScaleColor, color: customizeDetails?.fontColor, fontSize: customizeDetails?.fontSize }} className="md:py-3 py-2 px-4 md:px-14 rounded-md bg-gray-300">
+                  <div style={{fontFamily: customizeDetails?.fontFamily, backgroundColor: customizeDetails?.rightScaleColor, color: customizeDetails?.fontColor, fontSize: customizeDetails?.fontSize}} className="md:py-3 py-2 px-4 md:px-14 rounded-md bg-gray-300">
                     Excellent
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div>
+                <img src={desktop} alt="Desktop preview" />
+                <p className="text-center font-poppins text-md font-normal mt-2">Please preview on desktop</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* NPS SCALE */}
+        {customizeDetails?.scaleType === "nps" && (
+          <div className="mt-5">
+            {devicePreview ? (
+              <>
+                <p style={{fontFamily: customizeDetails?.fontFamily, fontSize: customizeDetails?.fontSize}} className="tracking-wider text-sm font-normal">
+                  How was your experience using our product? Please rate your experience below.
+                </p>
+                <div className="flex items-center justify-center mt-5 gap-2 flex-col">
+                  <div style={{borderColor: customizeDetails.scaleColor}} className="flex flex-row items-center justify-center border  rounded-md py-2 px-4 w-full gap-8">
+                    {npsLength?.map((item, index) => (
+                      <div key={index} style={{backgroundColor: customizeDetails.scaleBackgroundColor, color: customizeDetails.fontColor, fontSize: customizeDetails?.fontSize}} className={`w-10 h-10 flex items-center justify-center rounded-full`}>
+                        {item}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex justify-between w-full">
+                    <p style={{fontFamily: customizeDetails?.fontFamily, fontSize: customizeDetails?.fontSize}}>Bad</p>
+                    <p style={{fontFamily: customizeDetails?.fontFamily, fontSize: customizeDetails?.fontSize}}>Average</p>
+                    <p style={{fontFamily: customizeDetails?.fontFamily, fontSize: customizeDetails?.fontSize}}>Good</p>
                   </div>
                 </div>
               </>

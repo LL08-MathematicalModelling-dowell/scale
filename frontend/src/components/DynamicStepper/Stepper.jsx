@@ -9,12 +9,12 @@ import Preview from "../ScaleForm/Preview";
 const Stepper = () => {
   const steps = ["Configure ", "Customize", "Finish Up"];
   
-  // Retrieve saved step from localStorage if available, otherwise start at 1
+
   const savedStep = localStorage.getItem("currentStep");
   const [currentStep, setCurrentStep] = useState(savedStep ? parseInt(savedStep) : 1);
   const [complete, setComplete] = useState(false);
 
-  // Update localStorage whenever the step changes
+  
   useEffect(() => {
     localStorage.setItem("currentStep", currentStep);
   }, [currentStep]);

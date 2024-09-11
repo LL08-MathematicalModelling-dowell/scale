@@ -31,7 +31,7 @@ const Configure = () => {
     }
   });
 
-  // Sync configureData with localStorage whenever channels or other data changes
+
   useEffect(() => {
     const updatedData = {
       ...configureData,

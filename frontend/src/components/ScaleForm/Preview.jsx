@@ -130,25 +130,25 @@ useEffect(() => {
           <div className="mt-5 ">
             {devicePreview ? (
               <>
-                <p style={{fontFamily: customizeDetails?.fontFamily}} className="tracking-tight md:text-md text-sm font-normal">
+                <p style={{fontFamily: customizeDetails?.fontFamily}} className="tracking-tight md:text-[16px] text-sm font-medium">
                   How was your experience using our product? Please rate your experience below.
                 </p>
                 <div className="flex items-center justify-center mt-5 gap-2 flex-col">
                   <div style={{borderColor: customizeDetails.scaleColor}} className="flex flex-row items-center justify-center border  rounded-md py-2 px-4 w-full gap-2 md:gap-4">
                     {scaleLength?.map((item, index) => (
-                      <div key={index} style={{backgroundColor: customizeDetails.scaleBackgroundColor, color: customizeDetails.fontColor}} className={`md:w-10 md:h-10 w-6 h-6 flex items-center justify-center rounded-full`}>
+                      <div key={index} style={{backgroundColor: customizeDetails.scaleBackgroundColor, color: customizeDetails.fontColor}} className={`md:w-8 md:h-8 w-6 h-6 flex items-center justify-center rounded-md`}>
                         {item}
                       </div>
                     ))}
                   </div>
                   <div className="flex justify-between w-full">
-                    <p style={{fontFamily: customizeDetails?.fontFamily}} className="tracking-tight md:text-md text-sm font-normal">
+                    <p style={{fontFamily: customizeDetails?.fontFamily}} className="tracking-tight md:text-md text-sm font-medium">
                       Bad
                     </p>
-                    <p style={{fontFamily: customizeDetails?.fontFamily}} className="tracking-tight md:text-md text-sm font-normal">
+                    <p style={{fontFamily: customizeDetails?.fontFamily}} className="tracking-tight md:text-md text-sm font-medium">
                       Average
                     </p>
-                    <p style={{fontFamily: customizeDetails?.fontFamily}} className="tracking-tight md:text-md text-sm font-normal">
+                    <p style={{fontFamily: customizeDetails?.fontFamily}} className="tracking-tight md:text-md text-sm font-medium">
                       Good
                     </p>
                   </div>

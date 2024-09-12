@@ -154,8 +154,16 @@ const Configure = () => {
                   ))}
                 </div>
               </div>
+              {/* <div className="flex md:flex-row flex-col gap-3 items-center justify-end mt-4">
+            <p className="font-poppins font-medium text-sm">Add more instances</p>
+            <div className="flex flex-row gap-3">
+              <FaPlusCircle className="size-7 text-dowellDeepGreen cursor-pointer" onClick={() => addInstanceToChannel(channels[0].id)} />
+              <FaMinusCircle className="size-7 text-red-500 cursor-pointer" onClick={() => removeInstanceFromChannel(channels[0].id)} />
+            </div>
+          </div> */}
 
-              <div className="flex gap-3 mt-4 items-center justify-center">
+              <div className="flex md:flex-row flex-col gap-3 items-center justify-end mt-4">
+              <p className="font-poppins font-medium text-sm">Add more instances</p>
                 <FaPlusCircle className="size-7 text-dowellDeepGreen cursor-pointer" onClick={() => addInstanceToChannel(channel.id)} />
                 <FaMinusCircle className="size-7 text-red-500 cursor-pointer" onClick={() => removeInstanceFromChannel(channel.id)} />
               </div>
@@ -163,7 +171,7 @@ const Configure = () => {
           ))}
 
           <div className="flex flex-col gap-3 justify-center items-center mt-8">
-            <p className="font-poppins font-medium text-sm">Create & Remove Channel</p>
+            <p className="font-poppins font-medium text-sm">Add more channels</p>
             <div className="flex flex-row gap-3">
               <FaPlusCircle className="size-7 text-dowellDeepGreen cursor-pointer" onClick={createChannel} />
               <FaMinusCircle className="size-7 text-red-500 cursor-pointer" onClick={removeChannel} />

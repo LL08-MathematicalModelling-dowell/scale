@@ -5,6 +5,7 @@ import {Separator} from "../ui/separator";
 const Preview = () => {
   const [customizeDetails, setCustomizeDetails] = useState({});
   const [devicePreview, setDevicePreview] = useState(false);
+  const [scaleLength, setScaleLength] = useState([]);
 
   useEffect(() => {
     const userAgent = navigator.userAgent;
@@ -28,6 +29,23 @@ const Preview = () => {
   }, []);
 
   const npsLength = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+useEffect(() => {
+  if (customizeDetails.scaleUpperLimit !== undefined && customizeDetails.scaleLowerLimit !== undefined) {
+    const upperLimit = customizeDetails.scaleUpperLimit;
+    const lowerLimit = -Math.abs(customizeDetails.scaleLowerLimit)
+
+    const scaleArray = [];
+    for (let i = lowerLimit; i <= upperLimit; i++) {
+      scaleArray.push(i);
+    }
+
+    // Update the state with the newly created array
+    setScaleLength(scaleArray);
+  }
+}, [customizeDetails]);
+
+  
 
   return (
     <div className="w-full px-5">
@@ -108,7 +126,7 @@ const Preview = () => {
         )}
 
         {/* STAPEL PREVIEW */}
-        {customizeDetails?.scaleType === "nps" && (
+        {customizeDetails?.scaleType === "stapel" && (
           <div className="mt-5 ">
             {devicePreview ? (
               <>
@@ -117,7 +135,7 @@ const Preview = () => {
                 </p>
                 <div className="flex items-center justify-center mt-5 gap-2 flex-col">
                   <div style={{borderColor: customizeDetails.scaleColor}} className="flex flex-row items-center justify-center border  rounded-md py-2 px-4 w-full gap-2 md:gap-8">
-                    {npsLength?.map((item, index) => (
+                    {scaleLength?.map((item, index) => (
                       <div key={index} style={{backgroundColor: customizeDetails.scaleBackgroundColor, color: customizeDetails.fontColor}} className={`md:w-10 md:h-10 w-6 h-6 flex items-center justify-center rounded-full`}>
                         {item}
                       </div>

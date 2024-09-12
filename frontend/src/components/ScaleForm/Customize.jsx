@@ -185,13 +185,13 @@ const Customize = () => {
           </div>
         )}
 
-        {/* Scale Type */}
+        {/* Staple Type */}
         {ScaleType === "stapel" && (
           <div className="flex flex-col gap-7 w-full">
           <div className="flex md:w-[50%] md:flex-row flex-col w-full gap-7 ">
-            <ScaleInput type="text" placeholder="Enter Value" label="Scale Upper Limit" onChange={handleUpperLimit} value={customizeData.scaleUpperLimit} className ="text-sm" />
-            <ScaleInput type="text" placeholder="Enter Value" label="Scale Lower Limit" onChange={handleLowerLimit} value={customizeData.scaleLowerLimit}  className="text-sm"/>
-            <ScaleInput type="text" placeholder="Enter Value" label="Spacing Unit" onChange={handleSpacingUnit} value={customizeData.spacingUnit} className="text-sm" />
+            <ScaleInput type="number" placeholder="Enter Value" label="Scale Upper Limit" onChange={handleUpperLimit} value={customizeData.scaleUpperLimit} className ="text-sm" />
+            <ScaleInput type="number" placeholder="Enter Value" label="Scale Lower Limit" onChange={handleLowerLimit} value={customizeData.scaleLowerLimit}  className="text-sm"/>
+            <ScaleInput type="number" placeholder="Enter Value" label="Spacing Unit" onChange={handleSpacingUnit} value={customizeData.spacingUnit} className="text-sm" />
           </div>
           <div className="flex gap-6 md:flex-row flex-col w-full">
             <div>

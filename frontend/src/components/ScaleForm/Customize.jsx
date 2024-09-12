@@ -189,15 +189,15 @@ const Customize = () => {
         {ScaleType === "stapel" && (
           <div className="flex flex-col gap-7 w-full">
           <div className="flex md:w-[50%] md:flex-row flex-col w-full gap-7 ">
-            <ScaleInput type="number" placeholder="Enter Value" label="Scale Upper Limit" onChange={handleUpperLimit} value={customizeData.scaleUpperLimit} className ="text-sm" />
-            <ScaleInput type="number" placeholder="Enter Value" label="Scale Lower Limit" onChange={handleLowerLimit} value={customizeData.scaleLowerLimit}  className="text-sm"/>
-            <ScaleInput type="number" placeholder="Enter Value" label="Spacing Unit" onChange={handleSpacingUnit} value={customizeData.spacingUnit} className="text-sm" />
+            <ScaleInput type="number" placeholder="Enter Value" label="Scale Upper Limit" onChange={handleUpperLimit} value={customizeData.scaleUpperLimit} className ="text-sm" text="Maximum number of rating" />
+            <ScaleInput type="number" placeholder="Enter Value" label="Scale Lower Limit" onChange={handleLowerLimit} value={customizeData.scaleLowerLimit}  className="text-sm" text="Minimum number of rating"/>
+            <ScaleInput type="number" placeholder="Enter Value" label="Spacing Unit" onChange={handleSpacingUnit} value={customizeData.spacingUnit} className="text-sm"  text="Spacing between each rating"/>
           </div>
           <div className="flex gap-6 md:flex-row flex-col w-full">
             <div>
               <p className="font-poppins text-sm font-medium text-dowellDeepGreen mb-2">-- Scale Color --</p>
               <div className="bg-white rounded-lg shadow-md px-7 py-[10px] flex items-center gap-6">
-                <input type="color" ref={scaleColorRef} value={customizeData.scaleColor} onChange={handleColorChange("scaleColor")} />
+                <input className="" type="color" ref={scaleColorRef} value={customizeData.scaleColor} onChange={handleColorChange("scaleColor")} />
                 <CgColorPicker className="size-5 cursor-pointer" onClick={() => scaleColorRef.current.click()} />
               </div>
             </div>

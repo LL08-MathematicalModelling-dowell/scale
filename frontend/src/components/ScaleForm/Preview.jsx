@@ -1,6 +1,7 @@
 import {useEffect, useState} from "react";
 import desktop from "../../assets/desktop.jpg";
 import {Separator} from "../ui/separator";
+import { PiSmileySadFill } from "react-icons/pi";
 
 const Preview = () => {
   const [customizeDetails, setCustomizeDetails] = useState({});
@@ -67,14 +68,14 @@ useEffect(() => {
                   How was your experience using our product? Please rate your experience below.
                 </p>
                 <div className="flex items-center justify-center mt-5 gap-8">
-                  <div style={{fontFamily: customizeDetails?.fontFamily, backgroundColor: customizeDetails?.leftScaleColor, color: customizeDetails?.fontColor, fontSize: customizeDetails?.fontSize}} className="md:py-3 md:px-14 rounded-md py-2 px-4 bg-gray-300">
-                    Bad
+                  <div style={{fontFamily: customizeDetails?.fontFamily, backgroundColor: customizeDetails?.leftScaleColor, color: customizeDetails?.fontColor, fontSize: customizeDetails?.fontSize}} className="md:py-2 md:px-12 rounded-md py-2 px-6 bg-gray-300">
+             {customizeDetails.scaleFormat === "Emojis" ? <p className="text-xl">😟</p> : "Bad"}
                   </div>
-                  <div style={{fontFamily: customizeDetails?.fontFamily, backgroundColor: customizeDetails?.centerScaleColor, color: customizeDetails?.fontColor, fontSize: customizeDetails?.fontSize}} className="md:py-3 md:px-14 rounded-md py-2 px-4 bg-gray-300">
-                    Average
+                  <div style={{fontFamily: customizeDetails?.fontFamily, backgroundColor: customizeDetails?.centerScaleColor, color: customizeDetails?.fontColor, fontSize: customizeDetails?.fontSize}} className="md:py-2 md:px-12 rounded-md py-2 px-6 bg-gray-300">
+                  {customizeDetails.scaleFormat === "Emojis" ? <p className="text-xl">😐</p> : "Average"}
                   </div>
-                  <div style={{fontFamily: customizeDetails?.fontFamily, backgroundColor: customizeDetails?.rightScaleColor, color: customizeDetails?.fontColor, fontSize: customizeDetails?.fontSize}} className="md:py-3 py-2 px-4 md:px-14 rounded-md bg-gray-300">
-                    Excellent
+                  <div style={{fontFamily: customizeDetails?.fontFamily, backgroundColor: customizeDetails?.rightScaleColor, color: customizeDetails?.fontColor, fontSize: customizeDetails?.fontSize}} className="md:py-2 py-2 px-6 md:px-12 rounded-md bg-gray-300">
+                  {customizeDetails.scaleFormat === "Emojis" ? <p className="text-xl">😁</p> : "Good"}
                   </div>
                 </div>
               </>
@@ -96,9 +97,9 @@ useEffect(() => {
                   How was your experience using our product? Please rate your experience below.
                 </p>
                 <div className="flex items-center justify-center mt-5 gap-2 flex-col">
-                  <div style={{borderColor: customizeDetails.scaleColor}} className="flex flex-row items-center justify-center border  rounded-md py-2 px-4 w-full gap-2 md:gap-8">
+                  <div style={{borderColor: customizeDetails.scaleColor}} className="flex flex-row items-center justify-center border  rounded-md py-2 px-4 w-full gap-2 md:gap-6">
                     {npsLength?.map((item, index) => (
-                      <div key={index} style={{backgroundColor: customizeDetails.scaleBackgroundColor, color: customizeDetails.fontColor}} className={`md:w-10 md:h-10 w-6 h-6 flex items-center justify-center rounded-full`}>
+                      <div key={index} style={{backgroundColor: customizeDetails.scaleBackgroundColor, color: customizeDetails.fontColor}} className={`md:w-8 md:h-8 w-6 h-6 flex items-center justify-center rounded-md`}>
                         {item}
                       </div>
                     ))}

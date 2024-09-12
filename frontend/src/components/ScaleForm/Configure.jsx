@@ -107,14 +107,14 @@ const Configure = () => {
 
       <div className="mt-12 flex flex-col gap-8 justify-center items-center">
         <div className="md:w-[80%] w-full flex flex-col md:flex-row gap-8">
-          <ScaleInput type="text" placeholder="Enter scale name" label="Scale Name" value={configureData.scaleName} onChange={handleScaleNameChange} />
-          <ScaleInput type="text" placeholder="Enter number" label="No. of responses per instance" value={configureData.numberOfResponses} onChange={handleNumberOfResponsesChange} />
+          <ScaleInput type="text" placeholder="Enter scale name" label="Scale Name" value={configureData.scaleName} onChange={handleScaleNameChange} text="This contains the name of the scale" />
+          <ScaleInput type="text" placeholder="Enter number" label="No. of responses per instance" value={configureData.numberOfResponses} onChange={handleNumberOfResponsesChange} text="The total number of responses  per instance" />
         </div>
 
         <div className="md:w-[80%] w-full flex flex-col">
           <div className="md:flex-row flex flex-col gap-8">
             {channels.length > 0 && (
-              <ScaleInput type="text" placeholder="Enter first channel name" label="Specify Channel" value={channels[0]?.name} onChange={(e) => handleChannelNameChange(channels[0].id, e.target.value)} />
+              <ScaleInput type="text" placeholder="Enter first channel name" label="Specify Channel" value={channels[0]?.name} onChange={(e) => handleChannelNameChange(channels[0].id, e.target.value)} text="This contains the name of the channel" />
             )}
             <div className="flex flex-col w-full gap-5">
               {channels[0]?.instances.map((instance, index) => (
@@ -125,6 +125,7 @@ const Configure = () => {
                   label={`Specify instance ${index + 1}`}
                   value={instance}
                   onChange={(e) => handleInstanceNameChange(channels[0].id, index, e.target.value)}
+                  text={`The name of the instance ${index + 1}`}
                 />
               ))}
             </div>
@@ -145,12 +146,12 @@ const Configure = () => {
               <h3 className="font-poppins text-xl tracking-tight font-semibold text-dowellGreen mb-3">Channel {channelIndex + 2}</h3>
               <div className="flex flex-col gap-8 md:flex-row justify-evenly">
                 <div className="md:w-[48%] w-full flex flex-col gap-8">
-                  <ScaleInput type="text" placeholder="Enter channel name" label="Specify Channel" value={channel.name} onChange={(e) => handleChannelNameChange(channel.id, e.target.value)} />
+                  <ScaleInput type="text" placeholder="Enter channel name" label="Specify Channel" value={channel.name} onChange={(e) => handleChannelNameChange(channel.id, e.target.value)} text={`This contains name for channel ${channelIndex + 2}`}/>
                 </div>
 
                 <div className="md:w-[48%] w-full flex flex-col gap-8">
                   {channel.instances.map((instance, instanceIndex) => (
-                    <ScaleInput key={instanceIndex} type="text" placeholder={`Instance ${instanceIndex + 1}`} label={`Specify instance ${instanceIndex + 1}`} value={instance} onChange={(e) => handleInstanceNameChange(channel.id, instanceIndex, e.target.value)} />
+                    <ScaleInput key={instanceIndex} type="text" placeholder={`Instance ${instanceIndex + 1}`} label={`Specify instance ${instanceIndex + 1}`} value={instance} onChange={(e) => handleInstanceNameChange(channel.id, instanceIndex, e.target.value)} text={`The name of the instance ${instanceIndex+ 1}`} />
                   ))}
                 </div>
               </div>

@@ -1,7 +1,6 @@
-import {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 import desktop from "../../assets/desktop.jpg";
-import {Separator} from "../ui/separator";
-import { PiSmileySadFill } from "react-icons/pi";
+import { Separator } from "../ui/separator";
 
 const Preview = () => {
   const [customizeDetails, setCustomizeDetails] = useState({});
@@ -46,6 +45,8 @@ useEffect(() => {
   }
 }, [customizeDetails]);
 
+const likertEmojis = ['😭', '😢 ',  '😐',  '🙂 ',  '😄',  '😍']
+
   
 
   return (
@@ -64,7 +65,7 @@ useEffect(() => {
           <div className="mt-5">
             {devicePreview ? (
               <>
-                <p style={{fontFamily: customizeDetails?.fontFamily}} className="tracking-wider md:text-md text-sm font-normal">
+              <p style={{fontFamily: customizeDetails?.fontFamily}} className="tracking-tight md:text-[16px] text-sm font-medium">
                   How was your experience using our product? Please rate your experience below.
                 </p>
                 <div className="flex items-center justify-center mt-5 gap-8">
@@ -93,7 +94,7 @@ useEffect(() => {
           <div className="mt-5 ">
             {devicePreview ? (
               <>
-                <p style={{fontFamily: customizeDetails?.fontFamily}} className="tracking-tight md:text-md text-sm font-normal">
+               <p style={{fontFamily: customizeDetails?.fontFamily}} className="tracking-tight md:text-[16px] text-sm font-medium">
                   How was your experience using our product? Please rate your experience below.
                 </p>
                 <div className="flex items-center justify-center mt-5 gap-2 flex-col">
@@ -131,7 +132,7 @@ useEffect(() => {
           <div className="mt-5 ">
             {devicePreview ? (
               <>
-                <p style={{fontFamily: customizeDetails?.fontFamily}} className="tracking-tight md:text-[16px] text-sm font-medium">
+                 <p style={{fontFamily: customizeDetails?.fontFamily}} className="tracking-tight md:text-[16px] text-sm font-medium">
                   How was your experience using our product? Please rate your experience below.
                 </p>
                 <div className="flex items-center justify-center mt-5 gap-2 flex-col">
@@ -152,6 +153,34 @@ useEffect(() => {
                     <p style={{fontFamily: customizeDetails?.fontFamily}} className="tracking-tight md:text-md text-sm font-medium">
                       Good
                     </p>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div>
+                <img src={desktop} alt="Desktop preview" />
+                <p className="text-center font-poppins text-md font-normal mt-2">Please preview on desktop</p>
+              </div>
+            )}
+          </div>
+        )}
+
+
+        {/* Likert Preview */}
+        {customizeDetails?.scaleType === "likert" && (
+          <div className="mt-5 ">
+            {devicePreview ? (
+              <>
+                <p style={{fontFamily: customizeDetails?.fontFamily}} className="tracking-tight md:text-[16px] text-sm font-medium">
+                  How was your experience using our product? Please rate your experience below.
+                </p>
+                <div className="flex items-center justify-center mt-5 gap-2 flex-col">
+                  <div style={{borderColor: customizeDetails.scaleColor}} className="flex flex-row items-center justify-center border  rounded-md py-2 px-1 w-full gap-8 md:gap-8">
+                    {likertEmojis?.map((item, index) => (
+                      <div key={index} style={{backgroundColor: customizeDetails.scaleBackgroundColor, color: customizeDetails.fontColor}} className={`md:w-20 md:h-9 w-6 h-6 flex items-center justify-center rounded-md text-sm md:text-[20px]`}>
+                        {item}
+                      </div>
+                    ))}
                   </div>
                 </div>
               </>

@@ -34,13 +34,13 @@ useEffect(() => {
   if (customizeDetails.scaleUpperLimit !== undefined && customizeDetails.scaleLowerLimit !== undefined) {
     const upperLimit = customizeDetails.scaleUpperLimit;
     const lowerLimit = -Math.abs(customizeDetails.scaleLowerLimit)
+    const scaleRange = customizeDetails.spacingUnit;
+    console.log(scaleRange)
 
     const scaleArray = [];
     for (let i = lowerLimit; i <= upperLimit; i++) {
       scaleArray.push(i);
     }
-
-    // Update the state with the newly created array
     setScaleLength(scaleArray);
   }
 }, [customizeDetails]);

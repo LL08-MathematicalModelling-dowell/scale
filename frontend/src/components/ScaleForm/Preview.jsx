@@ -143,17 +143,6 @@ const likertEmojis = ['😭', '😢 ',  '😐',  '🙂 ',  '😄',  '😍']
                       </div>
                     ))}
                   </div>
-                  <div className="flex justify-between w-full">
-                    <p style={{fontFamily: customizeDetails?.fontFamily}} className="tracking-tight md:text-md text-sm font-medium">
-                      Bad
-                    </p>
-                    <p style={{fontFamily: customizeDetails?.fontFamily}} className="tracking-tight md:text-md text-sm font-medium">
-                      Average
-                    </p>
-                    <p style={{fontFamily: customizeDetails?.fontFamily}} className="tracking-tight md:text-md text-sm font-medium">
-                      Good
-                    </p>
-                  </div>
                 </div>
               </>
             ) : (

@@ -3,8 +3,10 @@ import SelectInput from "./SelectField/SelectInput";
 import {useEffect, useRef, useState} from "react";
 import ScaleInput from "./SelectField/ScaleInput";
 
+
 const Customize = () => {
   const [ScaleType, setScaleType] = useState(null);
+  const [inputCount, setInputCount] = useState(0);
   const [customizeData, setCustomizeData] = useState(() => {
     const savedData = localStorage.getItem("customizeData");
     if (savedData) {
@@ -25,6 +27,7 @@ const Customize = () => {
         scaleUpperLimit: "",
         scaleLowerLimit: "",
         spacingUnit: "",
+        scalePointers: 0,
         scalePointer1: "",
         scalePointer2: "",
         scalePointer3: "",
@@ -39,6 +42,29 @@ const Customize = () => {
       setScaleType(selectedScale);
     }
   }, []);
+
+
+const renderInputField = () => {
+  return Array.from({ length: inputCount }, (_, index) => (
+    <ScaleInput
+      key={index}
+      type="number"
+      placeholder="Enter Value"
+      label={`Scale pointer ${index + 1}`}
+      onChange={(e) => handlePointerChange(e, index)}
+      value={customizeData[`scalePointer${index + 1}`]}
+      className="text-sm"
+    />
+  ));
+};
+
+const handlePointerChange = (value) => {
+  setInputCount(parseInt(value)); 
+  setCustomizeData((prevData) => ({
+    ...prevData,
+    scalePointers: value,
+  }));
+};
 
   useEffect(() => {
     if (ScaleType !== null) {
@@ -98,10 +124,12 @@ const Customize = () => {
   const fontSizeOptions = ["8px", "10px", "12px", "14px", "16px", "18px", "20px", "24px", "28px", "32px"];
   const screenOrientationOptions = ["Horizontal", "Vertical"];
   const scaleFormatOptions = ["Number", "Emojis"];
+  const scalePointers = [2,3,4,5,7,9]
 
   useEffect(() => {
     localStorage.setItem("customizeData", JSON.stringify(customizeData));
   }, [customizeData]);
+
 
   return (
     <div className="w-full px-5 ">
@@ -238,22 +266,13 @@ const Customize = () => {
               
               <div className="w-[70%]">
                 <p className="font-poppins text-sm font-medium text-dowellDeepGreen mb-1">Scale Pointers</p>
-                <SelectInput onChange={handleChange("scaleOrientation")} data={screenOrientationOptions} className="md:w-[30%] py-6 font-poppins text-[13px] font-medium text-dowellDeepGreen focus:ring-dowellDeepGreen" placeholder="-- Select Scale Pointers --" />
+                <SelectInput onChange={(e) => handlePointerChange(e)} data={scalePointers} className="md:w-[30%] py-6 font-poppins text-[13px] font-medium text-dowellDeepGreen focus:ring-dowellDeepGreen" placeholder="-- Select Scale Pointers --" forText="Pointer" />
+
               </div>
-
-              {/* <div>
-                <p className="font-poppins text-sm font-medium text-dowellDeepGreen mb-2">-- Scale background color --</p>
-                <div className="bg-white rounded-lg shadow-md px-6 py-[10px] flex items-center gap-6">
-                  <input type="color" ref={scaleBackgroundColorRef} value={customizeData.scaleBackgroundColor} onChange={handleColorChange("scaleBackgroundColor")} />
-                  <CgColorPicker className="size-5 cursor-pointer" onClick={() => scaleBackgroundColorRef.current.click()} />
-                </div>
-              </div> */}
+              
             </div>
-
-            <div className="flex md:w-[50%] md:flex-row flex-col w-full gap-7 ">
-              <ScaleInput type="number" placeholder="Enter Value" label="Scale pointer 1" onChange={handleUpperLimit} value={customizeData.scalePointer1} className="text-sm" text="Total number for pointer 1" />
-              <ScaleInput type="number" placeholder="Enter Value" label="Scale pointer 2" onChange={handleLowerLimit} value={customizeData.scalePointer2} className="text-sm" text="Total number for pointer 2 " />
-              <ScaleInput type="number" placeholder="Enter Value" label="Scale pointer 3" onChange={handleSpacingUnit} value={customizeData.scalePointer3} className="text-sm" text="Total number for pointer 3" />
+            <div className="flex md:w-[50%] h-[50%] md:flex-row flex-col w-full gap-7 flex-wrap ">
+              {renderInputField()}              
             </div>
           </div>
         )}

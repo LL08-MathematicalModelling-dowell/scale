@@ -1,7 +1,7 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import PropTypes from 'prop-types';
 
-const SelectInput = ({ className, placeholder, data, onChange = () => {} }) => {
+const SelectInput = ({ className, placeholder, data,  forText , onChange = () => {} }) => {
   return (
     <div>
       <Select onValueChange={(value) => onChange(value)}>
@@ -11,7 +11,7 @@ const SelectInput = ({ className, placeholder, data, onChange = () => {} }) => {
         <SelectContent>
           {data?.map((item, index) => (
             <SelectItem key={index} value={item}>
-              {item}
+              {item } { forText }
             </SelectItem>
           ))}
         </SelectContent>
@@ -25,6 +25,7 @@ SelectInput.propTypes = {
   placeholder: PropTypes.string,
   data: PropTypes.array,
   onChange: PropTypes.func,
+  forText: PropTypes.string,
 }
 
 export default SelectInput;

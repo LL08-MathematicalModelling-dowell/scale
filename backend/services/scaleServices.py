@@ -9,11 +9,15 @@ class scaleServicesClass:
     def get_nps_scale(self, payload):
             scale_range = range(0,11)
             no_of_buttons = 11
-
+            workspace_id = payload["workspace_id"]
+            username = payload["username"]
+            scale_name = payload["scale_name"]
+            api_key = payload["api_key"]
+            
             scale_details = {
-                 "workspace_id": payload["workspace_id"],
-                 "username": payload["username"],
-                 "scale_name": payload["scale_name"],
+                 "workspace_id": workspace_id,
+                 "username": username,
+                 "scale_name": scale_name,
                  "scale_type": payload["scale_type"],
                  "user_type": payload["user_type"],
                  "channel_instance_list": payload["channel_instance_list"],
@@ -23,10 +27,17 @@ class scaleServicesClass:
                  "event_id": get_event_id()
             }
            
-            # save data to db
-            response = json.loads(datacube_data_insertion(api_key,"livinglab_scales","collection_3",scale_details))
-            scale_id = response['data'].get("inserted_id")
+            # Insert scale settings into the settings collection
+            db_response = json.loads(datacube_data_insertion(api_key,f"{workspace_id}_scale_meta_data",f"{workspace_id}_scale_setting",scale_details))
+            scale_id = db_response['data'].get("inserted_id")
             scale_details["scale_id"] = scale_id
+    
+            # Insert scale info into the info collection
+            scale_info = {
+                "scale_id": scale_id,
+                "scale_name": scale_name
+            }
+            datacube_data_insertion(api_key,f"{workspace_id}_scale_meta_data",f"{workspace_id}_scale_info",scale_info)
 
             # generate the button urls
             urls = self.generate_urls(scale_details)
@@ -47,11 +58,14 @@ class scaleServicesClass:
     def get_nps_lite_scale(self, payload):
         scale_range = range(0,3)
         no_of_buttons = 3
-
+        workspace_id = payload["workspace_id"]
+        username = payload["username"]
+        scale_name = payload["scale_name"]
+        
         scale_details = {
-                "workspace_id": payload["workspace_id"],
-                "username": payload["username"],
-                "scale_name": payload["scale_name"],
+                "workspace_id": workspace_id,
+                "username": username,
+                "scale_name": scale_name,
                 "scale_type": payload["scale_type"],
                 "user_type": payload["user_type"],
                 "channel_instance_list": payload["channel_instance_list"],
@@ -61,16 +75,23 @@ class scaleServicesClass:
                 "event_id": get_event_id()
         }
         
-        # save data to db
-        response = json.loads(datacube_data_insertion(api_key,"livinglab_scales","collection_3",scale_details))
-        scale_id = response['data'].get("inserted_id")
+         # Insert scale settings into the settings collection
+        db_response = json.loads(datacube_data_insertion(api_key,f"{workspace_id}_scale_meta_data",f"{workspace_id}_scale_setting",scale_details))
+        scale_id = db_response['data'].get("inserted_id")
         scale_details["scale_id"] = scale_id
+
+        # Insert scale info into the info collection
+        scale_info = {
+            "scale_id": scale_id,
+            "scale_name": scale_name
+        }
+        datacube_data_insertion(api_key,f"{workspace_id}_scale_meta_data",f"{workspace_id}_scale_info",scale_info)
 
         # generate the button urls
         urls = self.generate_urls(scale_details)
 
         # insert urls into the db
-        datacube_data_update(api_key, "livinglab_scales", "collection_3", {"_id": scale_id}, {"urls":urls})
+        datacube_data_update(api_key,f"{workspace_id}_scale_meta_data",f"{workspace_id}_scale_setting", {"_id": scale_id}, {"urls":urls})
 
         scale_response = {
                 "scale_id": scale_id,
@@ -86,11 +107,14 @@ class scaleServicesClass:
         no_of_pointers = payload["pointers"]
         scale_range = range(1,no_of_pointers+1)
         no_of_buttons = no_of_pointers
+        workspace_id = payload["workspace_id"]
+        username = payload["username"]
+        scale_name = payload["scale_name"]
 
         scale_details = {
-                "workspace_id": payload["workspace_id"],
-                "username": payload["username"],
-                "scale_name": payload["scale_name"],
+                "workspace_id": workspace_id,
+                "username": username,
+                "scale_name": scale_name,
                 "scale_type": payload["scale_type"],
                 "user_type": payload["user_type"],
                 "channel_instance_list": payload["channel_instance_list"],
@@ -101,16 +125,23 @@ class scaleServicesClass:
                 "event_id": get_event_id()
         }
         
-        # save data to db
-        response = json.loads(datacube_data_insertion(api_key,"livinglab_scales","collection_3",scale_details))
-        scale_id = response['data'].get("inserted_id")
+        # Insert scale settings into the settings collection
+        db_response = json.loads(datacube_data_insertion(api_key,f"{workspace_id}_scale_meta_data",f"{workspace_id}_scale_setting",scale_details))
+        scale_id = db_response['data'].get("inserted_id")
         scale_details["scale_id"] = scale_id
 
+        # Insert scale info into the info collection
+        scale_info = {
+            "scale_id": scale_id,
+            "scale_name": scale_name
+        }
+        datacube_data_insertion(api_key,f"{workspace_id}_scale_meta_data",f"{workspace_id}_scale_info",scale_info)
+            
         # generate the button urls
         urls = self.generate_urls(scale_details)
 
         # insert urls into the db
-        datacube_data_update(api_key, "livinglab_scales", "collection_3", {"_id": scale_id}, {"urls":urls})
+        datacube_data_update(api_key,f"{workspace_id}_scale_meta_data",f"{workspace_id}_scale_setting", {"_id": scale_id}, {"urls":urls})
 
         scale_response = {
                 "scale_id": scale_id,
@@ -126,11 +157,14 @@ class scaleServicesClass:
         axis_limit = payload["axis_limit"]
         scale_range = chain(range(-axis_limit, 0), range(1, axis_limit+1))
         no_of_buttons = 2*axis_limit
+        workspace_id = payload["workspace_id"]
+        username = payload["username"]
+        scale_name = payload["scale_name"]
 
         scale_details = {
-                "workspace_id": payload["workspace_id"],
-                "username": payload["username"],
-                "scale_name": payload["scale_name"],
+                "workspace_id": workspace_id,
+                "username": username,
+                "scale_name": scale_name,
                 "scale_type": payload["scale_type"],
                 "user_type": payload["user_type"],
                 "channel_instance_list": payload["channel_instance_list"],
@@ -138,19 +172,26 @@ class scaleServicesClass:
                 "no_of_buttons": no_of_buttons,
                 "scale_range": list(scale_range),
                 "axis_limit": axis_limit,
-                "event_id": get_event_id()
+                # "event_id": get_event_id()
         }
         
-        # save data to db
-        response = json.loads(datacube_data_insertion(api_key,"livinglab_scales","collection_3",scale_details))
-        scale_id = response['data'].get("inserted_id")
+       # Insert scale settings into the settings collection
+        db_response = json.loads(datacube_data_insertion(api_key,f"{workspace_id}_scale_meta_data",f"{workspace_id}_scale_setting",scale_details))
+        scale_id = db_response['data'].get("inserted_id")
         scale_details["scale_id"] = scale_id
+
+        # Insert scale info into the info collection
+        scale_info = {
+            "scale_id": scale_id,
+            "scale_name": scale_name
+        }
+        datacube_data_insertion(api_key,f"{workspace_id}_scale_meta_data",f"{workspace_id}_scale_info",scale_info)
 
         # generate the button urls
         urls = self.generate_urls(scale_details)
 
         # insert urls into the db
-        datacube_data_update(api_key, "livinglab_scales", "collection_3", {"_id": scale_id}, {"urls":urls})
+        datacube_data_update(api_key,f"{workspace_id}_scale_meta_data",f"{workspace_id}_scale_setting", {"_id": scale_id}, {"urls":urls})
 
         scale_response = {
                 "scale_id": scale_id,
@@ -165,11 +206,14 @@ class scaleServicesClass:
     def get_learning_index_scale(self, payload):
         scale_range = range(0,11)
         no_of_buttons = 11
+        workspace_id = payload["workspace_id"]
+        username = payload["username"]
+        scale_name = payload["scale_name"]
 
         scale_details = {
-                "workspace_id": payload["workspace_id"],
-                "username": payload["username"],
-                "scale_name": payload["scale_name"],
+                "workspace_id": workspace_id,
+                "username": username,
+                "scale_name": scale_name,
                 "scale_type": payload["scale_type"],
                 "user_type": payload["user_type"],
                 "channel_instance_list": payload["channel_instance_list"],
@@ -179,16 +223,23 @@ class scaleServicesClass:
                 "event_id": get_event_id()
         }
         
-        # save data to db
-        response = json.loads(datacube_data_insertion(api_key,"livinglab_scales","collection_3",scale_details))
-        scale_id = response['data'].get("inserted_id")
+        # Insert scale settings into the settings collection
+        db_response = json.loads(datacube_data_insertion(api_key,f"{workspace_id}_scale_meta_data",f"{workspace_id}_scale_setting",scale_details))
+        scale_id = db_response['data'].get("inserted_id")
         scale_details["scale_id"] = scale_id
+
+        # Insert scale info into the info collection
+        scale_info = {
+            "scale_id": scale_id,
+            "scale_name": scale_name
+        }
+        datacube_data_insertion(api_key,f"{workspace_id}_scale_meta_data",f"{workspace_id}_scale_info",scale_info)
 
         # generate the button urls
         urls = self.generate_urls(scale_details)
 
         # insert urls into the db
-        datacube_data_update(api_key, "livinglab_scales", "collection_3", {"_id": scale_id}, {"urls":urls})
+        datacube_data_update(api_key,f"{workspace_id}_scale_meta_data",f"{workspace_id}_scale_setting", {"_id": scale_id}, {"urls":urls})
 
         scale_response = {
                 "scale_id": scale_id,

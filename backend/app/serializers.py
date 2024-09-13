@@ -66,6 +66,7 @@ class ChannelInstanceSerializer(serializers.Serializer):
     instances_details = InstanceDetailsSerializer(many=True)
 
 class ScaleServiceSerializer(serializers.Serializer):
+    api_key = serializers.CharField(max_length=100, allow_blank=False)
     workspace_id = serializers.CharField(max_length=100, allow_blank=False)
     username = serializers.CharField(max_length=100, allow_blank=False)
     scale_name = serializers.CharField(max_length=100, allow_blank=False)
@@ -75,3 +76,14 @@ class ScaleServiceSerializer(serializers.Serializer):
     pointers = serializers.IntegerField(required=False)
     axis_limit = serializers.IntegerField(required=False)
     channel_instance_list = ChannelInstanceSerializer(many=True)
+
+    def validate(self, data):
+        scale_type = data.get('scale_type')
+
+        if scale_type == 'stapel' and not data.get('axis_limit'):
+            raise serializers.ValidationError({'axis_limit': 'This field is required for Stapel scale.'})
+
+        if scale_type == 'likert' and not data.get('pointers'):
+            raise serializers.ValidationError({'pointers': 'This field is required for Likert scale.'})
+
+        return data

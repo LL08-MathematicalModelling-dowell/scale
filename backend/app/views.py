@@ -16,6 +16,7 @@ from services.sendEmail import *
 from services.scaleServices import scaleServicesClass
 
 jwt_utils = JWTUtils()
+scales = scaleServicesClass()
 
 @method_decorator(csrf_exempt, name='dispatch')
 class healthCheck(APIView):
@@ -818,96 +819,56 @@ class ScaleManagement(APIView):
 
 class ScaleCreationView(APIView):
     def post(self, request):
-        scale_serializer = ScaleServiceSerializer(data=request.data)
+        service_type = request.GET.get("service_type")
+        
+        if service_type == "create_scale":
+            return self.create_scale(request)
 
-        if not scale_serializer.is_valid():
-            return Response({
-                "success": "false",
-                "message":"Posting incorrect data",
-                "error": scale_serializer.errors
-            }, status=status.HTTP_400_BAD_REQUEST)
-        
-        workspace_id = scale_serializer.validated_data['workspace_id']
-        username = scale_serializer.validated_data['username']
-        scale_name = scale_serializer.validated_data['scale_name']
-        scale_type = scale_serializer.validated_data['scale_type']
-        user_type = scale_serializer.validated_data['user_type']
-        no_of_responses = scale_serializer.validated_data['no_of_responses']
-        
-        channel_instance_list = scale_serializer.validated_data['channel_instance_list']
-
-        channel_serializer = ChannelInstanceSerializer(data=channel_instance_list, many=True)
-        if not channel_serializer.is_valid():
-            return Response({
-                "success": "false",
-                "message": "Posting incorrect data for channels",
-                "error": channel_serializer.errors
-            }, status=status.HTTP_400_BAD_REQUEST)
-        
-        validated_channel_instance_list = channel_serializer.validated_data
-        for channel_instance in validated_channel_instance_list:
-            instance_serializer = InstanceDetailsSerializer(data=channel_instance['instances_details'], many=True)
-            if not instance_serializer.is_valid():
-                return Response({
-                "success": "false",
-                "message": "Posting incorrect data for instances",
-                "error": instance_serializer.errors
-            }, status=status.HTTP_400_BAD_REQUEST)
-        
-
-        payload = {
-            "workspace_id": workspace_id,
-            "username": username,
-            "scale_name": scale_name,
-            "scale_type": scale_type,
-            "user_type": user_type,
-            "no_of_responses": no_of_responses,
-            "channel_instance_list": channel_instance_list
+    def create_scale(self, request):    
+        scale_data = {
+            "api_key": request.GET.get("api_key"),
+            "workspace_id": request.data.get("workspace_id"),
+            "username": request.data.get("username"),
+            "scale_name": request.data.get("scale_name"),
+            "scale_type": request.GET.get("scale_type"),
+            "user_type": request.data.get("user_type"),
+            "no_of_responses": request.data.get("no_of_responses"),
+            "channel_instance_list": request.data.get("channel_instance_list")
         }
 
-        scales = scaleServicesClass()
-
-        if scale_type == "nps":
-            response_data = scales.get_nps_scale(payload)
-
-        elif scale_type == "nps_lite":
-            response_data = scales.get_nps_lite_scale(payload)
-
-        elif scale_type == "likert":
-            if not "pointers" in request.data:
-                return Response({
-                                "success":"false",
-                                "message":"Posting incorrect data",
-                                "error":"Missing pointers field for likert scale"
-                            }, status=status.HTTP_400_BAD_REQUEST)
-           
-            pointers = scale_serializer.validated_data["pointers"] 
-            payload["pointers"] = pointers
-            response_data = scales.get_likert_scale(payload)
-
-        elif scale_type == "stapel":
-            if not "axis_limit" in request.data:
-                return Response({
-                                "success":"false",
-                                "message":"Posting incorrect data",
-                                "error":"Missing axis limit field for stapel scale"
-                            }, status=status.HTTP_400_BAD_REQUEST)
-            
-            axis_limit = scale_serializer.validated_data["axis_limit"]
-            payload["axis_limit"] = axis_limit
-            response_data = scales.get_stapel_scale(payload)
-
-        elif scale_type == "learning_index":
-            response_data = scales.get_learning_index_scale(payload)
-
-        else: 
+        serializer = ScaleServiceSerializer(data=scale_data)
+        if not serializer.is_valid():
             return Response({
                 "success": "false",
-                "error": "Invalid scale type"
-            }, status= status.HTTP_400_BAD_REQUEST)
+                "message": "Posting incorrect data",
+                "error": serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+       
+        scale_handlers = {
+            "nps": lambda: scales.get_nps_scale(scale_data),
+            "nps_lite": lambda: scales.get_nps_lite_scale(scale_data),
+            "learning_index": lambda: scales.get_learning_index_scale(scale_data)
+        }
 
+        handler = scale_handlers.get(scale_data["scale_type"])
+        if handler:
+            response_data = handler()
+
+            return self.error_response("Invalid scale type")
+
+        return self.success_response("New scale created successfully", response_data)
+
+    # Method to return a success response
+    def success_response(self, message, data):
         return Response({
-                        "success":"true", 
-                        "message" :"New scale created successfully",
-                        "scale_details":response_data,
-                    }, status= status.HTTP_201_CREATED)
+            "success": "true",
+            "message": message,
+            "scale_details": data,
+        }, status=status.HTTP_201_CREATED)
+
+    # Method to return an error response
+    def error_response(self, message):
+        return Response({
+            "success": "false",
+            "message": message
+        }, status=status.HTTP_400_BAD_REQUEST)

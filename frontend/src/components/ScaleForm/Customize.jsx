@@ -27,6 +27,7 @@ const Customize = () => {
         scaleLowerLimit: "",
         spacingUnit: "",
         scalePointers: 0,
+        scaleEmojis: [],  // Changed from separate properties to an array
       };
     }
   });
@@ -84,6 +85,17 @@ const Customize = () => {
     }));
   };
 
+  const handleEmojiChange = (index) => (value) => {
+    setCustomizeData((prevData) => {
+      const emojiArray = [...(prevData.scaleEmojis || [])];  // Ensure it's an array
+      emojiArray[index] = value;
+      return {
+        ...prevData,
+        scaleEmojis: emojiArray,
+      };
+    });
+  };
+
   const handleColorChange = (colorField) => (e) => {
     setCustomizeData((prevData) => ({
       ...prevData,
@@ -116,10 +128,7 @@ const Customize = () => {
   const screenOrientationOptions = ["Horizontal", "Vertical"];
   const scaleFormatOptions = ["Number", "Text", "Emojis"];
   const scalePointers = [2, 3, 4, 5, 7, 9];
-//   const emojis = [
-//   "😀", "😁", "😂", "🤣", "😃", "😄", "😅", "😆", "😉", "😊", 
-//   "😋", "😎", "😍", "😘", "🥰", "😗", "😙", "😚", "🙂", "🤗"
-// ];
+  const emojis = ["😀", "😁", "😂", "🤣", "😃", "😄", "😅", "😆", "😉", "😊", "😋", "😎", "😍", "😘", "🥰", "😗", "😙", "😚", "🙂", "🤗"];
 
   useEffect(() => {
     localStorage.setItem("customizeData", JSON.stringify(customizeData));
@@ -279,8 +288,19 @@ const Customize = () => {
                       />
                     ))
                   ) : (
-                    <> </> 
+                    <> </>
                   )}
+                {customizeData.scaleFormat === "Emojis" && 
+  inputCount.map((_, index) => (
+    <SelectInput 
+      key={index}
+      onChange={handleEmojiChange(index)}  // Pass the index directly
+      data={emojis}
+      className="w-full py-6 font-poppins text-[13px] font-medium text-dowellDeepGreen focus:ring-dowellDeepGreen"
+      placeholder="-- Select Emoji --"
+    />
+  ))
+}
                 </div>
               </div>
             </div>

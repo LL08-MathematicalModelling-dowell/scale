@@ -45,7 +45,7 @@ useEffect(() => {
   }
 }, [customizeDetails]);
 
-const likertEmojis = ['😭', '😢 ',  '😐',  '🙂 ',  '😄',  '😍']
+const likertEmojis =  customizeDetails.scaleEmojis
 
   
 

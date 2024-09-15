@@ -12,6 +12,7 @@ import Registration from './Pages/Registration/RegistrationPage';
 import LikertReport from "./Pages/LikertReport/LikertReport";
 import EditScale from "./Pages/EditScale/EditScale";
 import CreatingScale from "./Pages/CreateNewScale/CreatingScale";
+import Confirm from "./components/ScaleForm/Confirm";
 
 const App = () => {
   useDowellLogin();
@@ -30,6 +31,8 @@ const App = () => {
       {/* Route for creating or edit scale */}
       <Route path='/edit-scale' element={<EditScale/>} />
       <Route path="/scale-creating" element={<CreatingScale/>}/>
+      <Route path="/confirmed" element={<Confirm/>}/>
+      
     </Routes>
   );
 };

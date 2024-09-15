@@ -6,9 +6,10 @@ import PropTypes from "prop-types";
 import {useState, useEffect} from "react";
 import NotFound from "../../assets/NotFound.jpg";
 
-const RectangleDiv = ({className = "", scores, type}) => {
+const RectangleDiv = ({className = "", scores, type, maximumScore}) => {
   const constrainedYellowPercent = scores;
   const greenPercent = 100 - constrainedYellowPercent;
+console.log(maximumScore)
 
   return (
     <div className="flex flex-col">
@@ -23,7 +24,7 @@ const RectangleDiv = ({className = "", scores, type}) => {
       {/* Labels */}
       <div className="flex justify-between w-full gap-y-2">
         <p className="text-sm font-medium font-poppins">0</p>
-        <p className="text-sm font-medium font-poppins"> {type === "averageScore" ? "5" : "30"}</p>
+        <p className="text-sm font-medium font-poppins"> {type === "averageScore" ? "5" : maximumScore}</p>
       </div>
     </div>
   );
@@ -52,11 +53,12 @@ const LikertReport = () => {
   const [channelValue, setChannelValue] = useState(null);
   const [instanceLoading, setInstanceLoading] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [maxScore, setMaxScore] = useState(0);
   const [overallScoreData, setOverallScoreData] = useState({
     labels: [],
     datasets: [],
   });
-  
+
   const fetchLikertChannelInstances = async () => {
     const scale_id = "66c9d21e9090b1529d108a63";
     setInstanceLoading(true); // Start loading
@@ -108,7 +110,7 @@ const LikertReport = () => {
 
     try {
       const reportResponse = await getLikertReport(payload);
-      console.log("Report Response Status:", reportResponse.status); // Log the response status
+      console.log("Report Response Status:", reportResponse.status);
 
       if (reportResponse.status === 200) {
         setDisplayData(true);
@@ -117,9 +119,13 @@ const LikertReport = () => {
         setReportData(reportResult);
         setTotalResponse(reportResult?.report.no_of_responses);
         const totalScoreString = reportResult?.report?.total_score;
-
+        console.log(totalScoreString);
+        const maximumScore = parseInt(totalScoreString.split("/")[1], 10);
         const score = parseInt(totalScoreString.split("/")[0], 10);
         setTotalScore(score);
+        setMaxScore(maximumScore);
+        console.log(totalScore)
+        console.log(maxScore)
 
         const reportAverageScore = reportResult?.report?.average_score;
         const roundedAverageScore = parseFloat(reportAverageScore.toFixed(2));
@@ -193,30 +199,30 @@ const LikertReport = () => {
         beginAtZero: true,
         ticks: {
           callback: function (value) {
-            return value + " %"; 
+            return value + " %";
           },
         },
         title: {
           display: true,
-          text: 'Percentage', 
+          text: "Percentage",
           font: {
             size: 15,
-            weight: 'bold',
-            family: 'poppins'
+            weight: "bold",
+            family: "poppins",
           },
-          color: '#005734'
+          color: "#005734",
         },
       },
       x: {
         title: {
           display: true,
-          text: 'Score', 
+          text: "Score",
           font: {
             size: 15,
-            weight: 'bold',
-            family: 'poppins'
+            weight: "bold",
+            family: "poppins",
           },
-          color: '#005734'
+          color: "#005734",
         },
       },
     },
@@ -224,43 +230,43 @@ const LikertReport = () => {
       tooltip: {
         callbacks: {
           label: function (context) {
-            return context.dataset.label + ": " + context.raw + " %"; 
+            return context.dataset.label + ": " + context.raw + " %";
           },
         },
       },
     },
   };
-  
+
   const optionsWithoutPercentage = {
     scales: {
       y: {
         beginAtZero: true,
         ticks: {
           callback: function (value) {
-            return value; 
+            return value;
           },
         },
         title: {
           display: true,
-          text: 'Count', 
+          text: "Count",
           font: {
             size: 15,
-            weight: 'bold',
-            family: 'poppins'
+            weight: "bold",
+            family: "poppins",
           },
-          color: '#005734'
+          color: "#005734",
         },
       },
       x: {
         title: {
           display: true,
-          text: 'Days', 
+          text: "Days",
           font: {
             size: 16,
-            weight: 'bold',
-            family: 'poppins'
+            weight: "bold",
+            family: "poppins",
           },
-          color: '#005734'
+          color: "#005734",
         },
       },
     },
@@ -268,13 +274,12 @@ const LikertReport = () => {
       tooltip: {
         callbacks: {
           label: function (context) {
-            return context.dataset.label + ": " + context.raw; 
+            return context.dataset.label + ": " + context.raw;
           },
         },
       },
     },
   };
-  
 
   const lineChartDataTwo = overallScoreData;
 
@@ -310,31 +315,29 @@ const LikertReport = () => {
             <SelectField handleInputChange={handleInputChange} triggerClass="w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins" placeholder="Select Instances" data={instanceName} />
             <SelectField handleInputChange={handleInputChange} triggerClass="w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins" placeholder="Duration" data={Duration} />
           </div>
-   
 
           <h2 className="text-xl font-bold tracking-tight font-montserrat">
             Total Response: <span className="text-xl text-green-800 font-poppins">{totalResponse}</span>
           </h2>
         </div>
         {displayData === false && alert === true && (
-              <div className="flex items-center justify-center mt-12 gap-x-3">
-                <img src={NotFound} alt="" className="w-64"/>
-           <div className="">
-           <h3 className="text-2xl font-bold tracking-tight text-gray-500 font-poppins">{message}</h3>
-           <p className="font-poppins text-gray-800 text-[15px] tracking-tight mt-1">Please contact admin if possibly you have this report</p>
-           </div>
+          <div className="flex items-center justify-center mt-12 gap-x-3">
+            <img src={NotFound} alt="" className="w-64" />
+            <div className="">
+              <h3 className="text-2xl font-bold tracking-tight text-gray-500 font-poppins">{message}</h3>
+              <p className="font-poppins text-gray-800 text-[15px] tracking-tight mt-1">Please contact admin if possibly you have this report</p>
             </div>
-        )
-          }
+          </div>
+        )}
         {displayData && (
           <div className="flex flex-col items-center justify-between gap-10 mx-12 mt-8 text-center md:flex-row md:gap-16">
             {/* First Chart */}
             <div className="flex flex-col w-screen gap-2 md:w-3/5 px-7">
               <p className="font-poppins tracking-tight text-[18px] font-medium">Total Score </p>
-              <RectangleDiv scores={totalScoreYellowPercent} />
+              <RectangleDiv scores={totalScoreYellowPercent} maximumScore = {maxScore} />
               <div className="mt-8">
                 <p className="font-poppins text-[13px] font-medium">Daywise Response Insights</p>
-                <LineGraph options={optionsWithoutPercentage} data={{labels: dailyCountsData.labels, datasets: normalizedData}} />
+                <LineGraph options={optionsWithoutPercentage} data={{labels: dailyCountsData.labels, datasets: normalizedData}}  />
               </div>
             </div>
             {/* Second Chart */}
@@ -350,9 +353,8 @@ const LikertReport = () => {
         )}
       </div>
       {instanceLoading == true ? (
-        <div
-          className="absolute top-0 right-0 flex items-center justify-center w-full min-h-screen bg-gray-100 " >
-      <p className="text-xl font-semibold tracking-tight text-green-800 font-poppins">Please wait,  while fetching your report...</p>
+        <div className="absolute top-0 right-0 flex items-center justify-center w-full min-h-screen bg-gray-100 ">
+          <p className="text-xl font-semibold tracking-tight text-green-800 font-poppins">Please wait, while fetching your report...</p>
         </div>
       ) : null}
     </div>

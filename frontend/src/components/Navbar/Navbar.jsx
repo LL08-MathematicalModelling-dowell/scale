@@ -30,7 +30,7 @@ const Navbar = () => {
   }
 
   return (
-    <nav className="md:py-3 py-2 px-5 border-b-gray-200 border">
+    <nav className="md:py-3 py-2 px-5 border-b-gray-200 border ">
       <div className=""></div>
       <div className="flex justify-between relative">
         <div className="flex items-center">

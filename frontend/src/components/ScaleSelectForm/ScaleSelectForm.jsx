@@ -5,9 +5,10 @@ import NoImage from "./../../assets/NoImg.png";
 import NpsPreview from "../ScaleTypePreviews/NpsPreview";
 import NpsLitePreview from "../ScaleTypePreviews/NpsLitePreview";
 import StaplePreview from "../ScaleTypePreviews/StaplePreview";
+import { useScale } from "@/contexts/ScaleContext";
 
 const ScaleSelectForm = () => {
-  const [selectedScale, setSelectedScale] = useState(null);
+  const {selectedScale, setSelectedScale} = useScale()
   const [openModal, setOpenModal] = useState(false);
 
   const handleModal = () => {
@@ -20,8 +21,8 @@ const ScaleSelectForm = () => {
     if (savedScaleName) {
       const savedScale = UserScaleData.scales.find((item) => item.scaleName === savedScaleName);
       setSelectedScale(savedScale);
-    }
-  }, []);
+    } 
+  }, [ ]);
 
   const data = UserScaleData.scales.map((item) => ({
     scaleName: item.scaleName,

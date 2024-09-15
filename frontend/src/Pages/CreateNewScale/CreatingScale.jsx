@@ -4,7 +4,7 @@ import Stepper from "@/components/DynamicStepper/Stepper";
 const CreatingScale = () => {
   return (
     <div className="md:max-w-full max-w-sm m-0 p-0  min-h-screen bg-gray-100 ">
-      <CustomHeader />
+      <CustomHeader className="" />
       <div className="mt-7">
           <Stepper/>
       </div>

@@ -3,16 +3,16 @@ import SelectInput from "./SelectField/SelectInput";
 import {useEffect, useRef, useState} from "react";
 import ScaleInput from "./SelectField/ScaleInput";
 
+
 const Customize = () => {
   const [ScaleType, setScaleType] = useState(null);
-  const [inputCount, setInputCount] = useState([]);
-  const [customizeData, setCustomizeData] = useState(() => {
+  const [customizeData, setCustomizeData] = useState(()=> {
     const savedData = localStorage.getItem("customizeData");
-    if (savedData) {
+    if(savedData){
       return JSON.parse(savedData);
-    } else {
-      return {
-        scaleType: null,
+    }else {
+      return{
+        scaleType: null, 
         fontColor: "#f3f3f3",
         leftScaleColor: "#f3f3f3",
         rightScaleColor: "#f3f3f3",
@@ -20,15 +20,13 @@ const Customize = () => {
         scaleColor: "#f3f3f3",
         scaleBackgroundColor: "#f3f3f3",
         scaleOrientation: "",
-        fontSize: " ",
+        fontSize: "",
         fontFamily: "",
         scaleFormat: "",
         scaleUpperLimit: "",
         scaleLowerLimit: "",
         spacingUnit: "",
-        scalePointers: 0,
-        scaleEmojis: [], // Changed from separate properties to an array
-      };
+      }
     }
   });
 
@@ -65,35 +63,6 @@ const Customize = () => {
       ...prevData,
       [field]: value,
     }));
-
-    const fieldInput = customizeData.scalePointers;
-    console.log(fieldInput);
-  };
-
-  useEffect(() => {
-    const scalePointers = customizeData.scalePointers;
-    if (scalePointers) {
-      setInputCount(Array.from({length: scalePointers}, (_, i) => i));
-    }
-  }, [customizeData.scalePointers]);
-
-  const handlePointerChange = (index) => (e) => {
-    const value = e.target.value;
-    setCustomizeData((prevData) => ({
-      ...prevData,
-      [`scalePointer${index + 1}`]: value,
-    }));
-  };
-
-  const handleEmojiChange = (index) => (value) => {
-    setCustomizeData((prevData) => {
-      const emojiArray = [...(prevData.scaleEmojis || [])]; // Ensure it's an array
-      emojiArray[index] = value;
-      return {
-        ...prevData,
-        scaleEmojis: emojiArray,
-      };
-    });
   };
 
   const handleColorChange = (colorField) => (e) => {
@@ -106,7 +75,7 @@ const Customize = () => {
   const handleUpperLimit = (e) => {
     setCustomizeData({
       ...customizeData,
-      scalePointer: e.target.value,
+      scaleUpperLimit: e.target.value,
     });
   };
 
@@ -126,13 +95,12 @@ const Customize = () => {
   const fontFamilyOptions = ["Arial", "Verdana", "Times New Roman", "Courier New", "Georgia", "Garamond", "Trebuchet MS", "Impact", "Comic Sans MS", "Lucida Sans Unicode", "Tahoma", "Palatino Linotype", "Book Antiqua", "Lucida Console"];
   const fontSizeOptions = ["8px", "10px", "12px", "14px", "16px", "18px", "20px", "24px", "28px", "32px"];
   const screenOrientationOptions = ["Horizontal", "Vertical"];
-  const scaleFormatOptions = ["Number", "Text", "Emojis"];
-  const scalePointers = [2, 3, 4, 5, 7, 9];
-  const emojis = ["😠", "😡", "😞", "😟", "😐", "🙂", "😊", "😄", "😁", "😃", "😍", "🥰", "🤩", "🎉", "👍", "👌", "👏", "🙌", "💯"];
+  const scaleFormatOptions = ["Number", "Emojis"];
 
   useEffect(() => {
     localStorage.setItem("customizeData", JSON.stringify(customizeData));
   }, [customizeData]);
+
 
   return (
     <div className="w-full px-5 ">
@@ -166,7 +134,7 @@ const Customize = () => {
 
         <div>
           <p className="font-poppins text-sm font-medium text-dowellDeepGreen mb-2">-- Scale format --</p>
-          <SelectInput onChange={handleChange("scaleFormat")} className="md:w-[30%] py-6 font-poppins text-[13px] font-medium text-dowellDeepGreen focus:ring-dowellDeepGreen" data={scaleFormatOptions} placeholder="-- Select Format --" required />
+          <SelectInput onChange={handleChange("scaleFormat")} className="md:w-[30%] py-6 font-poppins text-[13px] font-medium text-dowellDeepGreen focus:ring-dowellDeepGreen" data={scaleFormatOptions} placeholder="-- Select Format --" />
         </div>
         {/* NPS LITE */}
         {ScaleType === "nps lite" && (
@@ -217,92 +185,31 @@ const Customize = () => {
           </div>
         )}
 
-        {/* Staple Type */}
+        {/* Scale Type */}
         {ScaleType === "stapel" && (
           <div className="flex flex-col gap-7 w-full">
-            <div className="flex md:w-[50%] md:flex-row flex-col w-full gap-7 ">
-              <ScaleInput type="number" placeholder="Enter Value" label="Scale Upper Limit" onChange={handleUpperLimit} value={customizeData.scaleUpperLimit} className="text-sm" text="Maximum number of rating" />
-              <ScaleInput type="number" placeholder="Enter Value" label="Scale Lower Limit" onChange={handleLowerLimit} value={customizeData.scaleLowerLimit} className="text-sm" text="Minimum number of rating" />
-              <ScaleInput type="number" placeholder="Enter Value" label="Spacing Unit" onChange={handleSpacingUnit} value={customizeData.spacingUnit} className="text-sm" text="Spacing between each rating" />
-            </div>
-            <div className="flex gap-6 md:flex-row flex-col w-full">
-              <div>
-                <p className="font-poppins text-sm font-medium text-dowellDeepGreen mb-2">-- Scale Color --</p>
-                <div className="bg-white rounded-lg shadow-md px-7 py-[10px] flex items-center gap-6">
-                  <input className="" type="color" ref={scaleColorRef} value={customizeData.scaleColor} onChange={handleColorChange("scaleColor")} />
-                  <CgColorPicker className="size-5 cursor-pointer" onClick={() => scaleColorRef.current.click()} />
-                </div>
+          <div className="flex md:w-[50%] md:flex-row flex-col w-full gap-7 ">
+            <ScaleInput type="text" placeholder="Enter Value" label="Scale Upper Limit" onChange={handleUpperLimit} value={customizeData.scaleUpperLimit} className ="text-sm" />
+            <ScaleInput type="text" placeholder="Enter Value" label="Scale Lower Limit" onChange={handleLowerLimit} value={customizeData.scaleLowerLimit}  className="text-sm"/>
+            <ScaleInput type="text" placeholder="Enter Value" label="Spacing Unit" onChange={handleSpacingUnit} value={customizeData.spacingUnit} className="text-sm" />
+          </div>
+          <div className="flex gap-6 md:flex-row flex-col w-full">
+            <div>
+              <p className="font-poppins text-sm font-medium text-dowellDeepGreen mb-2">-- Scale Color --</p>
+              <div className="bg-white rounded-lg shadow-md px-7 py-[10px] flex items-center gap-6">
+                <input type="color" ref={scaleColorRef} value={customizeData.scaleColor} onChange={handleColorChange("scaleColor")} />
+                <CgColorPicker className="size-5 cursor-pointer" onClick={() => scaleColorRef.current.click()} />
               </div>
+            </div>
 
-              <div>
-                <p className="font-poppins text-sm font-medium text-dowellDeepGreen mb-2">-- Scale background color --</p>
-                <div className="bg-white rounded-lg shadow-md px-6 py-[10px] flex items-center gap-6">
-                  <input type="color" ref={scaleBackgroundColorRef} value={customizeData.scaleBackgroundColor} onChange={handleColorChange("scaleBackgroundColor")} />
-                  <CgColorPicker className="size-5 cursor-pointer" onClick={() => scaleBackgroundColorRef.current.click()} />
-                </div>
+            <div>
+              <p className="font-poppins text-sm font-medium text-dowellDeepGreen mb-2">-- Scale background color --</p>
+              <div className="bg-white rounded-lg shadow-md px-6 py-[10px] flex items-center gap-6">
+                <input type="color" ref={scaleBackgroundColorRef} value={customizeData.scaleBackgroundColor} onChange={handleColorChange("scaleBackgroundColor")} />
+                <CgColorPicker className="size-5 cursor-pointer" onClick={() => scaleBackgroundColorRef.current.click()} />
               </div>
             </div>
           </div>
-        )}
-
-        {/* Likert scale Type */}
-        {ScaleType === "likert" && (
-          <div>
-            <div className="flex flex-col gap-7 w-full">
-              <div className="flex gap-6 md:flex-row flex-col w-full">
-                <div>
-                  <p className="font-poppins text-sm font-medium text-dowellDeepGreen mb-2">-- Scale Color --</p>
-                  <div className="bg-white rounded-lg shadow-md px-7 py-[10px] flex items-center gap-6">
-                    <input className="" type="color" ref={scaleColorRef} value={customizeData.scaleColor} onChange={handleColorChange("scaleColor")} />
-                    <CgColorPicker className="size-5 cursor-pointer" onClick={() => scaleColorRef.current.click()} />
-                  </div>
-                </div>
-
-                <div>
-                  <p className="font-poppins text-sm font-medium text-dowellDeepGreen mb-2">-- Scale background color --</p>
-                  <div className="bg-white rounded-lg shadow-md px-6 py-[10px] flex items-center gap-6">
-                    <input type="color" ref={scaleBackgroundColorRef} value={customizeData.scaleBackgroundColor} onChange={handleColorChange("scaleBackgroundColor")} />
-                    <CgColorPicker className="size-5 cursor-pointer" onClick={() => scaleBackgroundColorRef.current.click()} />
-                  </div>
-                </div>
-              </div>
-              <div className="flex gap-6 md:flex-row flex-col w-full">
-                <div className="w-[70%]">
-                  <p className="font-poppins text-sm font-medium text-dowellDeepGreen mb-1">Scale Pointers</p>
-                  <SelectInput onChange={handleChange("scalePointers")} data={scalePointers} className="md:w-[30%] py-6 font-poppins text-[13px] font-medium text-dowellDeepGreen focus:ring-dowellDeepGreen" placeholder="-- Select Scale Pointers --" forText="Pointer" />
-                </div>
-              </div>
-              <div className="max-w-full">
-                <div className="flex flex-wrap md:flex-row md:w-46 flex-col w-full gap-2">
-                  {customizeData.scaleFormat === "Number" ? (
-                    inputCount.map((_, index) => (
-                      <ScaleInput
-                        key={index}
-                        type="number"
-                        placeholder={`Enter Value ${index + 1}`}
-                        label={`Scale pointer ${index + 1}`}
-                        onChange={handlePointerChange(index)}
-                        value={customizeData[`scalePointer${index + 1}`] || ""}
-                        className="text-[12px]"
-                        text={`Total number for pointer ${index + 1}`}
-                      />
-                    ))
-                  ) : (
-                    <> </>
-                  )}
-                  {customizeData.scaleFormat === "Emojis" &&
-                    inputCount.map((_, index) => (
-                      <SelectInput
-                        key={index}
-                        onChange={handleEmojiChange(index)} // Pass the index directly
-                        data={emojis}
-                        className="w-full py-6 font-poppins text-[13px] font-medium text-dowellDeepGreen focus:ring-dowellDeepGreen"
-                        placeholder="-- Select Emoji --"
-                      />
-                    ))}
-                </div>
-              </div>
-            </div>
           </div>
         )}
       </div>

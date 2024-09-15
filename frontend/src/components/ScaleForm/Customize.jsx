@@ -3,10 +3,9 @@ import SelectInput from "./SelectField/SelectInput";
 import {useEffect, useRef, useState} from "react";
 import ScaleInput from "./SelectField/ScaleInput";
 
-
 const Customize = () => {
   const [ScaleType, setScaleType] = useState(null);
-  const [inputCount, setInputCount] = useState(0);
+  const [inputCount, setInputCount] = useState([]);
   const [customizeData, setCustomizeData] = useState(() => {
     const savedData = localStorage.getItem("customizeData");
     if (savedData) {
@@ -21,16 +20,13 @@ const Customize = () => {
         scaleColor: "#f3f3f3",
         scaleBackgroundColor: "#f3f3f3",
         scaleOrientation: "",
-        fontSize: "",
+        fontSize: " ",
         fontFamily: "",
         scaleFormat: "",
         scaleUpperLimit: "",
         scaleLowerLimit: "",
         spacingUnit: "",
         scalePointers: 0,
-        scalePointer1: "",
-        scalePointer2: "",
-        scalePointer3: "",
       };
     }
   });
@@ -42,29 +38,6 @@ const Customize = () => {
       setScaleType(selectedScale);
     }
   }, []);
-
-
-const renderInputField = () => {
-  return Array.from({ length: inputCount }, (_, index) => (
-    <ScaleInput
-      key={index}
-      type="number"
-      placeholder="Enter Value"
-      label={`Scale pointer ${index + 1}`}
-      onChange={(e) => handlePointerChange(e, index)}
-      value={customizeData[`scalePointer${index + 1}`]}
-      className="text-sm"
-    />
-  ));
-};
-
-const handlePointerChange = (value) => {
-  setInputCount(parseInt(value)); 
-  setCustomizeData((prevData) => ({
-    ...prevData,
-    scalePointers: value,
-  }));
-};
 
   useEffect(() => {
     if (ScaleType !== null) {
@@ -91,6 +64,24 @@ const handlePointerChange = (value) => {
       ...prevData,
       [field]: value,
     }));
+
+    const fieldInput = customizeData.scalePointers;
+    console.log(fieldInput);
+  };
+
+  useEffect(() => {
+    const scalePointers = customizeData.scalePointers;
+    if (scalePointers) {
+      setInputCount(Array.from({length: scalePointers}, (_, i) => i));
+    }
+  }, [customizeData.scalePointers]);
+
+  const handlePointerChange = (index) => (e) => {
+    const value = e.target.value;
+    setCustomizeData((prevData) => ({
+      ...prevData,
+      [`scalePointer${index + 1}`]: value,
+    }));
   };
 
   const handleColorChange = (colorField) => (e) => {
@@ -103,7 +94,7 @@ const handlePointerChange = (value) => {
   const handleUpperLimit = (e) => {
     setCustomizeData({
       ...customizeData,
-      scaleUpperLimit: e.target.value,
+      scalePointer: e.target.value,
     });
   };
 
@@ -123,13 +114,16 @@ const handlePointerChange = (value) => {
   const fontFamilyOptions = ["Arial", "Verdana", "Times New Roman", "Courier New", "Georgia", "Garamond", "Trebuchet MS", "Impact", "Comic Sans MS", "Lucida Sans Unicode", "Tahoma", "Palatino Linotype", "Book Antiqua", "Lucida Console"];
   const fontSizeOptions = ["8px", "10px", "12px", "14px", "16px", "18px", "20px", "24px", "28px", "32px"];
   const screenOrientationOptions = ["Horizontal", "Vertical"];
-  const scaleFormatOptions = ["Number", "Emojis"];
-  const scalePointers = [2,3,4,5,7,9]
+  const scaleFormatOptions = ["Number", "Text", "Emojis"];
+  const scalePointers = [2, 3, 4, 5, 7, 9];
+//   const emojis = [
+//   "😀", "😁", "😂", "🤣", "😃", "😄", "😅", "😆", "😉", "😊", 
+//   "😋", "😎", "😍", "😘", "🥰", "😗", "😙", "😚", "🙂", "🤗"
+// ];
 
   useEffect(() => {
     localStorage.setItem("customizeData", JSON.stringify(customizeData));
   }, [customizeData]);
-
 
   return (
     <div className="w-full px-5 ">
@@ -244,35 +238,51 @@ const handlePointerChange = (value) => {
 
         {/* Likert scale Type */}
         {ScaleType === "likert" && (
-          <div className="flex flex-col gap-7 w-full">
+          <div>
+            <div className="flex flex-col gap-7 w-full">
               <div className="flex gap-6 md:flex-row flex-col w-full">
-              <div>
-                <p className="font-poppins text-sm font-medium text-dowellDeepGreen mb-2">-- Scale Color --</p>
-                <div className="bg-white rounded-lg shadow-md px-7 py-[10px] flex items-center gap-6">
-                  <input className="" type="color" ref={scaleColorRef} value={customizeData.scaleColor} onChange={handleColorChange("scaleColor")} />
-                  <CgColorPicker className="size-5 cursor-pointer" onClick={() => scaleColorRef.current.click()} />
+                <div>
+                  <p className="font-poppins text-sm font-medium text-dowellDeepGreen mb-2">-- Scale Color --</p>
+                  <div className="bg-white rounded-lg shadow-md px-7 py-[10px] flex items-center gap-6">
+                    <input className="" type="color" ref={scaleColorRef} value={customizeData.scaleColor} onChange={handleColorChange("scaleColor")} />
+                    <CgColorPicker className="size-5 cursor-pointer" onClick={() => scaleColorRef.current.click()} />
+                  </div>
+                </div>
+
+                <div>
+                  <p className="font-poppins text-sm font-medium text-dowellDeepGreen mb-2">-- Scale background color --</p>
+                  <div className="bg-white rounded-lg shadow-md px-6 py-[10px] flex items-center gap-6">
+                    <input type="color" ref={scaleBackgroundColorRef} value={customizeData.scaleBackgroundColor} onChange={handleColorChange("scaleBackgroundColor")} />
+                    <CgColorPicker className="size-5 cursor-pointer" onClick={() => scaleBackgroundColorRef.current.click()} />
+                  </div>
                 </div>
               </div>
-
-              <div>
-                <p className="font-poppins text-sm font-medium text-dowellDeepGreen mb-2">-- Scale background color --</p>
-                <div className="bg-white rounded-lg shadow-md px-6 py-[10px] flex items-center gap-6">
-                  <input type="color" ref={scaleBackgroundColorRef} value={customizeData.scaleBackgroundColor} onChange={handleColorChange("scaleBackgroundColor")} />
-                  <CgColorPicker className="size-5 cursor-pointer" onClick={() => scaleBackgroundColorRef.current.click()} />
+              <div className="flex gap-6 md:flex-row flex-col w-full">
+                <div className="w-[70%]">
+                  <p className="font-poppins text-sm font-medium text-dowellDeepGreen mb-1">Scale Pointers</p>
+                  <SelectInput onChange={handleChange("scalePointers")} data={scalePointers} className="md:w-[30%] py-6 font-poppins text-[13px] font-medium text-dowellDeepGreen focus:ring-dowellDeepGreen" placeholder="-- Select Scale Pointers --" forText="Pointer" />
                 </div>
               </div>
-            </div>
-            <div className="flex gap-6 md:flex-row flex-col w-full">
-              
-              <div className="w-[70%]">
-                <p className="font-poppins text-sm font-medium text-dowellDeepGreen mb-1">Scale Pointers</p>
-                <SelectInput onChange={(e) => handlePointerChange(e)} data={scalePointers} className="md:w-[30%] py-6 font-poppins text-[13px] font-medium text-dowellDeepGreen focus:ring-dowellDeepGreen" placeholder="-- Select Scale Pointers --" forText="Pointer" />
-
+              <div className="max-w-full">
+                <div className="flex flex-wrap md:flex-row md:w-46 flex-col w-full gap-2">
+                  {customizeData.scaleFormat === "Number" ? (
+                    inputCount.map((_, index) => (
+                      <ScaleInput
+                        key={index}
+                        type="number"
+                        placeholder={`Enter Value ${index + 1}`}
+                        label={`Scale pointer ${index + 1}`}
+                        onChange={handlePointerChange(index)}
+                        value={customizeData[`scalePointer${index + 1}`] || ""}
+                        className="text-[12px]"
+                        text={`Total number for pointer ${index + 1}`}
+                      />
+                    ))
+                  ) : (
+                    <> </> 
+                  )}
+                </div>
               </div>
-              
-            </div>
-            <div className="flex md:w-[50%] h-[50%] md:flex-row flex-col w-full gap-7 flex-wrap ">
-              {renderInputField()}              
             </div>
           </div>
         )}

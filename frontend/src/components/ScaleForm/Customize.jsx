@@ -27,8 +27,7 @@ const Customize = () => {
         scaleLowerLimit: "",
         spacingUnit: "",
         scalePointers: 0,
-        scaleEmojis: [], // Changed from separate properties to an array
-      };
+        scaleEmojis: [],      };
     }
   });
 
@@ -87,7 +86,7 @@ const Customize = () => {
 
   const handleEmojiChange = (index) => (value) => {
     setCustomizeData((prevData) => {
-      const emojiArray = [...(prevData.scaleEmojis || [])]; // Ensure it's an array
+      const emojiArray = [...(prevData.scaleEmojis || [])]; 
       emojiArray[index] = value;
       return {
         ...prevData,
@@ -122,7 +121,6 @@ const Customize = () => {
   };
 
   console.log(customizeData);
-
   const fontFamilyOptions = ["Arial", "Verdana", "Times New Roman", "Courier New", "Georgia", "Garamond", "Trebuchet MS", "Impact", "Comic Sans MS", "Lucida Sans Unicode", "Tahoma", "Palatino Linotype", "Book Antiqua", "Lucida Console"];
   const fontSizeOptions = ["8px", "10px", "12px", "14px", "16px", "18px", "20px", "24px", "28px", "32px"];
   const screenOrientationOptions = ["Horizontal", "Vertical"];

@@ -75,8 +75,6 @@ const generateOtpEmailContent = (toname, otp) => {
     `;
 };
 
-
-
 export {
     getCurrentTimestamp,
     generateAlphanumericOtp,

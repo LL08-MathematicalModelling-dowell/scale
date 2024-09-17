@@ -9,7 +9,7 @@ const healthCheckService = asyncHandler(async (req, res) => {
         .status(200)
         .json({ 
             success: true,
-            version: "1.3.1",
+            version: "1.3.2",
             status: "UP",
             timestamp: now,
             server_time: now,

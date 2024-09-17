@@ -1,22 +1,22 @@
-# Specify the base image
+# Specify the base image (use a specific version for consistency)
 FROM node:latest
 
 # Set the working directory in the container
 WORKDIR /usr/src/app
 
-# Copy package.json and package-lock.json
+# Copy package.json and package-lock.json to install dependencies
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install
+# Install dependencies using npm ci for lockfile consistency
+RUN npm ci --legacy-peer-deps
 
 # Install Vite globally
 RUN npm install -g vite
 
-# Copy the rest of the code
+# Copy the rest of the application code
 COPY . .
 
-# Expose the port the app runs on
+# Expose the port the Vite app runs on
 EXPOSE 5173
 
 # Start the development server

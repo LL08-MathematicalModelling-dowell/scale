@@ -14,6 +14,7 @@ import EditScale from "./Pages/EditScale/EditScale";
 import CreatingScale from "./Pages/CreateNewScale/CreatingScale";
 import Confirm from "./components/ScaleForm/Confirm";
 import ScalesReport from "./Pages/ScalesReport/ScalesReport";
+import ShareScale from "./Pages/ShareScale/ShareScale";
 
 const App = () => {
   useDowellLogin();
@@ -34,6 +35,7 @@ const App = () => {
       <Route path="/scale-creating" element={<CreatingScale/>}/>
       <Route path="/confirmed" element={<Confirm/>}/>
       <Route path="/scale-reports" element={<ScalesReport/>} />
+      <Route path="/share-scale" element={<ShareScale />}/>
     </Routes>
   );
 };

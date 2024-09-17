@@ -120,11 +120,18 @@ const LikertScale = () => {
         window.location.href = "https://dowellresearch.sg/"; 
     };
 
+    const getInstanceDisplayName=(url)=> {
+        const urlObj = new URL(url);
+        const params = new URLSearchParams(urlObj.search);
+        const instanceDisplayName = params.get('instance_display_name');
+        return decodeURIComponent(instanceDisplayName);
+    }
+
     return (
         <div className="flex items-center justify-center min-h-screen p-4 overflow-x-hidden">
             <div className="flex flex-col items-center w-full max-w-full p-4 rounded-lg bg-card md:max-w-lg">
                 <h2 className="text-xl md:text-3xl font-bold text-[#FD4704] mb-4 text-center">Are you satisfied with our service?</h2>
-                <div className="flex items-center space-x-2 justify-evenly sm:space-x-4">
+                <div className="flex items-center mt-4 space-x-2 justify-evenly sm:space-x-4">
                     {[voc1, voc2, voc3, voc4, voc5].map((emoji, index) => (
                         <div className="relative" key={index}>
                             <img
@@ -156,7 +163,7 @@ const LikertScale = () => {
                     <span className="text-xl font-bold text-green-700 md:text-2xl">+</span>
                 </div>
 
-                <p className="mt-0 mb-4 text-sm text-center text-muted-foreground md:text-base">
+                <p className="mt-0 mb-8 text-sm text-center text-muted-foreground md:text-base">
                     Select your response
                 </p>
 
@@ -169,13 +176,13 @@ const LikertScale = () => {
                     onChange={(e) => setFeedback(e.target.value)}
                 />
                 <div className="flex w-full">
-                    <div className="sm:block hidden w-[70%] mr-2">
+                    <div className="sm:block hidden w-[70%] mr-12">
                         <div className="flex items-center w-full mx-2 justify-left">
                             <QRCodeSVG value={window.location.href} size={100} />
                             <p className="text-xs text-left w-[45%] p-2">Scan the QR code to open this page in your device</p>
                         </div>
                     </div>
-                    <div className="w-[45%] flex flex-col md:items-center justify-center md:space-y-2 mb-2 w-full">
+                    <div className="w-[40%] flex flex-col md:items-center justify-center md:space-y-2 mb-2 w-full">
                         <input
                             type="text"
                             className="w-full p-2 mb-2 border border-gray-400 border-border"
@@ -230,6 +237,8 @@ const LikertScale = () => {
                         <img src={helpMe} className="h-[60px] w-[60px] md:h-[80px] md:w-[80px] cursor-pointer" />
                     </a>
                 </div>
+                
+                <p className="text-xs text-red-400">{getInstanceDisplayName(window.location.href)}</p>
             </div>
 
             <Dialog open={openModal} onClose={handleClose}>

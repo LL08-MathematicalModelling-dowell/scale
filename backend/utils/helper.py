@@ -272,4 +272,3 @@ def save_location_data(workspaceId,latitude,longitude,userId,event):
     print(response.text)
     
     return response.text
-

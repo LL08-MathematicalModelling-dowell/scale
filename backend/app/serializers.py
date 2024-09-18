@@ -65,7 +65,7 @@ class ChannelInstanceSerializer(serializers.Serializer):
     channel_display_name = serializers.CharField()
     instances_details = InstanceDetailsSerializer(many=True)
 
-class ScaleServiceSerializer(serializers.Serializer):
+class ScaleCreationSerializer(serializers.Serializer):
     api_key = serializers.CharField(max_length=100, allow_blank=False)
     workspace_id = serializers.CharField(max_length=100, allow_blank=False)
     username = serializers.CharField(max_length=100, allow_blank=False)
@@ -87,3 +87,38 @@ class ScaleServiceSerializer(serializers.Serializer):
             raise serializers.ValidationError({'pointers': 'This field is required for Likert scale.'})
 
         return data
+    
+class ScaleResponseSerializer(serializers.Serializer):
+    SCALE_TYPE_CHOICES = (
+        ('nps', 'nps'),
+        ('nps_lite', 'nps_lite'),
+        ('stapel', 'stapel'),
+        ('likert', 'likert'),
+        ('percent', 'percent'),
+        ('percent_sum', 'percent_sum'),
+        ('learning_index', 'learning_index')
+    )
+    workspace_id = serializers.CharField(max_length=100, allow_blank=False)
+    scale_id = serializers.CharField(max_length=100, allow_blank=True)
+    username = serializers.CharField(max_length=100, allow_blank=True)
+    scale_type = serializers.ChoiceField(choices=SCALE_TYPE_CHOICES)
+    user_type = serializers.CharField(max_length=100, allow_blank=False)
+    channel_name = serializers.CharField(max_length=100, allow_blank=False)
+    instance_name = serializers.CharField(max_length=100, allow_blank=False)
+
+    
+class ScaleRetrievalSerializer(serializers.Serializer):
+    SCALE_TYPE_CHOICES = (
+        ('nps', 'nps'),
+        ('nps_lite', 'nps_lite'),
+        ('stapel', 'stapel'),
+        ('likert', 'likert'),
+        ('percent', 'percent'),
+        ('percent_sum', 'percent_sum')
+    )
+    api_key = serializers.CharField(max_length=100, allow_blank=False, required=True)
+    workspace_id = serializers.CharField(max_length=100, allow_blank=False, required=True)
+    scale_id = serializers.CharField(max_length=100, allow_blank=True, required=False)
+    username = serializers.CharField(max_length=100, allow_blank=True, required=False)
+    scale_type = serializers.ChoiceField(choices=SCALE_TYPE_CHOICES)
+    

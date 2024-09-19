@@ -3,6 +3,8 @@ from services.dowellclock import dowell_time
 from utils.eventID import get_event_id
 from itertools import chain
 
+public_url = "https://www.scales.uxlivinglab.online/api"
+
 class scaleServicesClass:
     def __init__(self):
         pass
@@ -38,8 +40,8 @@ class scaleServicesClass:
             "nps": self.handle_nps_response(params, scale_response_data, settings_meta_data),
             "nps_lite": self.handle_nps_lite_response(params, scale_response_data, settings_meta_data),
             "learning_index": self.handle_learning_index_response(params, scale_response_data, settings_meta_data),
-            # "likert": self.handle_likert_response(params, scale_response_data, settings_meta_data),
-            # "stapel": self.handle_stapel_response(params, scale_response_data, settings_meta_data)
+            "likert": self.handle_likert_response(params, scale_response_data, settings_meta_data),
+            "stapel": self.handle_stapel_response(params, scale_response_data, settings_meta_data)
         }
 
         response_data = handlers[scale_type]
@@ -56,7 +58,7 @@ class scaleServicesClass:
         urls = []
         scale_details["scale_range"]
         for idx in scale_details["scale_range"]:
-            # url = f"{public_url}/v1/create-response/?user={settings['user_type']}&scale_type={settings['scale_category']}&channel={channel_instance['channel_name']}&instance={channel_instance['instances_details'][instance_idx]['instance_name']}&workspace_id={payload['workspace_id']}&username={settings['username']}&scale_id={settings['scale_id']}&item={idx}"
+            # url = f"{public_url}/v1/scale-services/?user={scale_details['user_type']}&scale_type={scale_details['scale_type']}&channel={channel_instance['channel_name']}&instance={channel_instance['instances_details'][instance_idx]['instance_name']}&workspace_id={scale_details['workspace_id']}&username={scale_details['username']}&scale_id={scale_details['scale_id']}&item={idx}"
             url = f"http://localhost:8001/v1/scale-services/?user={scale_details['user_type']}&scale_type={scale_details['scale_type']}&channel={channel_instance['channel_name']}&instance={channel_instance['instances_details'][instance_idx]['instance_name']}&workspace_id={scale_details['workspace_id']}&username={scale_details['username']}&scale_id={scale_details['scale_id']}&item={idx}"
             urls.append(url)
         return urls
@@ -303,5 +305,93 @@ class scaleServicesClass:
 
             return scale_response_data
     
+        else:
+            return "No more responses allowed for this instance."
+    
+    def handle_likert_response(self,params,scale_response_data,settings_meta_data):
+        scale_type = "nps"
+        workspace_id = params["workspace_id"]
+        item = params["item"]
+        current_response_count = scale_response_data["current_response_count"]
+        no_of_responses = settings_meta_data["no_of_responses"]
+        channel_instance_list = settings_meta_data["channel_instance_list"]
+        channel_name = params["channel_name"]
+        instance_name = params["instance_name"]
+
+
+        channel_display_names, instance_display_names = self.get_display_names(channel_instance_list,channel_name,instance_name)
+
+        product_url = "https://www.uxlive.me/dowellscale/npslitescale"
+        generated_url = f"{product_url}/?workspace_id={workspace_id}&scale_type={scale_type}&score={item}&channel={channel_name}&instance={instance_name}"
+    
+        if current_response_count <= no_of_responses:
+            event_id = get_event_id()
+            created_time = dowell_time("Asia/Calcutta")
+
+            scale_response_data = {
+                "workspace_id": params["workspace_id"],
+                "username": params["username"],
+                "scale_id": params["scale_id"],
+                "scale_type": scale_type,
+                "pointers": settings_meta_data["pointers"],
+                "score": params["item"],
+                "user_type": params["user_type"],
+                "event_id": event_id,
+                "dowell_time": created_time["current_time"],
+                "current_response_count": current_response_count,
+                "no_of_available_responses": no_of_responses - current_response_count,
+                "channel_name": channel_name,
+                "channel_display_name": channel_display_names[0],
+                "instance_name": instance_name,
+                "instance_display_name": instance_display_names[0],
+                "redirect_url": generated_url
+            }
+
+            return scale_response_data
+        
+        else:
+            return "No more responses allowed for this instance."
+        
+    def handle_stapel_response(self,params,scale_response_data,settings_meta_data):
+        scale_type = "nps"
+        workspace_id = params["workspace_id"]
+        item = params["item"]
+        current_response_count = scale_response_data["current_response_count"]
+        no_of_responses = settings_meta_data["no_of_responses"]
+        channel_instance_list = settings_meta_data["channel_instance_list"]
+        channel_name = params["channel_name"]
+        instance_name = params["instance_name"]
+
+
+        channel_display_names, instance_display_names = self.get_display_names(channel_instance_list,channel_name,instance_name)
+
+        product_url = "https://www.uxlive.me/dowellscale/npslitescale"
+        generated_url = f"{product_url}/?workspace_id={workspace_id}&scale_type={scale_type}&score={item}&channel={channel_name}&instance={instance_name}"
+    
+        if current_response_count <= no_of_responses:
+            event_id = get_event_id()
+            created_time = dowell_time("Asia/Calcutta")
+
+            scale_response_data = {
+                "workspace_id": params["workspace_id"],
+                "username": params["username"],
+                "scale_id": params["scale_id"],
+                "scale_type": scale_type,
+                "axis_limit": settings_meta_data["axis_limit"],
+                "score": params["item"],
+                "user_type": params["user_type"],
+                "event_id": event_id,
+                "dowell_time": created_time["current_time"],
+                "current_response_count": current_response_count,
+                "no_of_available_responses": no_of_responses - current_response_count,
+                "channel_name": channel_name,
+                "channel_display_name": channel_display_names[0],
+                "instance_name": instance_name,
+                "instance_display_name": instance_display_names[0],
+                "redirect_url": generated_url
+            }
+
+            return scale_response_data
+        
         else:
             return "No more responses allowed for this instance."

@@ -8,7 +8,7 @@ urlpatterns = [
     path("voc/scale-management/",ScaleManagement.as_view()),
     path('scale-services/', ScaleCreationView.as_view(), name='scale_creation_class'),
     
-    # --------- OLD ENDPOINTS --------------
+    # ---------- OLD ENDPOINTS ----------
 
     path('create-scale/', ScaleCreateAPI.as_view(), name='create-scale-1'),
     path('create-response/', csrf_exempt(create_scale_response), name='create-response-1'),

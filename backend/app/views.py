@@ -815,9 +815,12 @@ class ScaleManagement(APIView):
             "success": False,
             "message": "Invalid request type"
         }, status=status.HTTP_400_BAD_REQUEST)
+    
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class ScaleCreationView(APIView):
+    # Create and retrieve scales
     def post(self, request):
         service_type = request.GET.get("service_type")
         
@@ -825,7 +828,107 @@ class ScaleCreationView(APIView):
             return self.create_scale(request)
         elif service_type == "fetch_settings":
             return self.fetch_scale_settings(request)
+    
+    # Create response for a scale
+    def get(self, request):
+        try:
+            parameters = {
+                "scale_id": request.GET.get('scale_id'),
+                "item": int(request.GET.get('item')),
+                "workspace_id": request.GET.get('workspace_id'),
+                "username": request.GET.get('username'),
+                "user_type": request.GET.get('user'),
+                "scale_type": request.GET.get('scale_type'),
+                "channel_name": request.GET.get('channel'),
+                "instance_name": request.GET.get('instance')
+            }
+            serializer = ScaleResponseSerializer(data = parameters)
 
+            if not serializer.is_valid():
+                return self.error_response(message = "Invalid parameters. Cannot complete the request.", error = serializer.errors)
+
+            workspace_id = serializer.validated_data["workspace_id"]
+            settings_meta_data = {}
+        
+            # Checking for existing responses in the db
+            fields = {
+                "scale_id": serializer.validated_data["scale_id"], 
+                "channel_name": serializer.validated_data["channel_name"], 
+                "instance_name": serializer.validated_data["instance_name"]
+                }
+            
+            existing_response = json.loads(datacube_data_retrieval(
+                api_key,
+                f"{workspace_id}_scale_response_data",
+                f"{workspace_id}_scale_response",
+                fields,
+                10000,
+                0,
+                False
+            ))
+            existing_response_data = existing_response["data"]
+           
+            # Fetch the scale congifurations
+            scale_settings = json.loads(datacube_data_retrieval(
+                api_key,
+                f"{workspace_id}_scale_meta_data",
+                f"{workspace_id}_scale_setting",
+                {"_id": serializer.validated_data["scale_id"]},
+                10000,
+                0,
+                False
+            ))
+            scale_settings_data = scale_settings['data'][0]
+            
+            scale_response_data = {
+                "current_response_count": len(existing_response_data) + 1 if existing_response_data else 1,
+                "existing_response_data": existing_response_data
+            }
+            settings_meta_data.update(scale_settings_data)
+
+            response_data = scales.create_scale_response(parameters, scale_response_data, settings_meta_data)
+
+            if isinstance(response_data, str):
+                return self.error_response(message = response_data, error=None)
+            else:
+                # Insertion into the DB
+                inserted_response = json.loads(datacube_data_insertion(
+                    api_key,
+                    f"{workspace_id}_scale_response_data",
+                    f"{workspace_id}_scale_response",
+                    response_data
+                ))
+                if not inserted_response["data"]:
+                    return self.error_response("Unable to insert scale response",None)
+                
+                inserted_response_data = inserted_response['data']
+                response_id = inserted_response_data['inserted_id']
+
+                if parameters["user_type"] == "True":
+                    return redirect(response_data["redirect_url"])
+                else:
+                    data = {
+                            "response_id": response_id,
+                            "score": response_data["score"],
+                            "category": response_data["category"],
+                            "channel": response_data["channel_name"],
+                            "channel_display_name": response_data["channel_display_name"],
+                            "instance_name": response_data["instance_name"],
+                            "instance_display_name": response_data["instance_display_name"],
+                            "current_response_no": response_data["current_response_count"],
+                            "no_of_available_responses": response_data["no_of_available_responses"],
+                            "created_at": response_data["dowell_time"],
+                            "learning_index_data": response_data.get("learning_index_data",None)
+                    }
+
+                    return self.success_response(
+                        message = "Response recorded successfully",
+                        data = data)
+                    
+        except Exception as e:
+            return self.error_response(message = "Resource not found! Contact the admin",error = str(e))
+
+    # Method for creating scale links based on the scale_type
     def create_scale(self, request):  
         try:  
             scale_type = request.GET.get("scale_type")
@@ -844,8 +947,15 @@ class ScaleCreationView(APIView):
             if not serializer.is_valid():
                 return self.error_response("Posting incorrect data",serializer.errors)
             
-            # db_response = json.loads(datacube_data_insertion(api_key,f"{scale_data["workspace_id"]}_scale_meta_data",f"{scale_data["workspace_id"]}_scale_setting",scale_data))
-            db_response = json.loads(datacube_data_insertion(api_key,"livinglab_scales","collection_3",scale_data))
+            workspace_id = serializer.validated_data["workspace_id"]
+            
+            db_response = json.loads(datacube_data_insertion(
+                api_key,
+                f"{workspace_id}_scale_meta_data",
+                f"{workspace_id}_scale_setting",
+                scale_data
+            ))
+            # db_response = json.loads(datacube_data_insertion(api_key,"livinglab_scales","collection_3",scale_data))
             scale_id = db_response['data'].get("inserted_id")
             scale_data["scale_id"] = scale_id
 
@@ -854,10 +964,23 @@ class ScaleCreationView(APIView):
                 "scale_id": scale_data["scale_id"],
                 "scale_name": scale_data["scale_name"]
             }
-            # datacube_data_insertion(api_key,f"{scale_data["workspace_id"]}_scale_meta_data",f"{scale_data["workspace_id"]}_scale_info",scale_info)
+
+            datacube_data_insertion(
+                api_key,
+                f"{workspace_id}_scale_meta_data",
+                f"{workspace_id}_scale_info",
+                scale_info
+            )
+            
             response_data = scales.create_scale_service(scale_data)
 
-            # datacube_data_update(api_key,f"scale_data["workspace_id"]}_scale_meta_data",f"scale_data["workspace_id"]}_scale_setting", {"_id": scale_id}, {"urls":response_data["urls"]})
+            datacube_data_update(
+                api_key,
+                f"{workspace_id}_scale_meta_data",
+                f"{workspace_id}_scale_setting",
+                {"_id": scale_id},
+                {"urls": response_data["urls"]}
+            )
 
             return self.success_response("New scale created successfully", response_data)
         
@@ -865,7 +988,7 @@ class ScaleCreationView(APIView):
             return self.error_response("Something went wrong while processing your request",str(e))
 
 
-    # Handlers to get different inputs based on the scale type    
+    # Handlers to get different inputs based on the scale_type    
     def handle_nps_scale(self, request):
         return {
                 "api_key": request.GET.get("api_key"),
@@ -916,7 +1039,7 @@ class ScaleCreationView(APIView):
                 "axis_limit": request.data.get("axis_limit")
             }
     
-    # Retrieve scale settings from the db
+    # Method to retrieve scale settings from the db
     def fetch_scale_settings(self, request):
 
         serializer = ScaleRetrievalSerializer(data={
@@ -937,83 +1060,6 @@ class ScaleCreationView(APIView):
                 
         return Response("ALL OKAY!")
     
-    # Create response for a scale
-    def get(self, request):
-        try:
-            parameters = {
-                "scale_id": request.GET.get('scale_id'),
-                "item": int(request.GET.get('item')),
-                "workspace_id": request.GET.get('workspace_id'),
-                "username": request.GET.get('username'),
-                "user_type": request.GET.get('user'),
-                "scale_type": request.GET.get('scale_type'),
-                "channel_name": request.GET.get('channel'),
-                "instance_name": request.GET.get('instance')
-            }
-            serializer = ScaleResponseSerializer(data = parameters)
-
-            if not serializer.is_valid():
-                return self.error_response(message = "Invalid parameters. Cannot complete the request.", error = serializer.errors)
-        
-            settings_meta_data = {}
-        
-            # Checking for existing responses in the db
-            fields = {
-                "scale_id": serializer.validated_data["scale_id"], 
-                "channel_name": serializer.validated_data["channel_name"], 
-                "instance_name": serializer.validated_data["instance_name"]
-                }
-            
-            existing_response = json.loads(datacube_data_retrieval(api_key, "livinglab_scale_response", "collection_1", fields, 10000, 0, False))
-            existing_response_data = existing_response["data"]
-           
-            # Fetch the scale congifurations
-            scale_settings = json.loads(datacube_data_retrieval(api_key, "livinglab_scales", "collection_3", {"_id": serializer.validated_data["scale_id"]}, 10000, 0, False))
-            scale_settings_data = scale_settings['data'][0]
-            
-            scale_response_data = {
-                "current_response_count": len(existing_response_data) + 1 if existing_response_data else 1,
-                "existing_response_data": existing_response_data
-            }
-            settings_meta_data.update(scale_settings_data)
-
-            response_data = scales.create_scale_response(parameters, scale_response_data, settings_meta_data)
-
-            if isinstance(response_data, str):
-                return self.error_response(message = response_data, error=None)
-            else:
-                # Insertion into the DB
-                inserted_response = json.loads(datacube_data_insertion(api_key, "livinglab_scale_response", "collection_1", response_data))
-                if not inserted_response["data"]:
-                    return self.error_response("Unable to insert scale response",None)
-                
-                inserted_response_data = inserted_response['data']
-                response_id = inserted_response_data['inserted_id']
-
-                if parameters["user_type"] == "True":
-                    return redirect(response_data["redirect_url"])
-                else:
-                    data = {
-                            "response_id": response_id,
-                            "score": response_data["score"],
-                            "category": response_data["category"],
-                            "channel": response_data["channel_name"],
-                            "channel_display_name": response_data["channel_display_name"],
-                            "instance_name": response_data["instance_name"],
-                            "instance_display_name": response_data["instance_display_name"],
-                            "current_response_no": response_data["current_response_count"],
-                            "no_of_available_responses": response_data["no_of_available_responses"],
-                            "created_at": response_data["dowell_time"],
-                            "learning_index_data": response_data.get("learning_index_data",None)
-                    }
-
-                    return self.success_response(
-                        message = "Response recorded successfully",
-                        data = data)
-                    
-        except Exception as e:
-            return self.error_response(message = "Resource not found! Contact the admin",error = str(e))
-
     
     # Method to return a success response
     def success_response(self, message, data):

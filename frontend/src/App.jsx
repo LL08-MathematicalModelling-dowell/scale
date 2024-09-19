@@ -15,27 +15,49 @@ import CreatingScale from "./Pages/CreateNewScale/CreatingScale";
 import Confirm from "./components/ScaleForm/Confirm";
 import ScalesReport from "./Pages/ScalesReport/ScalesReport";
 import ShareScale from "./Pages/ShareScale/ShareScale";
+import LLXLoginPage from "./Pages/llx/LLXLoginPage/LLXLoginPage";
+import LLXReport from "./Pages/llx/LLXReport/LLXReport";
+import LLXUserDetails from "./Pages/llx/LLXUserDetails/LLXUserDetails";
+import LLXScaleDetails from "./Pages/llx/LLXScaleDetails/LLXScaleDetails";
+import LLXOpenReportPage from "./Pages/llx/LLXOpenReportPage/LLXOpenReportPage";
+import LLXScale from "./Pages/llx/LLXScale/LLXScale";
 
 const App = () => {
   useDowellLogin();
   return (
     <Routes>
+      {/* Routes for llx */}
+      {/* login page only change the logo [done]*/}
+      <Route path="/llx" element={<LLXLoginPage />} />
+      {/* 49 number line [done]*/}
+      <Route path="/llx/reports" element={<LLXReport />} />
+      {/* copy from ux live */}
+      <Route path="/llx/report" element={<LLXOpenReportPage />} />
+      {/* not confirmed but 48 49 50 line routes */}
+      <Route path="/llx/scale" element={<LLXScale />} />
+      {/* apna wala [done]*/}
+      <Route path="/llx/userdetails" element={<LLXUserDetails />} />
+      {/* alag hoga khud banaein gay ye b same hai user details ki tarhan [done]*/}
+      <Route path="/llx/scaledetails" element={<LLXScaleDetails />} />
+      {/* kuch pata nahin hai rehnay do */}
+      <Route path="/llx/register" element={<Registration />} />
+      {/* Routes for voc */}
       <Route path="/scale" element={<HomePage />} />
       <Route path="/server-status" element={<Healthcheck />} />
       <Route path="/voc" element={<Login />} />
       <Route path="/voc/reports" element={<Report />} />
       <Route path="/voc/report" element={<OpenReportPage />} />
-      <Route path="/voc/likert-report" element={<LikertReport/>} />
+      <Route path="/voc/likert-report" element={<LikertReport />} />
       <Route path="/voc/scale" element={<Scales />} />
       <Route path="/voc/scaledetails" element={<ScaleDetails />} />
       <Route path="/voc/userdetails" element={<UserDetails />} />
       <Route path="/voc/register" element={<Registration />} />
       {/* Route for creating or edit scale */}
-      <Route path='/edit-scale' element={<EditScale/>} />
-      <Route path="/scale-creating" element={<CreatingScale/>}/>
-      <Route path="/confirmed" element={<Confirm/>}/>
-      <Route path="/scale-reports" element={<ScalesReport/>} />
-      <Route path="/share-scale" element={<ShareScale />}/>
+      <Route path='/edit-scale' element={<EditScale />} />
+      <Route path="/scale-creating" element={<CreatingScale />} />
+      <Route path="/confirmed" element={<Confirm />} />
+      <Route path="/scale-reports" element={<ScalesReport />} />
+      <Route path="/share-scale" element={<ShareScale />} />
     </Routes>
   );
 };

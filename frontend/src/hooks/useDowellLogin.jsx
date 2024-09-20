@@ -53,6 +53,13 @@ export default function useDowellLogin() {
             pathname === '/voc/scaledetails' || pathname === '/voc/scaledetails/' ||
             pathname === '/voc/userdetails' || pathname === '/voc/userdetails/' ||
             pathname === '/voc/register' || pathname === '/voc/register/' ||
+            pathname === '/llx' || pathname === '/llx/' ||
+            pathname === '/llx/reports' || pathname === '/llx/reports/' ||
+            pathname === '/llx/report' || pathname === 'llx/report/' ||
+            pathname === '/llx/scale' || pathname === '/llx/scale/' ||
+            pathname === '/llx/scaledetails' || pathname === '/llx/scaledetails/' ||
+            pathname === '/llx/userdetails' || pathname === '/llx/userdetails/' ||
+            pathname === '/llx/register' || pathname === '/llx/register/' ||
             pathname === '/likert-report' || pathname === '/likert-report/'
         )
 

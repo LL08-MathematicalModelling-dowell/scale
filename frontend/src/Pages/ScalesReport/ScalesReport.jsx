@@ -10,6 +10,7 @@ import {GiVibratingShield} from "react-icons/gi";
 import {HiMiniUsers} from "react-icons/hi2";
 import {ResponsiveContainer} from "recharts";
 import Animation from "../../assets/Animation.json";
+import NotFound from "../../assets/NotFound.jpg";
 
 /** Whatt I want to achieve here
  *
@@ -38,6 +39,7 @@ const ScalesReport = () => {
   const [averageScore, setAverageScore] = useState(0);
   const [minScore, setMinScore] = useState(0);
   const [maxScore, setMaxScore] = useState(0);
+  const [reportAlert, setReportAlert] = useState(false)
   const [reportData, setReportData] = useState([]);
   const [dailyCountsData, setDailyCountsData] = useState([]);
   const [overallScoreData, setOverallScoreData] = useState({
@@ -67,7 +69,7 @@ const ScalesReport = () => {
 
   // First Step
   const fetchChannel = async () => {
-    const scale_id= "66c9d21e9090b1529d108a63";
+    const scale_id = "66c9d21e9090b1529d108a63";
 
     try {
       const channelResponse = await getScaleChannels(scale_id);
@@ -101,6 +103,8 @@ const ScalesReport = () => {
       console.log(error);
       setFetchChannelLoading(false);
       setChannelMsg("An error occured while fetching channel instances");
+      setAlert(true);
+
     } finally {
       setFetchChannelLoading(false);
     }
@@ -185,10 +189,12 @@ const ScalesReport = () => {
       }
     } catch (error) {
       console.log("Catch Error: Failed to fetch Likert report data", error?.response);
+     setChannelMsg("An error occured while fetching channel instances");
       if (error?.response.status === 404) {
         console.log("404 Error: Report not found:", error?.response.data?.message);
-        setAlert(true);
+
         setReportMsg("REPORT NOT FOUND");
+        setReportAlert(true)
         setDisplayData(false);
       }
     } finally {
@@ -327,6 +333,20 @@ const ScalesReport = () => {
       </div>
     );
   }
+
+  if (alert) {
+    return (
+      <div className="flex items-center justify-center w-full h-screen md:flex-row flex-col md:px-5 px-2">
+        <img src={NotFound} alt=""  className="w-56 h-56"/>
+      <div className="flex flex-col gap-3 ml-4 mt-12 text-center md:text-left">
+      <h2 className="font-poppins tracking-tight font-medium md:text-2xl text-xl text-gray-700">{channelMsg}</h2>
+      <p className="md:text-[17px] text-[15px] font-poppins tracking-tight font-medium text-gray-500">Please contact the admin, if error persists</p>
+      </div>
+      </div>
+    );
+  }
+
+
   return (
     <div className="max-w-full min-h-screen bg-gray-100">
       <CustomHeader />
@@ -345,6 +365,7 @@ const ScalesReport = () => {
             </span>
           </p>
         </div>
+        
         {/* For selection */}
         <div className="flex flex-wrap md:flex-row flex-col gap-4  md:gap-6 my-8 w-full md:px-16 px-4">
           <SelectField data={dateDuration} placeholder="Select duration" handleSelectChange={handleSelectChange} />
@@ -379,31 +400,43 @@ const ScalesReport = () => {
             <AiFillWechat className="size-20 h-20 w-20 bg-yellow-100 text-yellow-400 p-2 rounded-full" />
           </div>
         </div>
+        {/* For Errors */}
+        {reportAlert  && (
+           <div className="flex justify-center items-center gap-4 md:px-16 px-4 mt-8">
+           <img src={NotFound} alt=""  className="w-56 h-56 rounded-full "/>
+         <div className="flex flex-col gap-1 ml-4  text-center md:text-left">
+         <h2 className="font-poppins tracking-tight font-bold md:text-2xl text-xl text-gray-700">{reportMsg}</h2>
+         <p className="md:text-[17px] text-[15px] font-poppins tracking-tight font-medium text-gray-500">Please contact the admin, if error persists</p>
+         </div>
+         </div>
+        )}
         {/* For charts */}
-      {displayData === true ? (
+        {displayData === true ? (
           <div className="flex md:flex-row flex-col w-full md:gap-6 gap-2 md:px-16 px-4">
-          <div className="mt-16 w-full bg-white rounded-xl py-8">
-            <h2 className="text-xl font-poppins font-semibold text-gray-700 tracking-tight px-12">Daywise Response Insights</h2>
-            <div className="md:px-3 mt-8">
-              <div>
-                <ResponsiveContainer width="100%" height={400}>
-                  <LineGraph options={optionsWithoutPercentage} data={{labels: dailyCountsData.labels, datasets: normalizedData}} />
-                </ResponsiveContainer>
+            <div className="mt-16 w-full bg-white rounded-xl py-8">
+              <h2 className="text-xl font-poppins font-semibold text-gray-700 tracking-tight px-12">Daywise Response Insights</h2>
+              <div className="md:px-3 mt-8">
+                <div>
+                  <ResponsiveContainer width="100%" height={400}>
+                    <LineGraph options={optionsWithoutPercentage} data={{labels: dailyCountsData.labels, datasets: normalizedData}} />
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            </div>
+            <div className="mt-16 w-full bg-white rounded-xl py-8">
+              <h2 className="text-xl font-poppins font-semibold text-gray-700 tracking-tight px-12">Overall Score Distribution</h2>
+              <div className="md:px-3 mt-8">
+                <div>
+                  <ResponsiveContainer width="100%" height={400}>
+                    <LineGraph options={optionsWithPercentage} data={lineChartDataTwo} />
+                  </ResponsiveContainer>
+                </div>
               </div>
             </div>
           </div>
-          <div className="mt-16 w-full bg-white rounded-xl py-8">
-            <h2 className="text-xl font-poppins font-semibold text-gray-700 tracking-tight px-12">Overall Score Distribution</h2>
-            <div className="md:px-3 mt-8">
-              <div>
-                <ResponsiveContainer width="100%" height={400}>
-                  <LineGraph options={optionsWithPercentage} data={lineChartDataTwo} />
-                </ResponsiveContainer>
-              </div>
-            </div>
-          </div>
-        </div>
-      ): null}
+        ) : null}
+
+
       </div>
     </div>
   );

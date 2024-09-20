@@ -183,6 +183,7 @@ const ScalesReport = () => {
           },
         ];
         setOverallScoreData({labels: overallLabels, datasets: overallDataset});
+        setReportAlert(false)
       } else {
         setAlert(true);
         setReportMsg("Failed to fetch Likert Scale Report");

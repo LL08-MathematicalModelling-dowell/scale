@@ -7,6 +7,7 @@ urlpatterns = [
     path("voc/user-management/",UserManagement.as_view()),
     path("voc/scale-management/",ScaleManagement.as_view()),
     path('scale-services/', ScaleCreationView.as_view(), name='scale_creation_class'),
+    path("llx/scale-management/",LLxScaleManagement.as_view()),
     
     # ---------- OLD ENDPOINTS ----------
 

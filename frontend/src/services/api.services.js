@@ -106,13 +106,21 @@ const saveLocationData = async (data) => {
   return await otpAxiosInstance.post("/v1/location-services/save-location", data);
 };
 
-const getLikertReport = async (payload) => {
-  return await scaleAxiosInstance.post(`/addons/get-report/?scale_type=likert`, payload);
+const getLikertReport= async (payload) => {
+  return await servicesAxiosInstance.post(`/v1/get-report/?scale_type=likert`, payload);
 };
 
-const getLikertChannelsInstances = async (scale_id)=> {
-  return await scaleAxiosInstance.get(`/addons/create-scale/v3/?scale_id=${scale_id}`);
+const  getLikertChannelsInstances = async (scale_id) => {
+  return await servicesAxiosInstance.get((`/v1/create-scale/?scale_id=${scale_id}`))
 }
+const getScaleChannels = async (scale_id) => {
+  return await servicesAxiosInstance.get((`/v1/create-scale/?scale_id=${scale_id}`))
+}
+
+const getScaleReport = async (payload) => {
+  return await servicesAxiosInstance.post(`/v1/get-report/?scale_type=likert`, payload);
+};
+
 
 export {getUserLogin, 
   getServerStatus, 
@@ -131,4 +139,6 @@ export {getUserLogin,
   getLikertChannelsInstances,
   microServicesServerStatus,
   microServicesAPIServerStatus,
+  getScaleChannels,
+  getScaleReport
   };

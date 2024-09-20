@@ -1,9 +1,8 @@
 import LineGraph from "@/components/Graph/LineGraph";
-import Navbar from "@/components/Navbar/Navbar";
 import SelectField from "@/components/SelectField/SelectField";
-import {getLikertChannelsInstances, getLikertReport} from "@/services/api.services";
+import { getLikertChannelsInstances, getLikertReport } from "@/services/api.services";
 import PropTypes from "prop-types";
-import {useState, useEffect} from "react";
+import { useEffect, useState } from "react";
 import NotFound from "../../assets/NotFound.jpg";
 
 const RectangleDiv = ({className = "", scores, type, maximumScore}) => {
@@ -61,10 +60,9 @@ const LikertReport = () => {
 
   const fetchLikertChannelInstances = async () => {
     const scale_id = "66c9d21e9090b1529d108a63";
-    setInstanceLoading(true); // Start loading
+    setInstanceLoading(true); 
     try {
       const channelDetailsResponse = await getLikertChannelsInstances(scale_id);
-
       if (channelDetailsResponse.status === 200) {
         const data = channelDetailsResponse.data;
         const channels = data?.scale_data?.channel_instance_details.map((item) => ({
@@ -117,6 +115,7 @@ const LikertReport = () => {
         const reportResult = reportResponse.data;
         console.log("Report Result:", reportResult);
         setReportData(reportResult);
+
         setTotalResponse(reportResult?.report.no_of_responses);
         const totalScoreString = reportResult?.report?.total_score;
         console.log(totalScoreString);

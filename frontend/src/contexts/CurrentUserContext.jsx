@@ -10,6 +10,7 @@ const UserContextProvider = ({ children }) => {
     const [currentUserDetailLoading, setCurrentUserDetailLoading] = useState(false);
     const [currentUserApiKey, setCurrentUserApiKey] = useState(null);
     const [defaultScaleOfUser, setDefaultScaleOfUser] =  useState(null);
+    const [number, setNumber] = useState(20);
 
     return <>
         <UserContext.Provider
@@ -21,7 +22,9 @@ const UserContextProvider = ({ children }) => {
                 currentUserApiKey,
                 setCurrentUserApiKey,
                 defaultScaleOfUser, 
-                setDefaultScaleOfUser
+                setDefaultScaleOfUser,
+                number,
+                setNumber
             }}
         >
             {children}

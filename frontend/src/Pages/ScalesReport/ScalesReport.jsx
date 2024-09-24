@@ -12,19 +12,6 @@ import {ResponsiveContainer} from "recharts";
 import Animation from "../../assets/Animation.json";
 import NotFound from "../../assets/NotFound.jpg";
 
-/** Whatt I want to achieve here
- *
- * The loading state will be set to  true when the user mounts the page.
- * There will be an api call for loading the channels, instances, scale Location, Duration, and scale Version.
- * If the api call is successful, the loading state will be set to false and the data will be stored in the ChannelsData state.
- * The data will be mapped through and extracted to different states in order to be used in the SelectField component.
- *
- * After the successfull api call and rendering, Another api call to fetch report data based on the selected values made.
- * 1. A payload will be created with the selected values and set to the Api with post method, the loading state will be set to true will message.
- * 2. The data will only be fetched when there is change in the states.
- * 3. if the api call is successful, the data will be stored in the state of reportData and loading set to false.
- * @returns
- */
 
 const ScalesReport = () => {
   const [eDate, setDate] = useState(" ");

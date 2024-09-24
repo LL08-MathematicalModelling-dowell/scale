@@ -4,6 +4,7 @@ import { getLikertChannelsInstances, getLikertReport } from "@/services/api.serv
 import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
 import NotFound from "../../assets/NotFound.jpg";
+import { CircularProgress } from "@mui/material";
 
 const RectangleDiv = ({className = "", scores, type, maximumScore}) => {
   const constrainedYellowPercent = scores;
@@ -105,7 +106,8 @@ const LikertReport = () => {
 
   const fetchLikertReport = async () => {
     setLoading(true);
-
+    setDisplayData(false)
+    setMessage("Loading...");
     try {
       const reportResponse = await getLikertReport(payload);
       console.log("Report Response Status:", reportResponse.status);
@@ -319,12 +321,13 @@ const LikertReport = () => {
             Total Response: <span className="text-xl text-green-800 font-poppins">{totalResponse}</span>
           </h2>
         </div>
+        
         {displayData === false && alert === true && (
-          <div className="flex items-center justify-center mt-12 gap-x-3">
-            <img src={NotFound} alt="" className="w-64" />
+          <div className="flex items-center text-center justify-center mt-40 gap-x-3">
             <div className="">
+             {loading ?  <CircularProgress/> : null}
               <h3 className="text-2xl font-bold tracking-tight text-gray-500 font-poppins">{message}</h3>
-              <p className="font-poppins text-gray-800 text-[15px] tracking-tight mt-1">Please contact admin if possibly you have this report</p>
+              <p className="font-poppins text-gray-800 text-[15px] tracking-tight mt-1">{loading ? "Please wait while we fetching the data" : "Please contact admin if possibly you have this report"}</p>
             </div>
           </div>
         )}

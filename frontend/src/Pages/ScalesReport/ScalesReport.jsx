@@ -11,7 +11,7 @@ import {HiMiniUsers} from "react-icons/hi2";
 import {ResponsiveContainer} from "recharts";
 import Animation from "../../assets/Animation.json";
 import NotFound from "../../assets/NotFound.jpg";
-
+import { CircularProgress } from "@mui/material";
 
 const ScalesReport = () => {
   const [eDate, setDate] = useState(" ");
@@ -26,7 +26,7 @@ const ScalesReport = () => {
   const [averageScore, setAverageScore] = useState(0);
   const [minScore, setMinScore] = useState(0);
   const [maxScore, setMaxScore] = useState(0);
-  const [reportAlert, setReportAlert] = useState(false)
+  const [reportAlert, setReportAlert] = useState(false);
   const [reportData, setReportData] = useState([]);
   const [dailyCountsData, setDailyCountsData] = useState([]);
   const [overallScoreData, setOverallScoreData] = useState({
@@ -91,7 +91,6 @@ const ScalesReport = () => {
       setFetchChannelLoading(false);
       setChannelMsg("An error occured while fetching channel instances");
       setAlert(true);
-
     } finally {
       setFetchChannelLoading(false);
     }
@@ -115,6 +114,7 @@ const ScalesReport = () => {
   };
 
   const fetchChannelReports = async () => {
+    setReportMsg("Loading...")
     setReportLoading(true);
     setDisplayData(false);
     try {
@@ -171,19 +171,19 @@ const ScalesReport = () => {
           },
         ];
         setOverallScoreData({labels: overallLabels, datasets: overallDataset});
-        setReportAlert(false)
+        setReportAlert(false);
       } else {
         setAlert(true);
         setReportMsg("Failed to fetch Likert Scale Report");
       }
     } catch (error) {
       console.log("Catch Error: Failed to fetch Likert report data", error?.response);
-     setChannelMsg("An error occured while fetching channel instances");
+      setChannelMsg("An error occured while fetching channel instances");
       if (error?.response.status === 404) {
         console.log("404 Error: Report not found:", error?.response.data?.message);
 
         setReportMsg("REPORT NOT FOUND");
-        setReportAlert(true)
+        setReportAlert(true);
         setDisplayData(false);
       }
     } finally {
@@ -325,16 +325,14 @@ const ScalesReport = () => {
 
   if (alert) {
     return (
-      <div className="flex items-center justify-center w-full h-screen md:flex-row flex-col md:px-5 px-2">
-        <img src={NotFound} alt=""  className="w-56 h-56"/>
-      <div className="flex flex-col gap-3 ml-4 mt-12 text-center md:text-left">
-      <h2 className="font-poppins tracking-tight font-medium md:text-2xl text-xl text-gray-700">{channelMsg}</h2>
-      <p className="md:text-[17px] text-[15px] font-poppins tracking-tight font-medium text-gray-500">Please contact the admin, if error persists</p>
-      </div>
+      <div className="flex items-center justify-center w-full h-screen md:flex-row flex-col md:px-5 px-2 text-center">
+        <div className="flex flex-col gap-3 ml-4 mt-12 text-center md:text-left">
+          <h2 className="font-poppins tracking-tight font-medium md:text-2xl text-xl text-gray-700">{channelMsg}</h2>
+          <p className="md:text-[17px] text-[15px] font-poppins tracking-tight font-medium text-gray-500">Please contact the admin, if error persists</p>
+        </div>
       </div>
     );
   }
-
 
   return (
     <div className="max-w-full min-h-screen bg-gray-100">
@@ -354,7 +352,7 @@ const ScalesReport = () => {
             </span>
           </p>
         </div>
-        
+
         {/* For selection */}
         <div className="flex flex-wrap md:flex-row flex-col gap-4  md:gap-6 my-8 w-full md:px-16 px-4">
           <SelectField data={dateDuration} placeholder="Select duration" handleSelectChange={handleSelectChange} />
@@ -390,22 +388,22 @@ const ScalesReport = () => {
           </div>
         </div>
         {/* For Errors */}
-        {reportAlert  && (
-           <div className="flex justify-center items-center gap-4 md:px-16 px-4 mt-8">
-           <img src={NotFound} alt=""  className="w-56 h-56 rounded-full "/>
-         <div className="flex flex-col gap-1 ml-4  text-center md:text-left">
-         <h2 className="font-poppins tracking-tight font-bold md:text-2xl text-xl text-gray-700">{reportMsg}</h2>
-         <p className="md:text-[17px] text-[15px] font-poppins tracking-tight font-medium text-gray-500">Please contact the admin, if error persists</p>
-         </div>
-         </div>
+        {reportAlert && (
+          <div className="flex justify-center items-center gap-4 md:px-16 px-4 mt-20 text-center">
+            <div className="flex flex-col  ml-4 justify-center items-center gap-2  text-center md:text-center ">
+              {reportLoading ? <CircularProgress/> : null}
+              <h2 className="font-poppins tracking-tight font-bold md:text-2xl text-xl text-gray-700">{reportMsg}</h2>
+              <p className="md:text-[17px] text-[15px] font-poppins tracking-tight font-medium text-gray-500">{reportLoading ? "Please wait while fetching your data" : "Please contact the admin, if error persists"}</p>
+            </div>
+          </div>
         )}
 
-        {reportLoading && (
+        {/* {reportLoading && (
           <div className="flex items-center justify-center mt-20 flex-col">
             <h2 className="font-bold text-xl md:text-2xl font-poppins tracking-tight text-gray-700">Loading...</h2>
             <p className="font-medium text-sm md:text-md font-poppins tracking-tight text-gray-700 ml-4">Please wait while fetching your data</p>
           </div>
-        )}
+        )} */}
         {/* For charts */}
         {displayData === true ? (
           <div className="flex md:flex-row flex-col w-full md:gap-6 gap-2 md:px-16 px-4">
@@ -431,8 +429,6 @@ const ScalesReport = () => {
             </div>
           </div>
         ) : null}
-
-
       </div>
     </div>
   );

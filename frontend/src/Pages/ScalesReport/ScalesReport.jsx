@@ -388,7 +388,7 @@ const ScalesReport = () => {
           </div>
         </div>
         {/* For Errors */}
-        {reportAlert && (
+        {reportAlert || reportLoading && (
           <div className="flex justify-center items-center gap-4 md:px-16 px-4 mt-20 text-center">
             <div className="flex flex-col  ml-4 justify-center items-center gap-2  text-center md:text-center ">
               {reportLoading ? <CircularProgress/> : null}

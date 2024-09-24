@@ -116,6 +116,7 @@ const ScalesReport = () => {
 
   const fetchChannelReports = async () => {
     setReportLoading(true);
+    setDisplayData(false);
     try {
       const reportResponse = await getScaleReport(payload);
       if (reportResponse.status === 200) {
@@ -397,6 +398,13 @@ const ScalesReport = () => {
          <p className="md:text-[17px] text-[15px] font-poppins tracking-tight font-medium text-gray-500">Please contact the admin, if error persists</p>
          </div>
          </div>
+        )}
+
+        {reportLoading && (
+          <div className="flex items-center justify-center mt-20 flex-col">
+            <h2 className="font-bold text-xl md:text-2xl font-poppins tracking-tight text-gray-700">Loading...</h2>
+            <p className="font-medium text-sm md:text-md font-poppins tracking-tight text-gray-700 ml-4">Please wait while fetching your data</p>
+          </div>
         )}
         {/* For charts */}
         {displayData === true ? (

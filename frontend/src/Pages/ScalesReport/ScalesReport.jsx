@@ -10,20 +10,8 @@ import {GiVibratingShield} from "react-icons/gi";
 import {HiMiniUsers} from "react-icons/hi2";
 import {ResponsiveContainer} from "recharts";
 import Animation from "../../assets/Animation.json";
-
-/** Whatt I want to achieve here
- *
- * The loading state will be set to  true when the user mounts the page.
- * There will be an api call for loading the channels, instances, scale Location, Duration, and scale Version.
- * If the api call is successful, the loading state will be set to false and the data will be stored in the ChannelsData state.
- * The data will be mapped through and extracted to different states in order to be used in the SelectField component.
- *
- * After the successfull api call and rendering, Another api call to fetch report data based on the selected values made.
- * 1. A payload will be created with the selected values and set to the Api with post method, the loading state will be set to true will message.
- * 2. The data will only be fetched when there is change in the states.
- * 3. if the api call is successful, the data will be stored in the state of reportData and loading set to false.
- * @returns
- */
+import NotFound from "../../assets/NotFound.jpg";
+import { CircularProgress } from "@mui/material";
 
 const ScalesReport = () => {
   const [eDate, setDate] = useState(" ");
@@ -38,6 +26,7 @@ const ScalesReport = () => {
   const [averageScore, setAverageScore] = useState(0);
   const [minScore, setMinScore] = useState(0);
   const [maxScore, setMaxScore] = useState(0);
+  const [reportAlert, setReportAlert] = useState(false);
   const [reportData, setReportData] = useState([]);
   const [dailyCountsData, setDailyCountsData] = useState([]);
   const [overallScoreData, setOverallScoreData] = useState({
@@ -67,7 +56,7 @@ const ScalesReport = () => {
 
   // First Step
   const fetchChannel = async () => {
-    const scale_id= "66c9d21e9090b1529d108a63";
+    const scale_id = "66c9d21e9090b1529d108a63";
 
     try {
       const channelResponse = await getScaleChannels(scale_id);
@@ -101,6 +90,7 @@ const ScalesReport = () => {
       console.log(error);
       setFetchChannelLoading(false);
       setChannelMsg("An error occured while fetching channel instances");
+      setAlert(true);
     } finally {
       setFetchChannelLoading(false);
     }
@@ -124,7 +114,9 @@ const ScalesReport = () => {
   };
 
   const fetchChannelReports = async () => {
+    setReportMsg("Loading...")
     setReportLoading(true);
+    setDisplayData(false);
     try {
       const reportResponse = await getScaleReport(payload);
       if (reportResponse.status === 200) {
@@ -179,16 +171,19 @@ const ScalesReport = () => {
           },
         ];
         setOverallScoreData({labels: overallLabels, datasets: overallDataset});
+        setReportAlert(false);
       } else {
         setAlert(true);
         setReportMsg("Failed to fetch Likert Scale Report");
       }
     } catch (error) {
       console.log("Catch Error: Failed to fetch Likert report data", error?.response);
+      setChannelMsg("An error occured while fetching channel instances");
       if (error?.response.status === 404) {
         console.log("404 Error: Report not found:", error?.response.data?.message);
-        setAlert(true);
+
         setReportMsg("REPORT NOT FOUND");
+        setReportAlert(true);
         setDisplayData(false);
       }
     } finally {
@@ -327,6 +322,18 @@ const ScalesReport = () => {
       </div>
     );
   }
+
+  if (alert) {
+    return (
+      <div className="flex items-center justify-center w-full h-screen md:flex-row flex-col md:px-5 px-2 text-center">
+        <div className="flex flex-col gap-3 ml-4 mt-12 text-center md:text-left">
+          <h2 className="font-poppins tracking-tight font-medium md:text-2xl text-xl text-gray-700">{channelMsg}</h2>
+          <p className="md:text-[17px] text-[15px] font-poppins tracking-tight font-medium text-gray-500">Please contact the admin, if error persists</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-full min-h-screen bg-gray-100">
       <CustomHeader />
@@ -345,6 +352,7 @@ const ScalesReport = () => {
             </span>
           </p>
         </div>
+
         {/* For selection */}
         <div className="flex flex-wrap md:flex-row flex-col gap-4  md:gap-6 my-8 w-full md:px-16 px-4">
           <SelectField data={dateDuration} placeholder="Select duration" handleSelectChange={handleSelectChange} />
@@ -379,31 +387,48 @@ const ScalesReport = () => {
             <AiFillWechat className="size-20 h-20 w-20 bg-yellow-100 text-yellow-400 p-2 rounded-full" />
           </div>
         </div>
+        {/* For Errors */}
+        {(reportAlert || reportLoading) && (
+          <div className="flex justify-center items-center gap-4 md:px-16 px-4 mt-20 text-center">
+            <div className="flex flex-col  ml-4 justify-center items-center gap-2  text-center md:text-center ">
+              {reportLoading ? <CircularProgress/> : null}
+              <h2 className="font-poppins tracking-tight font-bold md:text-2xl text-xl text-gray-700">{reportMsg}</h2>
+              <p className="md:text-[17px] text-[15px] font-poppins tracking-tight font-medium text-gray-500">{reportLoading ? "Please wait while fetching your data" : "Please contact the admin, if error persists"}</p>
+            </div>
+          </div>
+        )}
+
+        {/* {reportLoading && (
+          <div className="flex items-center justify-center mt-20 flex-col">
+            <h2 className="font-bold text-xl md:text-2xl font-poppins tracking-tight text-gray-700">Loading...</h2>
+            <p className="font-medium text-sm md:text-md font-poppins tracking-tight text-gray-700 ml-4">Please wait while fetching your data</p>
+          </div>
+        )} */}
         {/* For charts */}
-      {displayData === true ? (
+        {displayData === true ? (
           <div className="flex md:flex-row flex-col w-full md:gap-6 gap-2 md:px-16 px-4">
-          <div className="mt-16 w-full bg-white rounded-xl py-8">
-            <h2 className="text-xl font-poppins font-semibold text-gray-700 tracking-tight px-12">Daywise Response Insights</h2>
-            <div className="md:px-3 mt-8">
-              <div>
-                <ResponsiveContainer width="100%" height={400}>
-                  <LineGraph options={optionsWithoutPercentage} data={{labels: dailyCountsData.labels, datasets: normalizedData}} />
-                </ResponsiveContainer>
+            <div className="mt-16 w-full bg-white rounded-xl py-8">
+              <h2 className="text-xl font-poppins font-semibold text-gray-700 tracking-tight px-12">Daywise Response Insights</h2>
+              <div className="md:px-3 mt-8">
+                <div>
+                  <ResponsiveContainer width="100%" height={400}>
+                    <LineGraph options={optionsWithoutPercentage} data={{labels: dailyCountsData.labels, datasets: normalizedData}} />
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            </div>
+            <div className="mt-16 w-full bg-white rounded-xl py-8">
+              <h2 className="text-xl font-poppins font-semibold text-gray-700 tracking-tight px-12">Overall Score Distribution</h2>
+              <div className="md:px-3 mt-8">
+                <div>
+                  <ResponsiveContainer width="100%" height={400}>
+                    <LineGraph options={optionsWithPercentage} data={lineChartDataTwo} />
+                  </ResponsiveContainer>
+                </div>
               </div>
             </div>
           </div>
-          <div className="mt-16 w-full bg-white rounded-xl py-8">
-            <h2 className="text-xl font-poppins font-semibold text-gray-700 tracking-tight px-12">Overall Score Distribution</h2>
-            <div className="md:px-3 mt-8">
-              <div>
-                <ResponsiveContainer width="100%" height={400}>
-                  <LineGraph options={optionsWithPercentage} data={lineChartDataTwo} />
-                </ResponsiveContainer>
-              </div>
-            </div>
-          </div>
-        </div>
-      ): null}
+        ) : null}
       </div>
     </div>
   );

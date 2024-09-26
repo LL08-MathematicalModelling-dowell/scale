@@ -5,8 +5,11 @@ import { useRef, useState, useEffect } from "react";
 import { decodeToken } from "../../utils/tokenUtils";
 import { updateUserDetails } from "../../services/api.services";
 import { useNavigate } from "react-router-dom";
+import { useCurrentUserContext} from "@/contexts/CurrentUserContext";
+
 
 const UserDetails = () => {
+  const {number, setNumber} = useCurrentUserContext();
   const navigate = useNavigate();
   const inputRef = useRef(null);
   const emailRef = useRef(null);
@@ -101,6 +104,7 @@ const UserDetails = () => {
   return (
     <div className="max-h-screen max-w-full">
       <Navbar />
+      <p>{number}</p>
       <div className="flex flex-col md:flex-row md:p-12 p-2 h-full">
         {/* Left side */}
         <div className="flex flex-col items-center mt-5 md:w-2/5 w-full mb-6">

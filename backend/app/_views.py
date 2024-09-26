@@ -516,6 +516,7 @@ class ScaleReport(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     # Likert scale report
+
     def get_likert_report(self, request):
         serializer = ScaleReportSerializer(data=request.data)
 
@@ -531,44 +532,60 @@ class ScaleReport(APIView):
             channel_names = serializer.validated_data['channel_names']
             instance_names = serializer.validated_data['instance_names']
             period = serializer.validated_data['period']
-            start_date, end_date = get_date_range(period)
             
+            start_date, end_date = get_date_range(period)
+
             filters = {
                 "scale_id": scale_id,
-                "dowell_time.current_time": {"$gte": start_date, "$lte": end_date}
+                "$or": [
+                    {"dowell_time.current_time": {"$gte": start_date, "$lte": end_date}},
+                    {"dowell_time.dowelltime": {"$exists": True}}
+                ]
             }
+            
             if "all" not in channel_names:
                 filters["channel_name"] = {"$in": channel_names}
             if "all" not in instance_names:
                 filters["instance_name"] = {"$in": instance_names}
 
             responses = json.loads(datacube_data_retrieval(api_key, 'livinglab_scale_response', 'collection_1', filters, 10000, 0, False))
+
             if not responses['data']:
                 return Response({"success": False, "message": "No data found"}, status=status.HTTP_404_NOT_FOUND)
-            
-            score_list = [response['score'] for response in responses['data']]
-            pointers = 5 
-            
-            # Initialize daily_counts to track count of each score (1 to 5) per day
+
+            score_list = []
+            pointers = 5
+
             daily_counts = defaultdict(lambda: {score: 0 for score in range(1, 6)})
-            score_distribution = defaultdict(int)  # To track count of each score (1 to 5) overall
+            score_distribution = defaultdict(int)
 
             for response in responses['data']:
-                response_date = str(datetime.strptime(response['dowell_time']['current_time'], "%Y-%m-%d %H:%M:%S").date())
-                score = response['score']
-                daily_counts[response_date][score] += 1
-                score_distribution[score] += 1
+                try:
+                    current_time = response['dowell_time'].get('current_time', None)
+                    if current_time:
+                        try:
+                            response_date = str(datetime.strptime(current_time, "%Y-%m-%d %H:%M:%S").date())
+                        except ValueError:
+                            response_date = str(datetime.fromisoformat(current_time).date())
+                    else:
+                        continue
 
-            # Calculate the total and average score
-            total_score = sum(score_list)
-            average_score = total_score / len(score_list) if score_list else 0
+                    score = response.get('score', None)
+                    if score and 1 <= score <= 5:
+                        score_list.append(score)
+                        daily_counts[response_date][score] += 1
+                        score_distribution[score] += 1
 
-            # Initialize percentage_distribution with all scores from 1 to 5 set to 0%
+                except Exception as e:
+                    print(f"Error processing response {response}: {e}")
+                    continue
+
             total_responses = len(score_list)
-            percentage_distribution = {score: 0 for score in range(1, 6)}
+            total_score = sum(score_list)
+            average_score = total_score / total_responses if total_responses > 0 else 0
             max_score = pointers * total_responses
-            
-            # Update percentage for scores found in the responses
+
+            percentage_distribution = {score: 0 for score in range(1, 6)}
             for score, count in score_distribution.items():
                 percentage_distribution[score] = (count / total_responses) * 100
 
@@ -585,6 +602,13 @@ class ScaleReport(APIView):
                     "overall_score_distribution": percentage_distribution
                 }
             }, status=status.HTTP_200_OK)
+
+        except ValueError as ve:
+            return Response({
+                "success": False,
+                "message": "Invalid date format or period provided.",
+                "error": str(ve)
+            }, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as e:
             print(f"Error in get_likert_report: {e}")

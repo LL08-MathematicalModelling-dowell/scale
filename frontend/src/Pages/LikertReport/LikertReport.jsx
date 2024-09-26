@@ -1,14 +1,15 @@
 import LineGraph from "@/components/Graph/LineGraph";
 import SelectField from "@/components/SelectField/SelectField";
-import { getLikertChannelsInstances, getLikertReport } from "@/services/api.services";
+import {getLikertChannelsInstances, getLikertReport} from "@/services/api.services";
 import PropTypes from "prop-types";
-import { useEffect, useState } from "react";
+import {useEffect, useState} from "react";
 import NotFound from "../../assets/NotFound.jpg";
+import {CircularProgress} from "@mui/material";
 
 const RectangleDiv = ({className = "", scores, type, maximumScore}) => {
   const constrainedYellowPercent = scores;
   const greenPercent = 100 - constrainedYellowPercent;
-console.log(maximumScore)
+  console.log(maximumScore);
 
   return (
     <div className="flex flex-col">
@@ -60,7 +61,7 @@ const LikertReport = () => {
 
   const fetchLikertChannelInstances = async () => {
     const scale_id = "66c9d21e9090b1529d108a63";
-    setInstanceLoading(true); 
+    setInstanceLoading(true);
     try {
       const channelDetailsResponse = await getLikertChannelsInstances(scale_id);
       if (channelDetailsResponse.status === 200) {
@@ -105,7 +106,8 @@ const LikertReport = () => {
 
   const fetchLikertReport = async () => {
     setLoading(true);
-
+    setDisplayData(false);
+    setMessage("Loading...");
     try {
       const reportResponse = await getLikertReport(payload);
       console.log("Report Response Status:", reportResponse.status);
@@ -123,8 +125,8 @@ const LikertReport = () => {
         const score = parseInt(totalScoreString.split("/")[0], 10);
         setTotalScore(score);
         setMaxScore(maximumScore);
-        console.log(totalScore)
-        console.log(maxScore)
+        console.log(totalScore);
+        console.log(maxScore);
 
         const reportAverageScore = reportResult?.report?.average_score;
         const roundedAverageScore = parseFloat(reportAverageScore.toFixed(2));
@@ -319,12 +321,13 @@ const LikertReport = () => {
             Total Response: <span className="text-xl text-green-800 font-poppins">{totalResponse}</span>
           </h2>
         </div>
+
         {displayData === false && alert === true && (
-          <div className="flex items-center justify-center mt-12 gap-x-3">
-            <img src={NotFound} alt="" className="w-64" />
+          <div className="flex items-center text-center justify-center mt-40 gap-x-3">
             <div className="">
+              {loading ? <CircularProgress /> : null}
               <h3 className="text-2xl font-bold tracking-tight text-gray-500 font-poppins">{message}</h3>
-              <p className="font-poppins text-gray-800 text-[15px] tracking-tight mt-1">Please contact admin if possibly you have this report</p>
+              <p className="font-poppins text-gray-800 text-[15px] tracking-tight mt-1">{loading ? "Please wait while we fetching the data" : "Please contact admin if possibly you have this report"}</p>
             </div>
           </div>
         )}
@@ -333,10 +336,10 @@ const LikertReport = () => {
             {/* First Chart */}
             <div className="flex flex-col w-screen gap-2 md:w-3/5 px-7">
               <p className="font-poppins tracking-tight text-[18px] font-medium">Total Score </p>
-              <RectangleDiv scores={totalScoreYellowPercent} maximumScore = {maxScore} />
+              <RectangleDiv scores={totalScoreYellowPercent} maximumScore={maxScore} />
               <div className="mt-8">
                 <p className="font-poppins text-[13px] font-medium">Daywise Response Insights</p>
-                <LineGraph options={optionsWithoutPercentage} data={{labels: dailyCountsData.labels, datasets: normalizedData}}  />
+                <LineGraph options={optionsWithoutPercentage} data={{labels: dailyCountsData.labels, datasets: normalizedData}} />
               </div>
             </div>
             {/* Second Chart */}

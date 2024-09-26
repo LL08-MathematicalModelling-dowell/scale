@@ -21,7 +21,7 @@ const getUserLogin = async (credentials) => {
 };
 
 const scaleResponse = async (user, scaleType, channel, instance, workspace_id, username, scale_id, index) => {
-  return await scaleAxiosInstance.get(`/addons/create-response/v3/?user=${user}&scale_type=${scaleType}&channel=${channel}&instance=${instance}&workspace_id=${workspace_id}&username=${username}&scale_id=${scale_id}&item=${index}`);
+  return await servicesAxiosInstance.get(`/v1/create-response/?user=${user}&scale_type=${scaleType}&channel=${channel}&instance=${instance}&workspace_id=${workspace_id}&username=${username}&scale_id=${scale_id}&item=${index}`);
 };
 
 export const updateUserDetails = async (userId, data) => {

@@ -21,7 +21,7 @@ function getInstanceDisplayName(url) {
 }
 
 const ScaleDetails = () => {
-  const { defaultScaleOfUser } = useCurrentUserContext();
+  const { defaultScaleOfUser} = useCurrentUserContext();
   const [qrCodes, setQrCodes] = useState([]);
   const [alert, setAlert] = useState("");
   const [loading, setLoading] = useState(false);
@@ -46,6 +46,7 @@ const ScaleDetails = () => {
     console.log('value', e.target.value);
     setCurrentScaleType(e.target.value);
   };
+
 
   const scaleOptions = [
     { value: "nps", label: "NPS" },

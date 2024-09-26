@@ -454,7 +454,109 @@ class ScaleReport(APIView):
                 "message": "Successfully generated the scale report",
                 # "report":report_data
             }, status=status.HTTP_200_OK)
+        
+        except Exception as e:
+            print(f"Error in get_nps_report: {e}")
+            return Response({
+                "success": False,
+                "message": "An error occurred while processing the NPS report.",
+                "error": str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    # Likert scale report
+
+    def get_likert_report(self, request):
+        serializer = ScaleReportSerializer(data=request.data)
+
+        if not serializer.is_valid():
+            return Response({
+                "success": False, 
+                "message": "Posting invalid data",
+                "error": serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            scale_id = serializer.validated_data['scale_id']
+            channel_names = serializer.validated_data['channel_names']
+            instance_names = serializer.validated_data['instance_names']
+            period = serializer.validated_data['period']
             
+            start_date, end_date = get_date_range(period)
+
+            filters = {
+                "scale_id": scale_id,
+                "$or": [
+                    {"dowell_time.current_time": {"$gte": start_date, "$lte": end_date}},
+                    {"dowell_time.dowelltime": {"$exists": True}}
+                ]
+            }
+            
+            if "all" not in channel_names:
+                filters["channel_name"] = {"$in": channel_names}
+            if "all" not in instance_names:
+                filters["instance_name"] = {"$in": instance_names}
+
+            responses = json.loads(datacube_data_retrieval(api_key, 'livinglab_scale_response', 'collection_1', filters, 10000, 0, False))
+
+            if not responses['data']:
+                return Response({"success": False, "message": "No data found"}, status=status.HTTP_404_NOT_FOUND)
+
+            score_list = []
+            pointers = 5
+
+            daily_counts = defaultdict(lambda: {score: 0 for score in range(1, 6)})
+            score_distribution = defaultdict(int)
+
+            for response in responses['data']:
+                try:
+                    current_time = response['dowell_time'].get('current_time', None)
+                    if current_time:
+                        try:
+                            response_date = str(datetime.strptime(current_time, "%Y-%m-%d %H:%M:%S").date())
+                        except ValueError:
+                            response_date = str(datetime.fromisoformat(current_time).date())
+                    else:
+                        continue
+
+                    score = response.get('score', None)
+                    if score and 1 <= score <= 5:
+                        score_list.append(score)
+                        daily_counts[response_date][score] += 1
+                        score_distribution[score] += 1
+
+                except Exception as e:
+                    print(f"Error processing response {response}: {e}")
+                    continue
+
+            total_responses = len(score_list)
+            total_score = sum(score_list)
+            average_score = total_score / total_responses if total_responses > 0 else 0
+            max_score = pointers * total_responses
+
+            percentage_distribution = {score: 0 for score in range(1, 6)}
+            for score, count in score_distribution.items():
+                percentage_distribution[score] = (count / total_responses) * 100
+
+            return Response({
+                "success": True,
+                "message": f"Fetched {period} Likert data successfully",
+                "report": {
+                    "no_of_responses": total_responses,
+                    "total_score": f"{total_score} / {max_score}",
+                    "average_score": average_score,
+                    "score_list": score_list,
+                    "pointers": pointers,
+                    "daily_counts": daily_counts,
+                    "overall_score_distribution": percentage_distribution
+                }
+            }, status=status.HTTP_200_OK)
+
+        except ValueError as ve:
+            return Response({
+                "success": False,
+                "message": "Invalid date format or period provided.",
+                "error": str(ve)
+            }, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as e:
             return Response({

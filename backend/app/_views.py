@@ -213,6 +213,7 @@ def create_scale_response(request):
     scale_type = request.GET.get('scale_type')
     channel_name = request.GET.get('channel')
     instance_name = request.GET.get('instance')
+    data_type = request.GET.get('data_type', None)
     header = dict(request.headers)
 
 
@@ -288,7 +289,8 @@ def create_scale_response(request):
                 "channel_display_name": channel_display_names[0],
                 "instance_name": instance_name,
                 "instance_display_name": instance_display_names[0],
-                "learning_index_data": learning_index_data
+                "learning_index_data": learning_index_data,
+                "data_type": data_type
             }
 
             # Insertion into the DB
@@ -313,6 +315,7 @@ def create_scale_response(request):
                     "instance_display_name": instance_display_names[0],
                     "current_response_no": current_response_count,
                     "no_of_available_responses": no_of_responses - current_response_count,
+                    "data_type": data_type,
                     "time_stamp": created_time["current_time"]
                 })
         else:
@@ -428,31 +431,87 @@ def learning_index_report(request):
 
 class ScaleReport(APIView):
     def post(self, request):
+        scale_type = request.GET.get('scale_type')
+
+        if scale_type == 'nps':
+            return self.get_nps_report(request)
+        elif scale_type == 'likert':
+            return self.get_likert_report(request)
+        elif scale_type == 'stapel':
+            return self.get_stapel_report(request)
+        elif scale_type == 'nps_lite':
+            return self.get_nps_lite_report(request)
+        else:
+            return self.handle_errors(request)
+        
+    # NPS scale report
+    def get_nps_report(self, request):
+        serializer = ScaleReportSerializer(data=request.data)
+
+        if not serializer.is_valid():
+            return Response({
+                "success": False, 
+                "message": "Posting invalid data",
+                "error": serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+
         try:
-            serializer = ScaleReportSerializer(data=request.data)
-
-            if not serializer.is_valid():
-                return Response({
-                    "success": False, 
-                    "message": "Posting invalid data",
-                    "error": serializer.errors
-                }, status=status.HTTP_400_BAD_REQUEST)
+            scale_id = serializer.validated_data['scale_id']
+            # workspace_id = serializer.validated_data['workspace_id']
+            channel_names = serializer.validated_data['channel_names']
+            instance_names = serializer.validated_data['instance_names']
+            period = serializer.validated_data['period']
+            start_date, end_date = get_date_range(period)
             
-            validated_data = serializer.validated_data
-            scale_type = request.GET.get("scale_type")
+            filters = {
+                "scale_id": scale_id,
+                "$or": [
+                    {"dowell_time.current_time": {"$gte": start_date, "$lte": end_date}},
+                    {"dowell_time.dowelltime": {"$exists": True}}
+                ]
+            }
+            
+            if "all" not in channel_names:
+                filters["channel_name"] = {"$in": channel_names}
+            if "all" not in instance_names:
+                filters["instance_name"] = {"$in": instance_names}
 
+            responses = json.loads(datacube_data_retrieval(api_key, 'livinglab_scale_response', 'collection_1', filters, 10000, 0, False))
+            if not responses['data']:
+                return Response({"success": False, "message": "No data found"}, status=status.HTTP_404_NOT_FOUND)
 
-            # if not report_data:
-            #     return Response({
-            #         "success": "False",
-            #         "message": "Failed to generate the report. Contact admin"
-            #     },
-            #     status = status.HTTP_400_BAD_REQUEST)
+            daily_counts = defaultdict(lambda: {"promoter": 0, "detractor": 0, "passive": 0, "nps": 0})
+
+            for response in responses['data']:
+                response_date = datetime.strptime(response['dowell_time']['current_time'], "%Y-%m-%d %H:%M:%S").date()
+                daily_counts[response_date][response["category"]] += 1
+            
+            for date, counts in daily_counts.items():
+                total_responses = counts["promoter"] + counts["detractor"] + counts["passive"]
+                if total_responses > 0:
+                    counts["nps"] = (counts["promoter"] - counts["detractor"]) / total_responses * 100
+                else:
+                    counts["nps"] = 0 
+            
+            daily_counts = {str(date): counts for date, counts in daily_counts.items()}
+
+            score_list = [response['score'] for response in responses['data']]
+            category_dict = {key: sum(counts[key] for counts in daily_counts.values()) for key in ["promoter", "detractor", "passive"]}
+            percentage_category_distribution = {key: value / len(score_list) * 100 for key, value in category_dict.items()}
+            nps = percentage_category_distribution["promoter"] - percentage_category_distribution["detractor"]
+            total_score = sum(score_list)
+            max_score = len(score_list) * 10
             
             return Response({
-                "success": "true",
-                "message": "Successfully generated the scale report",
-                # "report":report_data
+                "success": True, 
+                "message": f"Fetched {period} NPS data successfully",
+                "report": {
+                    "no_of_responses": len(score_list),
+                    "total_score": f"{total_score} / {max_score}",
+                    "nps": nps,
+                    "nps_category_distribution": percentage_category_distribution,
+                    "daily_counts": daily_counts
+                }
             }, status=status.HTTP_200_OK)
         
         except Exception as e:
@@ -462,6 +521,7 @@ class ScaleReport(APIView):
                 "message": "An error occurred while processing the NPS report.",
                 "error": str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
     # Likert scale report
 

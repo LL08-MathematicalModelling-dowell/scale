@@ -88,13 +88,18 @@ class ScaleResponseSerializer(serializers.Serializer):
         ('percent_sum', 'percent_sum'),
         ('learning_index', 'learning_index')
     )
+    DATA_TYPE_CHOICES = (
+        ('real', 'real'),
+        ('testing', 'testing')
+    )
     workspace_id = serializers.CharField(max_length=100, allow_blank=False)
-    scale_id = serializers.CharField(max_length=100, allow_blank=True)
+    scale_id = serializers.CharField(max_length=100, allow_blank=False)
     username = serializers.CharField(max_length=100, allow_blank=True)
     scale_type = serializers.ChoiceField(choices=SCALE_TYPE_CHOICES)
     user_type = serializers.CharField(max_length=100, allow_blank=False)
     channel_name = serializers.CharField(max_length=100, allow_blank=False)
     instance_name = serializers.CharField(max_length=100, allow_blank=False)
+    data_type = serializers.ChoiceField(choices=DATA_TYPE_CHOICES,allow_blank=False,default=None)
 
     
 class ScaleRetrievalSerializer(serializers.Serializer):

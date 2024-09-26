@@ -843,6 +843,7 @@ class ScaleCreationView(APIView):
                 "scale_type": request.GET.get('scale_type'),
                 "channel_name": request.GET.get('channel'),
                 "instance_name": request.GET.get('instance'),
+                "data_type": request.GET.get('data_type')
             }
             serializer = ScaleResponseSerializer(data = parameters)
 
@@ -910,7 +911,7 @@ class ScaleCreationView(APIView):
             response_data = scales.create_scale_response(parameters, scale_response_data, settings_meta_data)
 
             if isinstance(response_data, str):
-                return self.error_response(message = response_data, error=None)
+                return self.error_response(message=response_data, error=None)
             else:
                 # Insertion into the DB
                 response_data["user_info"] = dict(request.headers)
@@ -947,6 +948,7 @@ class ScaleCreationView(APIView):
                             "instance_display_name": response_data["instance_display_name"],
                             "current_response_no": response_data["current_response_count"],
                             "no_of_available_responses": response_data["no_of_available_responses"],
+                            "data_type": response_data["data_type"],
                             "created_at": response_data["dowell_time"]
                     }
                     if parameters["scale_type"] == "learning_index":

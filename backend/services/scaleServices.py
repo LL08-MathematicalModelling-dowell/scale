@@ -85,6 +85,7 @@ class scaleServicesClass:
         channel_instance_list = settings_meta_data["channel_instance_list"]
         channel_name = params["channel_name"]
         instance_name = params["instance_name"]
+        data_type = params["data_type"]
 
         if item in range(0,7):
             category = "detractor"
@@ -120,6 +121,7 @@ class scaleServicesClass:
                 "channel_display_name": channel_display_names[0],
                 "instance_name": instance_name,
                 "instance_display_name": instance_display_names[0],
+                "data_type": data_type,
                 "redirect_url": generated_url
             }
 
@@ -137,6 +139,7 @@ class scaleServicesClass:
         channel_instance_list = settings_meta_data["channel_instance_list"]
         channel_name = params["channel_name"]
         instance_name = params["instance_name"]
+        data_type = params["data_type"]
 
         if item == 0:
             category = "detractor"
@@ -172,6 +175,7 @@ class scaleServicesClass:
                 "channel_display_name": channel_display_names[0],
                 "instance_name": instance_name,
                 "instance_display_name": instance_display_names[0],
+                "data_type": data_type,
                 "redirect_url": generated_url
             }
 
@@ -190,6 +194,7 @@ class scaleServicesClass:
         channel_instance_list = settings_meta_data["channel_instance_list"]
         channel_name = params["channel_name"]
         instance_name = params["instance_name"]
+        data_type = params["data_type"]
 
         if item in range(0, 3):
             category = "reading"
@@ -248,6 +253,7 @@ class scaleServicesClass:
                 "instance_name": instance_name,
                 "instance_display_name": instance_display_names[0],
                 "learning_index_data": learning_index_data,
+                "data_type": data_type,
                 "redirect_url": generated_url
             }
 
@@ -265,6 +271,7 @@ class scaleServicesClass:
         channel_instance_list = settings_meta_data["channel_instance_list"]
         channel_name = params["channel_name"]
         instance_name = params["instance_name"]
+        data_type = params["data_type"]
 
 
         channel_display_names, instance_display_names = get_display_names(channel_instance_list,channel_name,instance_name)
@@ -292,6 +299,7 @@ class scaleServicesClass:
                 "channel_display_name": channel_display_names[0],
                 "instance_name": instance_name,
                 "instance_display_name": instance_display_names[0],
+                "data_type": data_type,
                 "redirect_url": generated_url
             }
 
@@ -309,6 +317,7 @@ class scaleServicesClass:
         channel_instance_list = settings_meta_data["channel_instance_list"]
         channel_name = params["channel_name"]
         instance_name = params["instance_name"]
+        data_type = params["data_type"]
 
 
         channel_display_names, instance_display_names = get_display_names(channel_instance_list,channel_name,instance_name)
@@ -336,6 +345,7 @@ class scaleServicesClass:
                 "channel_display_name": channel_display_names[0],
                 "instance_name": instance_name,
                 "instance_display_name": instance_display_names[0],
+                "data_type": data_type,
                 "redirect_url": generated_url
             }
 

@@ -165,3 +165,4 @@ ProjectVenv/
 node_modules
 .DS_Store
 notes.txt
+logs

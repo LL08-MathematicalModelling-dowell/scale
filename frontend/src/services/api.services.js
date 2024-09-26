@@ -42,7 +42,7 @@ export const updateUserDetails = async (userId, data) => {
 };
 
 const getUserReport = async (scale_id) => {
-  return await scaleAxiosInstance.get(`/addons/get-response/?scale_id=${scale_id}`);
+  return await servicesAxiosInstance.get(`/v1/get-response/?scale_id=${scale_id}`);
 };
 
 const getUserScales = async ({workspace_id, portfolio, type_of_scale, accessToken}) => {

@@ -5,18 +5,27 @@ import { preferenceSchema,updatePreferenceSchema } from "../utils/payloadSchema.
 
 
 const createPreference = asyncHandler(async (req, res) => {
-    const { workspaceId, workspaceName, portfolio, userId, scaleTypePreference, scaleDesignPreference, notificationDuration } = req.body;
-
+    
+    const {
+        workspaceId, workspaceName, portfolio, userId, scaleTypePreference,
+        scaleDesignPreference, notificationDuration, dataType, productType, brandName, productName
+    } = req.body;
+    
     const validationResult = PayloadValidationServices.validateData(preferenceSchema, {
         workspaceId, 
         workspaceName, 
         portfolio, 
         userId, 
-        scaleTypePreference, 
-        scaleDesignPreference,  
-        notificationDuration
+        scaleTypePreference,
+        scaleDesignPreference, 
+        notificationDuration, 
+        dataType, 
+        productType, 
+        brandName, 
+        productName
     });
 
+    
     if (!validationResult.isValid) {
         return res.status(400).json({
             success: false,
@@ -25,15 +34,16 @@ const createPreference = asyncHandler(async (req, res) => {
         });
     }
 
-    const newPreference = await Preference.create({
-        workspaceId, 
-        workspaceName, 
-        portfolio, 
-        userId, 
-        scaleTypePreference, 
-        scaleDesignPreference,
-        notificationDuration
-    });
+    const existingPreference = await Preference.findOne({ workspaceId, userId, productType });
+
+    if (existingPreference) {
+        return res.status(400).json({
+            success: false,
+            message: "Preference already exists for the given workspaceId and userId and productType",
+        });
+    }
+
+    const newPreference = await Preference.create(validationResult.validatedData);
 
     if (!newPreference) {
         return res.status(400).json({
@@ -42,7 +52,7 @@ const createPreference = asyncHandler(async (req, res) => {
         });
     }
 
-    return res.status(200).json({
+    return res.status(201).json({
         success: true,
         message: "Preference created successfully",
         response: newPreference
@@ -50,14 +60,22 @@ const createPreference = asyncHandler(async (req, res) => {
 });
 
 const userPreference = asyncHandler(async (req, res) => {
-    const { workspaceId, userId } = req.params;
+    const { workspaceId, userId, productType } = req.params;
 
+    if(!workspaceId || !userId || !productType) {
+        return res.status(400).json({
+            success: false,
+            message: "Missing required parameters: workspaceId, userId, and productType"
+        });
+    }
+    console.log(workspaceId, userId, productType);
+    
     const preference = await Preference.findOne({ workspaceId, userId });
 
     if (!preference) {
         return res.status(404).json({
             success: false,
-            message: "Preference not found for the given workspaceId and userId"
+            message: "Preference not found for the given workspaceId and userId, productType"
         });
     }
 
@@ -69,14 +87,21 @@ const userPreference = asyncHandler(async (req, res) => {
 });
 
 const updateUserPreference = asyncHandler(async (req, res) => {
-    const { workspaceId, userId } = req.params;
-    const { scaleTypePreference, scaleDesignPreference, notificationDuration } = req.body;
+    const { workspaceId, userId, productType } = req.params;
+    const { scaleTypePreference, scaleDesignPreference, notificationDuration, dataType, productName, brandName } = req.body;
 
-    const validationResult = PayloadValidationServices.validateData(updatePreferenceSchema, {
+    // Create an object for validation
+    const payload = {
         scaleTypePreference,
         scaleDesignPreference,
-        notificationDuration
-    });
+        notificationDuration,
+        dataType,
+        productName,
+        brandName
+    };
+
+    // Validate the payload
+    const validationResult = PayloadValidationServices.validateData(updatePreferenceSchema, payload);
 
     if (!validationResult.isValid) {
         return res.status(400).json({
@@ -90,9 +115,13 @@ const updateUserPreference = asyncHandler(async (req, res) => {
     if (scaleTypePreference) updateData.scaleTypePreference = scaleTypePreference;
     if (scaleDesignPreference) updateData.scaleDesignPreference = scaleDesignPreference;
     if (notificationDuration) updateData.notificationDuration = notificationDuration;
+    if (dataType) updateData.dataType = dataType;
+
+    // Set questionToDisplay based on the validated payload
+    updateData.questionToDisplay = validationResult.validatedData.questionToDisplay;
 
     const updatedPreference = await Preference.findOneAndUpdate(
-        { workspaceId, userId },  
+        { workspaceId, userId, productType },  
         { $set: updateData },      
         { new: true }              
     );
@@ -111,9 +140,28 @@ const updateUserPreference = asyncHandler(async (req, res) => {
     });
 });
 
+
+const deletePreference = asyncHandler(async (req,res) => {
+    const { workspaceId } = req.params;
+
+    const preference = await Preference.findOneAndDelete({ workspaceId });
+
+    if (!preference) {
+        return res.status(404).json({
+            success: false,
+            message: "Preference not found for the given workspaceId and userId"
+        });
+    }
+
+    return res.status(200).json({
+        success: true,
+        message: "Preference deleted successfully"
+    });
+})
 export {
     createPreference,
     userPreference,
-    updateUserPreference
+    updateUserPreference,
+    deletePreference
 }
     

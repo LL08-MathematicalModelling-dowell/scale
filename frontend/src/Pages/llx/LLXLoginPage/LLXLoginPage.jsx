@@ -160,8 +160,8 @@ const LLXLoginPage = () => {
   };
 
   return (
-    <div className="max-h-screen flex flex-col relative">
-      <div className="flex flex-col gap-1 justify-center items-center mt-10">
+    <div className="relative flex flex-col max-h-screen">
+      <div className="flex flex-col items-center justify-center gap-1 mt-10">
         <div className="fixed right-8 top-5">
           {healthStatus && (
             <div
@@ -173,7 +173,7 @@ const LLXLoginPage = () => {
             />
           )}
         </div>
-        <img src={Logo} width={300} height={300} alt="Dowell Logo" />
+        <img src="https://dowellfileuploader.uxlivinglab.online/hr/logo-2-min-min.png" width={300} height={300} alt="Dowell Logo" />
         <form
           className="md:w-[320px] min-w-64 flex flex-col gap-4 items-center"
           onSubmit={handleSubmit}

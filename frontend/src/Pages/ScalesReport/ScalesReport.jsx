@@ -11,7 +11,7 @@ import {HiMiniUsers} from "react-icons/hi2";
 import {ResponsiveContainer} from "recharts";
 import Animation from "../../assets/Animation.json";
 import NotFound from "../../assets/NotFound.jpg";
-import { CircularProgress } from "@mui/material";
+import {CircularProgress} from "@mui/material";
 
 const ScalesReport = () => {
   const [eDate, setDate] = useState(" ");
@@ -114,7 +114,7 @@ const ScalesReport = () => {
   };
 
   const fetchChannelReports = async () => {
-    setReportMsg("Loading...")
+    setReportMsg("Loading...");
     setReportLoading(true);
     setDisplayData(false);
     try {
@@ -391,7 +391,7 @@ const ScalesReport = () => {
         {(reportAlert || reportLoading) && (
           <div className="flex justify-center items-center gap-4 md:px-16 px-4 mt-20 text-center">
             <div className="flex flex-col  ml-4 justify-center items-center gap-2  text-center md:text-center ">
-              {reportLoading ? <CircularProgress/> : null}
+              {reportLoading ? <CircularProgress /> : null}
               <h2 className="font-poppins tracking-tight font-bold md:text-2xl text-xl text-gray-700">{reportMsg}</h2>
               <p className="md:text-[17px] text-[15px] font-poppins tracking-tight font-medium text-gray-500">{reportLoading ? "Please wait while fetching your data" : "Please contact the admin, if error persists"}</p>
             </div>

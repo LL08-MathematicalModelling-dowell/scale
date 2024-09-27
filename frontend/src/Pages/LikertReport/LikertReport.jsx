@@ -1,10 +1,9 @@
 import LineGraph from "@/components/Graph/LineGraph";
 import SelectField from "@/components/SelectField/SelectField";
-import {getLikertChannelsInstances, getLikertReport} from "@/services/api.services";
+import { getLikertChannelsInstances, getLikertReport } from "@/services/api.services";
+import { CircularProgress } from "@mui/material";
 import PropTypes from "prop-types";
-import {useEffect, useState} from "react";
-import NotFound from "../../assets/NotFound.jpg";
-import {CircularProgress} from "@mui/material";
+import { useEffect, useState } from "react";
 
 const RectangleDiv = ({className = "", scores, type, maximumScore}) => {
   const constrainedYellowPercent = scores;

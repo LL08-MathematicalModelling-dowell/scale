@@ -21,6 +21,7 @@ import LLXUserDetails from "./Pages/llx/LLXUserDetails/LLXUserDetails";
 import LLXScaleDetails from "./Pages/llx/LLXScaleDetails/LLXScaleDetails";
 import LLXOpenReportPage from "./Pages/llx/LLXOpenReportPage/LLXOpenReportPage";
 import LLXScale from "./Pages/llx/LLXScale/LLXScale";
+import NewLLXReport from "./Pages/llx/LLXReport/NewLLXReport";
 
 const App = () => {
   useDowellLogin();
@@ -31,6 +32,7 @@ const App = () => {
       <Route path="/llx" element={<LLXLoginPage />} />
       {/* 49 number line [done]*/}
       <Route path="/llx/reports" element={<LLXReport />} />
+      <Route path="/llx/newreport" element={<NewLLXReport/>} />
       {/* copy from ux live */}
       <Route path="/llx/report" element={<LLXOpenReportPage />} />
       {/* not confirmed but 48 49 50 line routes */}

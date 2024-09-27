@@ -1,4 +1,4 @@
-# scheduler/Dockerfile
+# Use the official Python image as the base image
 FROM python:3.9-slim
 
 # Install cron
@@ -13,8 +13,8 @@ COPY . .
 # Install any Python dependencies (if any, otherwise omit this step)
 # RUN pip install --no-cache-dir -r requirements.txt
 
-# Add a cron job to run the script at 12:00 PM
-RUN echo "0 12 * * * /usr/local/bin/python /usr/src/app/schedule.py >> /var/log/cron.log 2>&1" > /etc/cron.d/scheduler-cron
+# Add a cron job to run the script at 7:30 AM UTC (which is 1:00 PM IST)
+RUN echo "30 7 * * * /usr/local/bin/python /usr/src/app/schedule.py >> /var/log/cron.log 2>&1" > /etc/cron.d/scheduler-cron
 
 # Give execution rights on the cron job
 RUN chmod 0644 /etc/cron.d/scheduler-cron

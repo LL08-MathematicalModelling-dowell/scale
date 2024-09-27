@@ -17,8 +17,8 @@ class scaleServicesClass:
             "nps": range(0,11),
             "nps_lite": range(0,3),
             "learning_index": range(0,11),
-            "likert": range(1,(payload.get("pointers"))+1),
-            "stapel": chain(range(-(payload.get("axis_limit")), 0), range(1, payload.get("axis_limit")+1))
+            # "likert": range(1,(payload.get("pointers"))+1),
+            # "stapel": chain(range(-(payload.get("axis_limit")), 0), range(1, payload.get("axis_limit")+1))
         }
         scale_range = list(scale_range_dict.get(payload["scale_type"]))
         payload["scale_range"] = scale_range

@@ -973,8 +973,8 @@ class ScaleCreationView(APIView):
             scale_type_handler = {
                 "nps": self.handle_nps_scale(request),
                 "nps_lite": self.handle_nps_lite_scale(request),
-                "likert": self.handle_likert_scale(request),
-                "stapel": self.handle_stapel_scale(request),
+                # "likert": self.handle_likert_scale(request),
+                # "stapel": self.handle_stapel_scale(request),
                 "learning_index": self.handle_learning_index_scale(request)
             }
 
@@ -1134,7 +1134,7 @@ class ScaleCreationView(APIView):
         data = {
             "scale_type": request.GET.get("scale_type"),
             "scale_id": request.data.get("scale_id"),
-            "workspace_id": request.data.get("workspace_id"),
+            # "workspace_id": request.data.get("workspace_id"),
             "channel_names": request.data.get("channel_names"),
             "instance_names": request.data.get("instance_names"),
             "period": request.data.get("period")
@@ -1148,7 +1148,7 @@ class ScaleCreationView(APIView):
         validated_data = serializer.validated_data
 
         scale_type = validated_data["scale_type"]
-        workspace_id = validated_data["workspace_id"]
+        # workspace_id = validated_data["workspace_id"]
 
         start_date, end_date = get_date_range(validated_data["period"])
         

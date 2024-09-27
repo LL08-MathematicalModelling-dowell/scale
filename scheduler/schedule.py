@@ -91,7 +91,7 @@ def main():
                 scale_type
             )
 
-            report_subject = f"Your {scale_type} Scale Report for {datetime.now().strftime('%Y-%m-%d')}"
+            report_subject = f"Your {scale_type} Scale Report for {datetime.now().strftime('%Y-%B')}"
 
             log_data = {
                 "workspace_id": user["workspace_id"],
@@ -107,7 +107,7 @@ def main():
                     "Valuable Customer",
                     user["email"], 
                     report_subject, 
-                    datetime.now().strftime("%Y-%m-%d"), 
+                    datetime.now().strftime("%Y-%B %-d"), 
                     scale_details["response"][0]["report_link"]["report_link"], 
                     scale_details["response"][0]["report_link"]["qrcode_image_url"]
                 ))

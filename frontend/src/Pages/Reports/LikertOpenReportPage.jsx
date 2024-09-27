@@ -36,7 +36,6 @@ RectangleDiv.propTypes = {
 };
 
 const LikertReport = ({scaleId}) => {
-    console.log(scaleId)
   const [normalizedData, setNormalizedData] = useState([]);
   const [channelName, setChannelName] = useState([]);
   const [instanceName, setInstanceName] = useState([]);
@@ -309,6 +308,7 @@ const LikertReport = ({scaleId}) => {
 
   return (
     <div className="relative max-w-full min-h-screen">
+      <h1 className="my-4 text-2xl font-bold text-center">DoWell Voice of Customer</h1>
       <div className="mx-8 my-12 ">
         <div className="flex flex-col items-center justify-center gap-10">
           <div className="flex flex-col justify-center gap-5 md:flex-row">

@@ -1,7 +1,12 @@
 from services.datacube import *
 from services.dowellclock import dowell_time
 from utils.eventID import get_event_id
+from utils.helper import generate_urls, get_display_names, calculate_learning_index, parse_response_datetime
 from itertools import chain
+from collections import defaultdict
+from datetime import datetime, timedelta
+
+public_url = "https://www.scales.uxlivinglab.online/api"
 
 class scaleServicesClass:
     def __init__(self):
@@ -12,14 +17,14 @@ class scaleServicesClass:
             "nps": range(0,11),
             "nps_lite": range(0,3),
             "learning_index": range(0,11),
-            # "likert": range(1,(payload.get("pointers"))+1),
-            # "stapel": chain(range(-(payload.get("axis_limit")), 0), range(1, payload.get("axis_limit")+1))
+            "likert": range(1,(payload.get("pointers"))+1),
+            "stapel": chain(range(-(payload.get("axis_limit")), 0), range(1, payload.get("axis_limit")+1))
         }
         scale_range = list(scale_range_dict.get(payload["scale_type"]))
         payload["scale_range"] = scale_range
         
         # generate the button urls
-        urls = self.generate_urls(payload)
+        urls = generate_urls(payload)
 
         scale_response = {
             "scale_id": payload["scale_id"],
@@ -35,97 +40,42 @@ class scaleServicesClass:
         scale_type = params["scale_type"]
             
         handlers = {
-            "nps": self.handle_nps_response(params, scale_response_data, settings_meta_data),
-            "nps_lite": self.handle_nps_lite_response(params, scale_response_data, settings_meta_data),
-            "learning_index": self.handle_learning_index_response(params, scale_response_data, settings_meta_data),
-            # "likert": self.handle_likert_response(params, scale_response_data, settings_meta_data),
-            # "stapel": self.handle_stapel_response(params, scale_response_data, settings_meta_data)
+            "nps": self.handle_nps_response,
+            "nps_lite": self.handle_nps_lite_response,
+            "learning_index": self.handle_learning_index_response,
+            "likert": self.handle_likert_response,
+            "stapel": self.handle_stapel_response
         }
-
-        response_data = handlers[scale_type]
-
-        return response_data
+        if scale_type in handlers:
+            response_data = handlers[scale_type](params, scale_response_data, settings_meta_data)
+            return response_data
+        else:
+            raise ValueError(f"Unsupported scale type: {scale_type}")
+        
 
 
     def retrieve_scale_settings(self, payload):
         return payload
 
+    def generate_scale_report(self, scale_type, payload, start_date, end_date):
 
-    # ------ helper functions ------
-    def build_urls(self, channel_instance,scale_details,instance_idx):
-        urls = []
-        scale_details["scale_range"]
-        for idx in scale_details["scale_range"]:
-            # url = f"{public_url}/v1/create-response/?user={settings['user_type']}&scale_type={settings['scale_category']}&channel={channel_instance['channel_name']}&instance={channel_instance['instances_details'][instance_idx]['instance_name']}&workspace_id={payload['workspace_id']}&username={settings['username']}&scale_id={settings['scale_id']}&item={idx}"
-            url = f"http://localhost:8001/v1/scale-services/?user={scale_details['user_type']}&scale_type={scale_details['scale_type']}&channel={channel_instance['channel_name']}&instance={channel_instance['instances_details'][instance_idx]['instance_name']}&workspace_id={scale_details['workspace_id']}&username={scale_details['username']}&scale_id={scale_details['scale_id']}&item={idx}"
-            urls.append(url)
-        return urls
+        scale_type_handlers = {
+            "nps": self.get_nps_report,
+            "likert": self.get_likert_report,
+            "learning_index": self.get_learning_index_report,
+            "nps_lite": self.get_nps_lite_report,
+            "stapel":self.get_stapel_report
+        }
 
-    def generate_urls(self, scale_details):
-        response = []
-        for channel_instance in scale_details["channel_instance_list"]:
-            channel_response = {
-                "channel_name": channel_instance["channel_name"],
-                "channel_display_name": channel_instance["channel_display_name"],
-                "urls": []
-            }
-            for instance_detail in channel_instance["instances_details"]:
-                instance_idx = channel_instance["instances_details"].index(instance_detail)
-                instance_response = {
-                    "instance_name": instance_detail["instance_name"],
-                    "instance_display_name": instance_detail["instance_display_name"],
-                    "instance_urls": self.build_urls(channel_instance, scale_details,instance_idx)
-                }
-                channel_response["urls"].append(instance_response)
-            response.append(channel_response)
-        
-        return response
-    
-    def get_display_names(self, channel_instance_list,current_channel_name,current_instance_name):
-        for data in channel_instance_list:
-            if current_channel_name == data["channel_name"]:
-                for instance in data["instances_details"]:
-                    if current_instance_name == instance["instance_name"]:
-                        channel_display_names = [data["channel_display_name"]]
-                        instance_display_names = [instance["instance_display_name"]]
-                        break
+        if scale_type in scale_type_handlers:
+            report_data = scale_type_handlers[scale_type](payload, start_date, end_date)
+            return report_data
+        else:
+            raise ValueError(f"Unsupported scale type: {scale_type}")
 
-        if not channel_display_names or not instance_display_names:
-            return self.error_esponse("Channel or Instance not found",None)
-        
-        return channel_display_names, instance_display_names
-    
-    def calculate_learning_index(self, score, group_size, learner_category, category):
-        print(score,group_size,learner_category)
-        percentages = {}
-        LLx = 0
-        learning_stage = ""    
 
-        #determine the learner category for the given score
-        print(learner_category.items())
-        for key, value in learner_category.items():
-            if category == key:
-                
-                learner_category[key] += 1
-            
-                #calculate percentages for each learner category
-                percentages = {key: (value / group_size) * 100 for key, value in learner_category.items()}
+    # ---------- HANDLERS ----------
 
-                #calculate LLx while avoiding division by zero
-                denominator = percentages["reading"] + percentages["understanding"]
-                if denominator == 0:
-                    LLx = (percentages["evaluating"] + percentages["applying"]) 
-                else:
-                    LLx = (percentages["evaluating"] + percentages["applying"]) / denominator
-
-                #identify the learning stage for the control group
-                if 0 <= LLx <=1:
-                    learning_stage = "learning"
-                else:
-                    learning_stage = "applying in context" 
-
-        return percentages, LLx, learning_stage, learner_category
-        
     def handle_nps_response(self,params,scale_response_data,settings_meta_data):
         scale_type = "nps"
         workspace_id = params["workspace_id"]
@@ -135,6 +85,7 @@ class scaleServicesClass:
         channel_instance_list = settings_meta_data["channel_instance_list"]
         channel_name = params["channel_name"]
         instance_name = params["instance_name"]
+        data_type = params["data_type"]
 
         if item in range(0,7):
             category = "detractor"
@@ -145,7 +96,7 @@ class scaleServicesClass:
         else:
             return "Invalid value for score"
         
-        channel_display_names, instance_display_names = self.get_display_names(channel_instance_list,channel_name,instance_name)
+        channel_display_names, instance_display_names = get_display_names(channel_instance_list,channel_name,instance_name)
 
         product_url = "https://www.uxlive.me/dowellscale/npslitescale"
         generated_url = f"{product_url}/?workspace_id={workspace_id}&scale_type={scale_type}&score={item}&channel={channel_name}&instance={instance_name}"
@@ -170,6 +121,7 @@ class scaleServicesClass:
                 "channel_display_name": channel_display_names[0],
                 "instance_name": instance_name,
                 "instance_display_name": instance_display_names[0],
+                "data_type": data_type,
                 "redirect_url": generated_url
             }
 
@@ -179,7 +131,7 @@ class scaleServicesClass:
             return "No more responses allowed for this instance."
         
     def handle_nps_lite_response(self,params,scale_response_data,settings_meta_data):
-        scale_type = "nps"
+        scale_type = "nps_lite"
         workspace_id = params["workspace_id"]
         item = params["item"]
         current_response_count = scale_response_data["current_response_count"]
@@ -187,6 +139,7 @@ class scaleServicesClass:
         channel_instance_list = settings_meta_data["channel_instance_list"]
         channel_name = params["channel_name"]
         instance_name = params["instance_name"]
+        data_type = params["data_type"]
 
         if item == 0:
             category = "detractor"
@@ -197,7 +150,7 @@ class scaleServicesClass:
         else:
             return "Invalid value for score"
         
-        channel_display_names, instance_display_names = self.get_display_names(channel_instance_list,channel_name,instance_name)
+        channel_display_names, instance_display_names = get_display_names(channel_instance_list,channel_name,instance_name)
 
         product_url = "https://www.uxlive.me/dowellscale/npslitescale"
         generated_url = f"{product_url}/?workspace_id={workspace_id}&scale_type={scale_type}&score={item}&channel={channel_name}&instance={instance_name}"
@@ -222,6 +175,7 @@ class scaleServicesClass:
                 "channel_display_name": channel_display_names[0],
                 "instance_name": instance_name,
                 "instance_display_name": instance_display_names[0],
+                "data_type": data_type,
                 "redirect_url": generated_url
             }
 
@@ -231,7 +185,7 @@ class scaleServicesClass:
             return "No more responses allowed for this instance."
         
     def handle_learning_index_response(self,params,scale_response_data,settings_meta_data):
-        scale_type = "nps"
+        scale_type = "learning_index"
         workspace_id = params["workspace_id"]
         item = params["item"]
         current_response_count = scale_response_data["current_response_count"]
@@ -240,6 +194,7 @@ class scaleServicesClass:
         channel_instance_list = settings_meta_data["channel_instance_list"]
         channel_name = params["channel_name"]
         instance_name = params["instance_name"]
+        data_type = params["data_type"]
 
         if item in range(0, 3):
             category = "reading"
@@ -262,7 +217,7 @@ class scaleServicesClass:
                     "applying": 0
                 } if current_response_count == 1 else existing_response_data[-1].get("learning_index_data", {}).get("learning_level_count", {})
 
-        percentages, LLx, learning_stage, learner_category_cal = self.calculate_learning_index(item, current_response_count, learner_category, category)
+        percentages, LLx, learning_stage, learner_category_cal = calculate_learning_index(item, current_response_count, learner_category, category)
         
         learning_index_data = {
             "control_group_size": current_response_count,
@@ -272,7 +227,7 @@ class scaleServicesClass:
             "learning_stage": learning_stage
         }
         
-        channel_display_names, instance_display_names = self.get_display_names(channel_instance_list,channel_name,instance_name)
+        channel_display_names, instance_display_names = get_display_names(channel_instance_list,channel_name,instance_name)
 
         product_url = "https://www.uxlive.me/dowellscale/npslitescale"
         generated_url = f"{product_url}/?workspace_id={workspace_id}&scale_type={scale_type}&score={item}&channel={channel_name}&instance={instance_name}"
@@ -298,6 +253,7 @@ class scaleServicesClass:
                 "instance_name": instance_name,
                 "instance_display_name": instance_display_names[0],
                 "learning_index_data": learning_index_data,
+                "data_type": data_type,
                 "redirect_url": generated_url
             }
 
@@ -305,3 +261,238 @@ class scaleServicesClass:
     
         else:
             return "No more responses allowed for this instance."
+    
+    def handle_likert_response(self,params,scale_response_data,settings_meta_data):
+        scale_type = "likert"
+        workspace_id = params["workspace_id"]
+        item = params["item"]
+        current_response_count = scale_response_data["current_response_count"]
+        no_of_responses = settings_meta_data["no_of_responses"]
+        channel_instance_list = settings_meta_data["channel_instance_list"]
+        channel_name = params["channel_name"]
+        instance_name = params["instance_name"]
+        data_type = params["data_type"]
+
+
+        channel_display_names, instance_display_names = get_display_names(channel_instance_list,channel_name,instance_name)
+
+        product_url = "https://www.uxlive.me/dowellscale/npslitescale"
+        generated_url = f"{product_url}/?workspace_id={workspace_id}&scale_type={scale_type}&score={item}&channel={channel_name}&instance={instance_name}"
+    
+        if current_response_count <= no_of_responses:
+            event_id = get_event_id()
+            created_time = dowell_time("Asia/Calcutta")
+
+            scale_response_data = {
+                "workspace_id": params["workspace_id"],
+                "username": params["username"],
+                "scale_id": params["scale_id"],
+                "scale_type": scale_type,
+                "pointers": settings_meta_data["pointers"],
+                "score": params["item"],
+                "user_type": params["user_type"],
+                "event_id": event_id,
+                "dowell_time": created_time["current_time"],
+                "current_response_count": current_response_count,
+                "no_of_available_responses": no_of_responses - current_response_count,
+                "channel_name": channel_name,
+                "channel_display_name": channel_display_names[0],
+                "instance_name": instance_name,
+                "instance_display_name": instance_display_names[0],
+                "data_type": data_type,
+                "redirect_url": generated_url
+            }
+
+            return scale_response_data
+        
+        else:
+            return "No more responses allowed for this instance."
+        
+    def handle_stapel_response(self,params,scale_response_data,settings_meta_data):
+        scale_type = "stapel"
+        workspace_id = params["workspace_id"]
+        item = params["item"]
+        current_response_count = scale_response_data["current_response_count"]
+        no_of_responses = settings_meta_data["no_of_responses"]
+        channel_instance_list = settings_meta_data["channel_instance_list"]
+        channel_name = params["channel_name"]
+        instance_name = params["instance_name"]
+        data_type = params["data_type"]
+
+
+        channel_display_names, instance_display_names = get_display_names(channel_instance_list,channel_name,instance_name)
+
+        product_url = "https://www.uxlive.me/dowellscale/npslitescale"
+        generated_url = f"{product_url}/?workspace_id={workspace_id}&scale_type={scale_type}&score={item}&channel={channel_name}&instance={instance_name}"
+    
+        if current_response_count <= no_of_responses:
+            event_id = get_event_id()
+            created_time = dowell_time("Asia/Calcutta")
+
+            scale_response_data = {
+                "workspace_id": params["workspace_id"],
+                "username": params["username"],
+                "scale_id": params["scale_id"],
+                "scale_type": scale_type,
+                "axis_limit": settings_meta_data["axis_limit"],
+                "score": params["item"],
+                "user_type": params["user_type"],
+                "event_id": event_id,
+                "dowell_time": created_time["current_time"],
+                "current_response_count": current_response_count,
+                "no_of_available_responses": no_of_responses - current_response_count,
+                "channel_name": channel_name,
+                "channel_display_name": channel_display_names[0],
+                "instance_name": instance_name,
+                "instance_display_name": instance_display_names[0],
+                "data_type": data_type,
+                "redirect_url": generated_url
+            }
+
+            return scale_response_data
+        
+        else:
+            return "No more responses allowed for this instance."
+        
+    # NPS scale report
+    def get_nps_report(self, data, start_date, end_date):    
+        daily_counts = defaultdict(lambda: {"promoter": 0, "detractor": 0, "passive": 0, "nps": 0})
+        start_date = parse_response_datetime(start_date)
+        end_date = parse_response_datetime(end_date)
+
+        # Initialize counts for each day in the range, even if no data is present for that day
+        current_date = start_date
+        while current_date <= end_date:
+            daily_counts[str(current_date.date())] 
+            current_date += timedelta(days=1)
+
+        # Update daily_counts with actual responses from the data
+        for response in data:
+            response_date = str(parse_response_datetime(response['dowell_time']['current_time']).date())
+            daily_counts[response_date][response["category"]] += 1
+        
+        for date, counts in daily_counts.items():
+            total_responses = counts["promoter"] + counts["detractor"] + counts["passive"]
+            if total_responses > 0:
+                counts["nps"] = (counts["promoter"] - counts["detractor"]) / total_responses * 100
+            else:
+                counts["nps"] = 0 
+
+        score_list = [response['score'] for response in data]
+        category_dict = {key: sum(counts[key] for counts in daily_counts.values()) for key in ["promoter", "detractor", "passive"]}
+        percentage_category_distribution = {key: value / len(score_list) * 100 for key, value in category_dict.items()}
+        nps = percentage_category_distribution["promoter"] - percentage_category_distribution["detractor"]
+        total_score = sum(score_list)
+        max_score = len(score_list) * 10
+        
+        return {
+                "no_of_responses": len(score_list),
+                "total_score": f"{total_score} / {max_score}",
+                "nps": nps,
+                "nps_category_distribution": percentage_category_distribution,
+                "daily_counts": daily_counts
+            }
+        
+    # Likert scale report
+    def get_likert_report(self, data, start_date, end_date):
+        score_list = [response['score'] for response in data]
+        pointers = 5 
+        
+        daily_counts = defaultdict(lambda: {score: 0 for score in range(1, 6)})
+        daily_average_score = {}
+
+        # Convert string dates to datetime objects
+        start_date = parse_response_datetime(start_date)
+        end_date = parse_response_datetime(end_date)
+
+        # Initialize counts for each day in the range, even if no data is present for that day
+        current_date = start_date
+        while current_date <= end_date:
+            daily_counts[str(current_date.date())]
+            current_date += timedelta(days=1)
+
+        # Update daily_counts with actual responses from the data
+        for response in data:
+            response_date = str(parse_response_datetime(response['dowell_time']['current_time']).date())
+            score = response['score']
+            daily_counts[response_date][score] += 1
+
+        # Calculate the total and average score
+        total_score = sum(score_list)
+        average_score = total_score / len(score_list) if score_list else 0
+
+        # Initialize percentage_distribution with all scores from 1 to 5 set to 0%
+        total_responses = len(score_list)
+        max_score = pointers * total_responses
+
+        # Calculate daily average score
+        for date, scores in daily_counts.items():
+            total_daily_score = sum(score * count for score, count in scores.items())
+            daily_responses = sum(scores.values())
+            if daily_responses > 0:
+                daily_average_score[date] = total_daily_score / daily_responses
+            else:
+                daily_average_score[date] = 0 
+
+        return {
+            "no_of_responses": total_responses,
+            "total_score": f"{total_score} / {max_score}",
+            "average_score": average_score,
+            "daily_counts": daily_counts,
+            "daily_average_score": daily_average_score,
+            # "score_list": score_list,
+            "pointers": pointers,
+        }
+    
+    def get_learning_index_report(self, data, start_date, end_date):
+        return [{
+                    "response_id":data["_id"],
+                    "score":data["score"],
+                    "category":data["category"],
+                    "channel":data["channel_name"],
+                    "instance":data["instance_name"],
+                    "learning_index_data": data["learning_index_data"],
+                    "date_created":data.get("dowell_time", {}).get("current_time")
+                    } for data in data]
+    
+    def get_nps_lite_report(self, data, start_date, end_date):
+        daily_counts = defaultdict(lambda: {"promoter": 0, "detractor": 0, "passive": 0, "nps": 0})
+        start_date = parse_response_datetime(start_date)
+        end_date = parse_response_datetime(end_date)
+
+        # Initialize counts for each day in the range, even if no data is present for that day
+        current_date = start_date
+        while current_date <= end_date:
+            daily_counts[str(current_date.date())] 
+            current_date += timedelta(days=1)
+
+        # Update daily_counts with actual responses from the data
+        for response in data:
+            response_date = str(parse_response_datetime(response['dowell_time']['current_time']).date())
+            daily_counts[response_date][response["category"]] += 1
+        
+        for date, counts in daily_counts.items():
+            total_responses = counts["promoter"] + counts["detractor"] + counts["passive"]
+            if total_responses > 0:
+                counts["nps"] = (counts["promoter"] - counts["detractor"]) / total_responses * 100
+            else:
+                counts["nps"] = 0 
+        
+        score_list = [response['score'] for response in data]
+        category_dict = {key: sum(counts[key] for counts in daily_counts.values()) for key in ["promoter", "detractor", "passive"]}
+        percentage_category_distribution = {key: value / len(score_list) * 100 for key, value in category_dict.items()}
+        nps = percentage_category_distribution["promoter"] - percentage_category_distribution["detractor"]
+        total_score = sum(score_list)
+        max_score = len(score_list) * 10
+        
+        return {
+                "no_of_responses": len(score_list),
+                "total_score": f"{total_score} / {max_score}",
+                "nps": nps,
+                "nps_category_distribution": percentage_category_distribution,
+                "daily_counts": daily_counts
+            }
+    
+    def get_stapel_report(self, data, start_date, end_date):
+        return data
+    

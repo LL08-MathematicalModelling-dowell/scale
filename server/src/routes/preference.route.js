@@ -1,9 +1,10 @@
 import { Router } from "express";
-import { createPreference, userPreference, updateUserPreference } from "../controllers/preference.controller.js";
+import { createPreference, userPreference, updateUserPreference, deletePreference } from "../controllers/preference.controller.js";
 const router = Router();
 
 router.post("/", createPreference);
-router.get("/:workspaceId/:userId", userPreference);
-router.put("/:workspaceId/:userId", updateUserPreference);
+router.get("/:workspaceId/:userId/:productType", userPreference);
+router.put("/:workspaceId/:userId/:productType", updateUserPreference);
+router.delete("/:workspaceId", deletePreference);
 
 export default router;

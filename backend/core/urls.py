@@ -27,5 +27,8 @@ urlpatterns = [
     path('v1/', include('app.urls')),
     path('voc/scale/',RedirectURL.as_view()),
     path('voc/report/',ReportRedirectURL.as_view()),
-    path('voc/login/', LoginsRedirectURL.as_view())
+    path('voc/login/', LoginsRedirectURL.as_view()),
+    path('llx/login/', LoginsRedirectURLForLLx.as_view()),
+    path('llx/report/', ReportRedirectURLForLLx.as_view()),
+    path('llx/scale/', RedirectURLForLLx.as_view())
 ]

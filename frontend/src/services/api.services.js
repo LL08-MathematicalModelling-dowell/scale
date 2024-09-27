@@ -21,7 +21,7 @@ const getUserLogin = async (credentials) => {
 };
 
 const scaleResponse = async (user, scaleType, channel, instance, workspace_id, username, scale_id, index) => {
-  return await scaleAxiosInstance.get(`/addons/create-response/v3/?user=${user}&scale_type=${scaleType}&channel=${channel}&instance=${instance}&workspace_id=${workspace_id}&username=${username}&scale_id=${scale_id}&item=${index}`);
+  return await servicesAxiosInstance.get(`/v1/create-response/?user=${user}&scale_type=${scaleType}&channel=${channel}&instance=${instance}&workspace_id=${workspace_id}&username=${username}&scale_id=${scale_id}&item=${index}`);
 };
 
 export const updateUserDetails = async (userId, data) => {
@@ -42,7 +42,7 @@ export const updateUserDetails = async (userId, data) => {
 };
 
 const getUserReport = async (scale_id) => {
-  return await scaleAxiosInstance.get(`/addons/get-response/?scale_id=${scale_id}`);
+  return await servicesAxiosInstance.get(`/v1/get-response/?scale_id=${scale_id}`);
 };
 
 const getUserScales = async ({workspace_id, portfolio, type_of_scale, accessToken}) => {

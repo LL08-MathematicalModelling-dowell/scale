@@ -37,7 +37,15 @@ class ReportsSerializer(serializers.Serializer):
     )
 
 class ScaleReportSerializer(serializers.Serializer):
-    scale_id = serializers.CharField(allow_blank=False)
+    # scale_type_choices = (
+    #     ("nps", "nps"),
+    #     ("nps_lite", "nps_lite"),
+    #     ("stapel", "stapel"),
+    #     ("likert", "likert"),
+    #     ("learning_index","learning_index")
+    # )
+    # scale_type = serializers.ChoiceField(choices = scale_type_choices)
+    scale_id = serializers.CharField()
     # workspace_id = serializers.CharField(allow_blank=False)
     channel_names = serializers.ListField(child=serializers.CharField())
     instance_names = serializers.ListField(child=serializers.CharField())

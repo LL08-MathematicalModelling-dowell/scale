@@ -74,6 +74,15 @@ services:
     networks:
       - queue-net
 
+  scheduler:
+    build: ./scheduler
+    container_name: scheduler_container
+    volumes:
+      - ./scheduler:/usr/src/app  
+    networks:
+      - queue-net
+    restart: always
+    command: cron -f  
 
   nginx:
     build:

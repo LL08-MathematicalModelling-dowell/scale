@@ -1,9 +1,8 @@
 from datetime import datetime, timedelta
 import requests
 from itertools import chain
-# from dowellnps_scale_function.settings import public_url
+from services.scaleServices import public_url
 
-public_url = "https://www.scales.uxlivinglab.online/"
 
 def get_date_range(period):
     now = datetime.utcnow()
@@ -34,7 +33,7 @@ def build_urls(channel_instance,payload,instance_idx):
         
         for idx in scale_range:
             url = f"{public_url}/v1/create-response/?user={settings['user_type']}&scale_type={settings['scale_category']}&channel={channel_instance['channel_name']}&instance={channel_instance['instances_details'][instance_idx]['instance_name']}&workspace_id={payload['workspace_id']}&username={settings['username']}&scale_id={settings['scale_id']}&item={idx}"
-            # url = f"http://127.0.0.1:8000/addons/create-response/v3/?user={settings['user_type']}&scale_type={settings['scale_category']}&channel={channel_instance['channel_name']}&instance={channel_instance['instances_details'][instance_idx]['instance_name']}&workspace_id={payload['workspace_id']}&username={settings['username']}&scale_id={settings['scale_id']}&item={idx}"
+            # url = f"http://localhost:8001/v1/create-response/?user={settings['user_type']}&scale_type={settings['scale_category']}&channel={channel_instance['channel_name']}&instance={channel_instance['instances_details'][instance_idx]['instance_name']}&workspace_id={payload['workspace_id']}&username={settings['username']}&scale_id={settings['scale_id']}&item={idx}"
             urls.append(url)
         return urls
 

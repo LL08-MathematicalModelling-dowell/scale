@@ -8,7 +8,7 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # Install dependencies using npm ci for lockfile consistency
-RUN npm ci --legacy-peer-deps
+RUN npm install
 
 # Install Vite globally
 RUN npm install -g vite

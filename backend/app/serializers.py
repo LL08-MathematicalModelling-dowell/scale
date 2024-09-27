@@ -36,7 +36,8 @@ class SaceScaleDetailsSerializer(serializers.Serializer):
         ('stapel', 'stapel'),
         ('likert', 'likert'),
         ('percent', 'percent'),
-        ('percent_sum', 'percent_sum')
+        ('percent_sum', 'percent_sum'),
+        ('learning_index', 'learning_index')
     )
     
     workspace_id = serializers.CharField()
@@ -76,17 +77,6 @@ class ScaleCreationSerializer(serializers.Serializer):
     pointers = serializers.IntegerField(required=False)
     axis_limit = serializers.IntegerField(required=False)
     channel_instance_list = ChannelInstanceSerializer(many=True)
-
-    def validate(self, data):
-        scale_type = data.get('scale_type')
-
-        if scale_type == 'stapel' and not data.get('axis_limit'):
-            raise serializers.ValidationError({'axis_limit': 'This field is required for Stapel scale.'})
-
-        if scale_type == 'likert' and not data.get('pointers'):
-            raise serializers.ValidationError({'pointers': 'This field is required for Likert scale.'})
-
-        return data
     
 class ScaleResponseSerializer(serializers.Serializer):
     SCALE_TYPE_CHOICES = (
@@ -98,13 +88,18 @@ class ScaleResponseSerializer(serializers.Serializer):
         ('percent_sum', 'percent_sum'),
         ('learning_index', 'learning_index')
     )
+    DATA_TYPE_CHOICES = (
+        ('real', 'real'),
+        ('testing', 'testing')
+    )
     workspace_id = serializers.CharField(max_length=100, allow_blank=False)
-    scale_id = serializers.CharField(max_length=100, allow_blank=True)
+    scale_id = serializers.CharField(max_length=100, allow_blank=False)
     username = serializers.CharField(max_length=100, allow_blank=True)
     scale_type = serializers.ChoiceField(choices=SCALE_TYPE_CHOICES)
     user_type = serializers.CharField(max_length=100, allow_blank=False)
     channel_name = serializers.CharField(max_length=100, allow_blank=False)
     instance_name = serializers.CharField(max_length=100, allow_blank=False)
+    data_type = serializers.ChoiceField(choices=DATA_TYPE_CHOICES,allow_blank=False,default=None)
 
     
 class ScaleRetrievalSerializer(serializers.Serializer):
@@ -122,3 +117,25 @@ class ScaleRetrievalSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=100, allow_blank=True, required=False)
     scale_type = serializers.ChoiceField(choices=SCALE_TYPE_CHOICES)
     
+class ScaleReportSerializer(serializers.Serializer):
+    scale_type_choices = (
+        ("nps", "nps"),
+        ("nps_lite", "nps_lite"),
+        ("stapel", "stapel"),
+        ("likert", "likert"),
+        ("learning_index","learning_index")
+    )
+    scale_type = serializers.ChoiceField(choices = scale_type_choices)
+    scale_id = serializers.CharField()
+    # workspace_id = serializers.CharField(allow_blank=False)
+    channel_names = serializers.ListField(child=serializers.CharField())
+    instance_names = serializers.ListField(child=serializers.CharField())
+    PERIOD_CHOICES = (
+        ("twenty_four_hours", "24 hours"),
+        ("seven_days", "Seven Days"),
+        ("fifteen_days", "Fifteen Days"),
+        ("thirty_days", "Thirty Days"),
+        ("ninety_days","Ninety Days"),
+        ("one_year", "One Year")
+    )
+    period = serializers.ChoiceField(allow_blank=False, choices=PERIOD_CHOICES)

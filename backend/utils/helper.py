@@ -12,6 +12,7 @@ from PIL import Image, ImageDraw, ImageFont
 from itertools import chain
 import json
 from functools import partial
+from datetime import datetime, timedelta
 
 
 
@@ -272,3 +273,112 @@ def save_location_data(workspaceId,latitude,longitude,userId,event):
     print(response.text)
     
     return response.text
+
+
+def get_date_range(period):
+    now = datetime.utcnow()
+    if period == 'twenty_four_hours':
+        start_date = now - timedelta(hours=24)
+    elif period == 'seven_days':
+        start_date = now - timedelta(days=7)
+    elif period == 'fifteen_days':
+        start_date = now - timedelta(days=15)
+    elif period == 'thirty_days':
+        start_date = now - timedelta(days=30)
+    elif period == 'ninety_days':
+        start_date = now - timedelta(days=90)
+    elif period == 'one_year':
+        start_date = now - timedelta(days=365)
+    # elif period == 'custom':
+        # start_date = now - timedelta(days=30)
+    else:
+        raise ValueError("Invalid time period")
+    return start_date.isoformat(), now.isoformat()
+
+
+def build_urls(channel_instance,scale_details,instance_idx):
+    urls = []
+    scale_details["scale_range"]
+    for idx in scale_details["scale_range"]:
+        # url = f"{public_url}/v1/scale-services/?user={scale_details['user_type']}&scale_type={scale_details['scale_type']}&channel={channel_instance['channel_name']}&instance={channel_instance['instances_details'][instance_idx]['instance_name']}&workspace_id={scale_details['workspace_id']}&username={scale_details['username']}&scale_id={scale_details['scale_id']}&item={idx}"
+        url = f"http://localhost:8001/v1/scale-services/?user={scale_details['user_type']}&scale_type={scale_details['scale_type']}&channel={channel_instance['channel_name']}&instance={channel_instance['instances_details'][instance_idx]['instance_name']}&workspace_id={scale_details['workspace_id']}&username={scale_details['username']}&scale_id={scale_details['scale_id']}&item={idx}"
+        urls.append(url)
+    return urls
+
+def generate_urls(scale_details):
+    response = []
+    for channel_instance in scale_details["channel_instance_list"]:
+        channel_response = {
+            "channel_name": channel_instance["channel_name"],
+            "channel_display_name": channel_instance["channel_display_name"],
+            "urls": []
+        }
+        for instance_detail in channel_instance["instances_details"]:
+            instance_idx = channel_instance["instances_details"].index(instance_detail)
+            instance_response = {
+                "instance_name": instance_detail["instance_name"],
+                "instance_display_name": instance_detail["instance_display_name"],
+                "instance_urls": build_urls(channel_instance, scale_details,instance_idx)
+            }
+            channel_response["urls"].append(instance_response)
+        response.append(channel_response)
+    
+    return response
+
+def get_display_names(channel_instance_list,current_channel_name,current_instance_name):
+    for data in channel_instance_list:
+        if current_channel_name == data["channel_name"]:
+            for instance in data["instances_details"]:
+                if current_instance_name == instance["instance_name"]:
+                    channel_display_names = [data["channel_display_name"]]
+                    instance_display_names = [instance["instance_display_name"]]
+                    break
+
+    if not channel_display_names or not instance_display_names:
+        return "Channel or Instance not found"
+    
+    return channel_display_names, instance_display_names
+
+def calculate_learning_index(score, group_size, learner_category, category):
+    print(score,group_size,learner_category)
+    percentages = {}
+    LLx = 0
+    learning_stage = ""    
+
+    #determine the learner category for the given score
+    print(learner_category.items())
+    for key, value in learner_category.items():
+        if category == key:
+            
+            learner_category[key] += 1
+        
+            #calculate percentages for each learner category
+            percentages = {key: (value / group_size) * 100 for key, value in learner_category.items()}
+
+            #calculate LLx while avoiding division by zero
+            denominator = percentages["reading"] + percentages["understanding"]
+            if denominator == 0:
+                LLx = (percentages["evaluating"] + percentages["applying"]) 
+            else:
+                LLx = (percentages["evaluating"] + percentages["applying"]) / denominator
+
+            #identify the learning stage for the control group
+            if 0 <= LLx <=1:
+                learning_stage = "learning"
+            else:
+                learning_stage = "applying in context" 
+
+    return percentages, LLx, learning_stage, learner_category
+
+def parse_response_datetime(date_str):
+    # Check if the datetime string contains a 'T' (ISO 8601 format with microseconds)
+    if 'T' in date_str:
+        try:
+            # Try to parse ISO format with microseconds
+            return datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%S.%f")
+        except ValueError:
+            # If there's a timezone (`%z`), handle that as well (ISO 8601 with timezone)
+            return datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%S.%f%z")
+    else:
+        # Otherwise, handle the simple "YYYY-MM-DD HH:MM:SS" format
+        return datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S")

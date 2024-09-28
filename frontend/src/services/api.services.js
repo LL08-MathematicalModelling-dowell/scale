@@ -121,8 +121,8 @@ const getScaleReport = async (payload) => {
   return await servicesAxiosInstance.post(`/v1/get-report/?scale_type=likert`, payload);
 };
 
-const getLLXReport = async (scale_id) => {
-  return await servicesAxiosInstance.get((`v1/learning-index-report/?scale_id=${scale_id}`));
+const getLLXReport = async (payload) => {
+  return await servicesAxiosInstance.post(`v1/scale-services/?service_type=get_scale_report&scale_type=learning_index`, payload);
 }
 
 

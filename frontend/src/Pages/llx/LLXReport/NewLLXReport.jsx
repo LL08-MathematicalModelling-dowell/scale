@@ -2,11 +2,10 @@ import LineGraph from "@/components/Graph/LineGraph";
 import LLXSelectField from "@/components/LLXSelectField/LLXSelectField";
 import Navbar from "@/components/Navbar/Navbar";
 import {getLLXReport} from "@/services/api.services";
-import { CircularProgress } from "@mui/material";
+import {CircularProgress} from "@mui/material";
 import {useEffect, useState} from "react";
 import {ResponsiveContainer} from "recharts";
-import NotFound from '../../../assets/dataNotFound.png'
-
+import NotFound from "../../../assets/dataNotFound.png";
 
 const NewLLXReport = () => {
   const [channelNames, setChannelNames] = useState([]);
@@ -25,8 +24,8 @@ const NewLLXReport = () => {
   const [customDuration, setCustomDuration] = useState("");
   const [reportDisplayData, setReportDisplayData] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState(" ")
-const [error, setError] = useState(false);
+  const [errorMsg, setErrorMsg] = useState(" ");
+  const [error, setError] = useState(false);
 
   const channelData = [{label: "Channel One", value: "channel_1"}];
 
@@ -56,8 +55,6 @@ const [error, setError] = useState(false);
     console.log(customDuration);
   });
 
-
-
   const fetchLLXReport = async () => {
     const payload = {
       scale_id: "6687e18aa74d1fcdca15fde3",
@@ -67,41 +64,39 @@ const [error, setError] = useState(false);
     };
 
     try {
-      setLoading(true)
-      setReportDisplayData(false)
-      setError(false)
+      setLoading(true);
+      setReportDisplayData(false);
+      setError(false);
       const llxResponse = await getLLXReport(payload);
       console.log(llxResponse);
       if (llxResponse.status === 201) {
         const llxResult = llxResponse.data?.data;
         console.log(llxResult);
 
-          const allChannels = llxResult.map((item) => item.channel);
-          const uniqueChannel = [...new Set(allChannels)];
-          const channel = uniqueChannel.map((channelName) => ({
-            label: channelName,
-            value: channelName,
-          }));
-          const mappedChannel = channel.map((item) => item.value);
-          setChannelNames(mappedChannel.join(" ,"));
-          console.log(channelNames);
+        const allChannels = llxResult.map((item) => item.channel);
+        const uniqueChannel = [...new Set(allChannels)];
+        const channel = uniqueChannel.map((channelName) => ({
+          label: channelName,
+          value: channelName,
+        }));
+        const mappedChannel = channel.map((item) => item.value);
+        setChannelNames(mappedChannel.join(" ,"));
+        console.log(channelNames);
 
+        const allInstances = llxResult.map((item) => item.instance);
+        const uniqueInstance = [...new Set(allInstances)];
+        const instances = uniqueInstance.map((instanceName) => ({
+          label: instanceName,
+          value: instanceName,
+        }));
 
-          const allInstances = llxResult.map((item) => item.instance);
-          const uniqueInstance = [...new Set(allInstances)];
-          const instances = uniqueInstance.map((instanceName) => ({
-            label: instanceName,
-            value: instanceName,
-          }));
-
-          const mappedInstance = instances.map((item) => item.value);
-          setInstanceNames(mappedInstance.join(" ,"));
-          console.log(instanceNames);
-
+        const mappedInstance = instances.map((item) => item.value);
+        setInstanceNames(mappedInstance.join(" ,"));
+        console.log(instanceNames);
 
         if (mappedChannel.includes(customChannel) && mappedInstance.includes(customInstance)) {
-          setLoading(false)
-          setError(false)
+          setLoading(false);
+          setError(false);
           const getLastLearningData = (data) => {
             const groupedByDate = data.reduce((acc, item) => {
               const date = item.date_created.split(" ")[0];
@@ -151,7 +146,6 @@ const [error, setError] = useState(false);
           console.log(reading);
 
           if (llxResult && Array.isArray(llxResult)) {
-
             const formattedData = llxResult.map((item) => ({
               date: item?.date_created?.split(" ")[0] || "Unknown",
               learningIndex: item?.learning_index_data?.learning_level_index || 0,
@@ -176,20 +170,19 @@ const [error, setError] = useState(false);
           setDateWiseData(responsesByDate);
         }
 
-        setReportDisplayData(true)
+        setReportDisplayData(true);
       } else {
         console.log("Error in getting LLX report");
       }
     } catch (error) {
-      if(error.response.status === 400){
-      setError(true)
-        setErrorMsg("Data Not Found")
+      if (error.response.status === 400) {
+        setError(true);
+        setErrorMsg("Data Not Found");
         console.log("Data Not Found");
       }
       console.log(error);
-    }finally{
-      setLoading(false)
-
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -198,9 +191,8 @@ const [error, setError] = useState(false);
       fetchLLXReport();
     }
   }, [customChannel, customInstance, customDuration]);
-  
-  useEffect(() => {
 
+  useEffect(() => {
     // if (instanceNames === customInstance && channelNames === customChannel) {
     // //   setReportDisplayData(true);
     // //   setLoading(false);
@@ -244,7 +236,7 @@ const [error, setError] = useState(false);
   };
   return (
     <div className="relative min-h-screen max-w-full bg-gray-100">
-      <Navbar/>
+      <Navbar />
       <div className="mx-8 py-12">
         <div className="flex flex-col items-center justify-center gap-10">
           <div className="flex flex-col justify-center gap-5 md:flex-row">
@@ -252,7 +244,6 @@ const [error, setError] = useState(false);
             <LLXSelectField handleInputChange={handleInputChange} data={InstanceData} triggerClass={"w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins"} placeholder="Select Instance Name" />
             <LLXSelectField handleInputChange={handleInputChange} data={durationData} triggerClass={"w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins"} placeholder="Select Duration" />
           </div>
-             
         </div>
         <div className="mt-14 flex items-center justify-center gap-14">
           <p className="font-poppins font-bold text-md md:text-md text-green-800 tracking-tight">Learning Index: {elearningIndex}</p>
@@ -261,23 +252,23 @@ const [error, setError] = useState(false);
 
         {loading && (
           <div className="w-full h-full flex flex-col gap-2 items-center justify-center mt-32">
-          <CircularProgress/>
-          <h2 className="text-xl font-poppins font-bold text-green-800">Loading...</h2>
-          <p className="font-poppins md:text-md text-sm tracking-tight font-medium text-gray-600">Please wait while fetching your report</p>
+            <CircularProgress />
+            <h2 className="text-xl font-poppins font-bold text-green-800">Loading...</h2>
+            <p className="font-poppins md:text-md text-sm tracking-tight font-medium text-gray-600">Please wait while fetching your report</p>
           </div>
         )}
 
         {error && (
           <div className="w-full h-full flex flex-col  items-center justify-center mt-14">
-            <img src={NotFound} alt="" className="w-72 rounded-full"/>
+            <img src={NotFound} alt="" className="w-72 rounded-full" />
             <h2 className="text-xl font-poppins font-bold text-red-500">Sorry !</h2>
             <p className="font-poppins md:text-lg text-sm tracking-tight font-medium text-gray-600">{errorMsg}</p>
           </div>
         )}
 
-
         {reportDisplayData ? (
-          <div className="mt-12">
+          <div className="mt-12 flex flex-col ">
+            <div className="order-2 md:order-1 mt-12 md:mt-0">
             <h2 className="font-poppins tracking-tight text-sm md:text-xl text-green-800 font-bold">Learning Funnel</h2>
             <div className="bg-white px-8 py-12 rounded-lg shadow-md mt-4 flex flex-col gap-8">
               {/* Line one */}
@@ -345,11 +336,10 @@ const [error, setError] = useState(false);
                   <div style={{width: `${applying}%`}} className="  h-full bg-green-400 rounded-full"></div>
                 </div>
               </div>
+              </div>
             </div>
 
-            
-
-            <div className="">
+            <div className="order-1 md:order-2 ">
               <div className="flex md:flex-row flex-col w-full md:gap-6 gap-2">
                 <div className="mt-16 w-full bg-white rounded-xl py-8">
                   <h2 className="text-xl font-poppins font-semibold text-gray-700 tracking-tight px-12">Daywise LLX Response Insights</h2>
@@ -374,7 +364,7 @@ const [error, setError] = useState(false);
               </div>
             </div>
           </div>
-        ):null}
+        ) : null}
       </div>
     </div>
   );

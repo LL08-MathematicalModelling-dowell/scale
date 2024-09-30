@@ -118,18 +118,13 @@ class ScaleRetrievalSerializer(serializers.Serializer):
     scale_type = serializers.ChoiceField(choices=SCALE_TYPE_CHOICES)
     
 class ScaleReportSerializer(serializers.Serializer):
-    scale_type_choices = (
+    SCALE_TYPE_CHOICES = (
         ("nps", "nps"),
         ("nps_lite", "nps_lite"),
         ("stapel", "stapel"),
         ("likert", "likert"),
         ("learning_index","learning_index")
     )
-    scale_type = serializers.ChoiceField(choices = scale_type_choices)
-    scale_id = serializers.CharField()
-    # workspace_id = serializers.CharField(allow_blank=False)
-    channel_names = serializers.ListField(child=serializers.CharField())
-    instance_names = serializers.ListField(child=serializers.CharField())
     PERIOD_CHOICES = (
         ("twenty_four_hours", "24 hours"),
         ("seven_days", "Seven Days"),
@@ -138,4 +133,9 @@ class ScaleReportSerializer(serializers.Serializer):
         ("ninety_days","Ninety Days"),
         ("one_year", "One Year")
     )
+    scale_type = serializers.ChoiceField(choices = SCALE_TYPE_CHOICES)
+    scale_id = serializers.CharField()
+    # workspace_id = serializers.CharField(allow_blank=False)
+    channel_names = serializers.ListField(child=serializers.CharField())
+    instance_names = serializers.ListField(child=serializers.CharField())
     period = serializers.ChoiceField(allow_blank=False, choices=PERIOD_CHOICES)

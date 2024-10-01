@@ -13,7 +13,8 @@ class ScaleDetailsSerializer(serializers.Serializer):
         ('stapel', 'stapel'),
         ('likert', 'likert'),
         ('percent', 'percent'),
-        ('percent_sum', 'percent_sum')
+        ('percent_sum', 'percent_sum'),
+        ('learning_index','learning_index')
     )
     workspace_id = serializers.CharField()
     portfolio = serializers.CharField()

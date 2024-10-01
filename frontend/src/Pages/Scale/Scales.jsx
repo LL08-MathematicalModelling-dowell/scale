@@ -1,8 +1,10 @@
 import {useState, useEffect, useRef} from "react";
 import {useLocation} from "react-router-dom";
 // import npsScale from "../../assets/nps-scale.png";
-import {saveLocationData} from "../../services/api.services";
+import npsImage from "../../assets/npsImageNew.svg"
+import {saveLocationData, scaleResponse} from "../../services/api.services";
 import LikertScale from "../LikertScale/LikertScale";
+import { Dialog, DialogActions, DialogContent, DialogTitle, Button } from '@mui/material';
 
 export default function Scales() {
   const [submitted, setSubmitted] = useState(-1);
@@ -17,6 +19,7 @@ export default function Scales() {
   const instance = searchParams.get("instance_name");
   const scaleType = searchParams.get("scale_type");
   console.log("scale type ", scaleType);
+  const [openModal, setOpenModal] = useState(false);
 
   const allParamsPresent = workspace_id && username && scale_id && channel && instance;
 
@@ -49,13 +52,36 @@ export default function Scales() {
 
   async function handleClick(index) {
     setSubmitted(index);
+    console.log("here is the index", index);
     if (!allParamsPresent) {
       return;
     }
-    const url = `https://100035.pythonanywhere.com/addons/create-response/v3/?user=True&scale_type=${scaleType}&channel=${channel}&instance=${instance}&workspace_id=${workspace_id}&username=${username}&scale_id=${scale_id}&item=${scaleType == "nps" ? index : index + 1}`;
+    // const url = `https://100035.pythonanywhere.com/addons/create-response/v3/?user=True&scale_type=${scaleType}&channel=${channel}&instance=${instance}&workspace_id=${workspace_id}&username=${username}&scale_id=${scale_id}&item=${scaleType == "nps" ? index : index + 1}`;
 
-    window.location.href = url;
+    // window.location.href = url;
+      try {
+        const response = await scaleResponse(
+            false,
+            scaleType,
+            channel,
+            instance,
+            workspace_id,
+            username,
+            scale_id,
+            index
+        );
+        console.log('API Response:', response.data);
+        setOpenModal(true);
+    } catch (error) {
+        console.error('Failed to fetch scale response:', error);
+        alert("Unable to submit your response. Please try again.");
+    }
   }
+
+  const handleClose = () => {
+    setOpenModal(false);
+    window.location.href = "https://dowellresearch.sg/"; 
+};
 
   if (!allParamsPresent) {
     return (
@@ -76,9 +102,9 @@ export default function Scales() {
       <div className="w-full flex flex-col justify-center items-center p-2">
         <img className="w-[100px]" src="https://dowellfileuploader.uxlivinglab.online/hr/logo-2-min-min.png" alt="Dowell Logo" />
       </div>
-      <div className="mt-36">
+      <div>
       <div className="flex flex-col justify-center items-center p-2 mt-10 sm:mt-0 gap-4">
-        {/* <img src={npsScale} alt="NPS Scale" className="w-[350px] sm:w-[450px]" /> */}
+        <img src={npsImage} alt="NPS Scale" className="w-[250px] sm:w-[350px]" />
         <p className="font-bold text-red-500 sm:text-[25px] text-[18px] text-center">Would you recommend our product/service to your friends and colleagues?</p>
         <p className="sm:text-[18px] text-[14px] text-center">Tell us what you think using the scale below!</p>
       </div>
@@ -121,6 +147,17 @@ export default function Scales() {
         <p className="ml-4 sm:ml-28">{'5- Highly Recommend'}</p>
       </div>)} */}
       <p className="w-full absolute bottom-0 mt-4 flex justify-center items-center text-[12px] sm:text-[14px]">Powered by uxlivinglab</p>
+      <Dialog open={openModal} onClose={handleClose}>
+                <DialogTitle>Thank You!</DialogTitle>
+                <DialogContent>
+                    <p>Thank you for your response.</p>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClose} color="primary">
+                        Close
+                    </Button>
+                </DialogActions>
+            </Dialog>
     </div>
   ) : (
     <LikertScale />

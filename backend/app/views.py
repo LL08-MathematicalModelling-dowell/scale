@@ -1215,8 +1215,6 @@ class LLxScaleManagement(APIView):
             return self.scale_details(request)
         elif type == 'save_scale_details_type':
             return self.save_scale_details_type(request)
-        elif type == 'qrcodessss':
-            return self.qrcodessss(request)
         else:
             return self.handle_error(request)
 

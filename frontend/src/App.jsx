@@ -31,8 +31,8 @@ const App = () => {
       {/* login page only change the logo [done]*/}
       <Route path="/llx" element={<LLXLoginPage />} />
       {/* 49 number line [done]*/}
-      <Route path="/llx/reports" element={<LLXReport />} />
-      <Route path="/llx/newreport" element={<NewLLXReport/>} />
+      <Route path="/llx/reports" element={<NewLLXReport />} />
+      <Route path="/llx/newreport" element={<LLXReport/>} />
       {/* copy from ux live */}
       <Route path="/llx/report" element={<LLXOpenReportPage />} />
       {/* not confirmed but 48 49 50 line routes */}

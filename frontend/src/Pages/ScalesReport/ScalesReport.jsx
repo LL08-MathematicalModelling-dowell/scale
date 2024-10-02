@@ -56,6 +56,8 @@ const ScalesReport = () => {
 
   // First Step
   const fetchChannel = async () => {
+    let scaleId;
+    
     const scale_id = "66c9d21e9090b1529d108a63";
 
     try {

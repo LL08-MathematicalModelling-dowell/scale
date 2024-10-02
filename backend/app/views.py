@@ -826,8 +826,10 @@ class ScaleCreationView(APIView):
         
         if service_type == "create_scale":
             return self.create_scale(request)
-        elif service_type == "fetch_settings":
+        elif service_type == "retrieve_setting_data":
             return self.fetch_scale_settings(request)
+        elif service_type == "retrieve_response_data":
+            return self.fetch_scale_response(request)
         elif service_type == "get_scale_report":
             return self.get_scale_report(request)
     
@@ -1201,12 +1203,254 @@ class ScaleCreationView(APIView):
         }, status=status.HTTP_400_BAD_REQUEST)
 
 
-# Scale Management API for LLx
-
+# Scale Management APIs for LLx
 @method_decorator(csrf_exempt, name='dispatch')
 class LLxScaleManagement(APIView):
-    # @login_required
+
     def post(self, request):
+        type = request.GET.get('type')
+        if type =='save_scale_details':
+            return self.save_scale_details(request)
+        elif type == 'scale_details':
+            return self.scale_details(request)
+        elif type == 'save_scale_details_type':
+            return self.save_scale_details_type(request)
+        else:
+            return self.handle_error(request)
+
+    @login_required
+    def save_scale_details(self, request):
+        workspace_id = request.data.get("workspace_id")
+        username = request.data.get("username")
+        portfolio = request.data.get("portfolio")
+        portfolio_username = request.data.get("portfolio_username")
+        
+        serializer = ScaleRetrieveSerializer(data={
+            "workspace_id": workspace_id,
+            "username": username,
+            "portfolio": portfolio,
+            "portfolio_username": portfolio_username
+        })
+        if not serializer.is_valid():
+            return Response({
+                "success": False,
+                "message": "Invalid data",
+                "errors": serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        voc_scale_data = json.loads(datacube_data_retrieval(
+            api_key,
+            "voc",
+            "voc_llx_scales",
+            {
+                "workspace_id": workspace_id,
+                "portfolio": portfolio
+            },
+            0,
+            0,
+            False
+        ))
+
+
+        if not voc_scale_data['success']:
+            return Response({
+                "success": False,
+                "message": "Failed to retrieve scale data",
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        if voc_scale_data["data"]:
+            return Response({
+                "success": False,
+                "message": "Scale details already exist for this workspace, username, and portfolio",
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        
+        scale_data_response = json.loads(datacube_data_retrieval(
+            api_key,
+            "livinglab_scales",
+            "collection_3",
+            {
+                "workspace_id": workspace_id,
+                "settings.username": username,
+                "settings.scale_category": "learning_index"
+            },
+            0,
+            0,
+            False
+        ))
+        if not scale_data_response["success"]:
+            return Response({
+                "success": False,
+                "message": "Failed to retrieve scale data",
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        scale_details = [{
+            "scale_id":scale["_id"],
+            "scale_name": scale["settings"].get("scale_name"),
+            "scale_type":scale["settings"].get("scale_category"),
+            "no_of_channels":scale["settings"].get("no_of_channels"),
+            "channel_instance_details": scale["settings"].get("channel_instance_list")
+            } for scale in scale_data_response["data"]]
+        
+    
+        data_for_voc_scale = json.loads(datacube_data_retrieval(
+            api_key,
+            "voc",
+            "voc_llx_scales",
+            {},
+            0,
+            0,
+            False
+        ))
+
+        if not data_for_voc_scale['success']:
+            return Response({
+                "success": False,
+                "message": "Failed to retrieve scale data for VOC",
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        
+        existing_scale_ids = {scale['scale_id'] for scale in data_for_voc_scale.get('data', [])}
+        
+        
+        available_scales = [scale for scale in scale_details if scale['scale_id'] not in existing_scale_ids]
+
+
+        if not available_scales:
+            return Response({
+                "success": False,
+                "message": "No new scale data available to assign",
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        assigned_scale = available_scales[0]  
+
+       
+        links_details = []
+        scale_type = assigned_scale.get('scale_type')
+        for channel in assigned_scale.get('channel_instance_details', []):
+            channel_name = channel.get('channel_name', '') 
+            channel_display_name = channel.get('channel_display_name', '')
+            for instance in channel.get('instances_details', []):
+                instance_name = instance.get('instance_name', '')  
+                instance_display_name = instance.get('instance_display_name', '')
+                link = (
+                    f"https://www.scales.uxlivinglab.online/api/llx/scale/?workspace_id={workspace_id}&username={username}&"
+                    f"scale_id={assigned_scale['scale_id']}&scale_type={scale_type}&channel={channel_name}&"
+                    f"instance_name={instance_name}&channel_display_name={channel_display_name}&instance_display_name={instance_display_name}"
+                )
+                qrcode_image = generate_qr_code(url=link, portfolio_name=portfolio_username)
+                file_name = generate_file_name(prefix='qrcode', extension='png')
+                qrcode_image_url = upload_qr_code_image(qrcode_image, file_name)
+                links_details.append({
+                    "scale_link": link,
+                    "qrcode_image_url": qrcode_image_url
+                })
+        
+        
+        report_link = {
+            "report_link": f"https://www.scales.uxlivinglab.online/api/llx/report/?workspace_id={workspace_id}&username={username}&scale_id={assigned_scale['scale_id']}",
+            "qrcode_image_url": None
+        }
+        
+       
+        report_qrcode_image = generate_qr_code(report_link["report_link"],portfolio_name=portfolio_username)
+        report_qrcode_file_name = generate_file_name(prefix='report_qrcode', extension='png')
+        report_qrcode_image_url = upload_qr_code_image(report_qrcode_image, report_qrcode_file_name)
+        report_link["qrcode_image_url"] = report_qrcode_image_url
+
+        login = {
+            "login_link": f"https://www.scales.uxlivinglab.online/api/llx/login/?workspace_name={username}",
+            "qrcode_image_url": None
+        }
+
+
+        login_qrcode_image = generate_qr_code(url=login["login_link"], portfolio_name=portfolio_username)
+        login_qrcode_file_name = generate_file_name(prefix='login_qrcode', extension='png')
+        login_qrcode_image_url = upload_qr_code_image(login_qrcode_image, login_qrcode_file_name)
+        login["qrcode_image_url"] = login_qrcode_image_url
+
+        
+        data_to_be_inserted = {
+            "workspace_id": workspace_id,
+            "username": username,
+            "portfolio": portfolio,
+            "scale_id": assigned_scale['scale_id'],
+            "links_details": links_details,
+            "report_link": report_link,
+            "login": login,
+            "created_at": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            "records": [{"record": "1", "type": "overall"}]
+        }
+
+        response = json.loads(datacube_data_insertion(
+            api_key,
+            "voc",
+            "voc_scales",
+            data_to_be_inserted
+        ))
+        
+        if not response['success']:
+            return Response({
+                "success": False,
+                "message": "Failed to save scale details"
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        return Response({
+            "success": True,
+            "message": "Scale details saved successfully",
+            "response": data_to_be_inserted
+        })
+
+    @login_required
+    def scale_details(self, request):
+        workspace_id = request.data.get("workspace_id")
+        portfolio = request.data.get("portfolio")
+        type_of_scale = request.data.get("type_of_scale")
+
+        serializer = ScaleDetailsSerializer(data={
+            "workspace_id": workspace_id,
+            "portfolio": portfolio,
+            "type_of_scale": type_of_scale
+        })
+        if not serializer.is_valid():
+            return Response({
+                "success": False,
+                "message": "Invalid data",
+                "errors": serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        
+        collection_name = "voc_llx_scales"
+        data_to_be_fetched = {
+            "workspace_id": workspace_id,
+            "portfolio": portfolio,
+            "type_of_scale": type_of_scale
+        }
+        
+        response = json.loads(datacube_data_retrieval(
+            api_key,
+            "voc",
+            collection_name,
+            data_to_be_fetched,
+            0,
+            0,
+            False
+        ))
+
+        if not response['success']:
+            return Response({
+                "success": False,
+                "message": "No scale details found"
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        return Response({
+            "success": True,
+            "message": f"Scale details for portfolio {portfolio} found",
+            "response": response['data']
+        }, status=status.HTTP_200_OK)
+    
+    @login_required
+    def save_scale_details_type(self, request):
         workspace_id = request.data.get("workspace_id")
         username = request.data.get("username")
         portfolio = request.data.get("portfolio")
@@ -1389,3 +1633,11 @@ class LLxScaleManagement(APIView):
             "message": "Scale details saved successfully",
             "response": data_to_be_inserted
         })
+
+
+    def handle_error(self, request): 
+        return Response({
+            "success": False,
+            "message": "Invalid request type"
+        }, status=status.HTTP_400_BAD_REQUEST)
+    

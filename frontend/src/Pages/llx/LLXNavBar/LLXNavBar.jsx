@@ -42,9 +42,9 @@ const LLXNavbar = () => {
 
           {/* Logo */}
           <img
-            src={Logo}
+            src={"https://dowellfileuploader.uxlivinglab.online/hr/logo-2-min-min.png"}
             alt="Dowell Logo"
-            className="w-16 md:w-24 hidden md:block"
+            className="w-14 md:w-20 hidden md:block"
           />
 
           {/* Mobile Navbar */}

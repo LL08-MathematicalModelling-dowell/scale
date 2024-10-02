@@ -109,13 +109,7 @@ const LLXReport = () => {
   const [disableInstance, setDisableInstance] = useState(false);
   useEffect(() => {
     fetchData();
-    const x = setInterval(() => {
-      fetchData();
-    }, 10000);
-    return () => {
-      clearInterval(x);
-    };
-  }, []);
+  },[]);
 
   useEffect(() => {
     if (!selectedChannel || !selectedInstance || (selectedChannel && selectedChannel.value == allChannelsNameTag) || (selectedInstance && Array.isArray(selectedInstance) && selectedInstance.length == 0) || (selectedChannel && Array.isArray(selectedChannel) && selectedChannel.length == 0)) {
@@ -659,7 +653,7 @@ const LLXReport = () => {
   if (err) {
     return (
       <>
-        <p className="w-screen h-screen flex justify-center items-center p-2 text-red-600">Something went wrong contact admin!..</p>
+        <p className="flex items-center justify-center w-screen h-screen p-2 text-red-600">Something went wrong contact admin!..</p>
       </>
     );
   }
@@ -670,7 +664,7 @@ const LLXReport = () => {
       <Typography variant="h6" align="center" gutterBottom>
         DoWell Learning Level Index
       </Typography>
-      {msg && <p className="text-red-500 self-center w-full flex justify-center">Provide feedback to check report</p>}
+      {msg && <p className="flex self-center justify-center w-full text-red-500">Provide feedback to check report</p>}
       <Grid container spacing={3} alignItems="center" justifyContent="center">
         <Grid item xs={12} md={4}>
           <Select options={channelOptionList} placeholder="Select Classroom" value={selectedChannel} onChange={handleChannelSelect} isSearchable={true} isMulti={enableMultiChannel} className="outline-none" />
@@ -690,7 +684,7 @@ const LLXReport = () => {
               return (
                 <>
                   <Typography variant="h6" align="left" style={{marginTop: "32px", marginBottom: "10px"}}>
-                    <span className="flex justify-center items-center w-full gap-10">
+                    <span className="flex items-center justify-center w-full gap-10">
                       <span>
                         {" "}
                         {index + 1}. <span className="text-[18px] ml-3 font-medium">{item.channelName.label}</span>
@@ -698,9 +692,9 @@ const LLXReport = () => {
                       <span className="text-[16px]">{item.instanceName.label} </span>
                     </span>
                   </Typography>
-                  <div className="flex flex-col justify-center items-center gap-2 sm:gap-6 mt-5 mb-10 flex-wrap">
+                  <div className="flex flex-col flex-wrap items-center justify-center gap-2 mt-5 mb-10 sm:gap-6">
                     <div></div>
-                    <div className="flex justify-center  items-center sm:gap-20 gap-8 w-full ">
+                    <div className="flex items-center justify-center w-full gap-8 sm:gap-20 ">
                       <p className="font-bold text-[12px] sm:text-[16px]">Learning Index: {item.learningLevelIndex}</p>
                       <p className="font-bold text-[12px] sm:text-[16px]">Learning Stage: {item.learningStage}</p>
                     </div>
@@ -757,9 +751,9 @@ const LLXReport = () => {
                         >
                           <div className="grid lg:flex lg:justify-between">
                             <span className="text-[12px] flex items-start justify-start">{questionData[index]}</span>
-                            <div className="flex justify-center items-center">
+                            <div className="flex items-center justify-center">
                               <span className="md:text-[14px] xl:text-[16px] font-medium">{smallText[index]}: </span>
-                              <span className="font-bold mx-2">{data.count}</span>
+                              <span className="mx-2 font-bold">{data.count}</span>
                               <span className="font-medium">({data.percentage ? data.percentage.toFixed(2) : 0}%)</span>
                             </div>
                           </div>
@@ -837,9 +831,9 @@ const LLXReport = () => {
         </>
       ) : (
         <>
-          <div className="flex flex-col justify-center items-center gap-2 sm:gap-6 mt-5 mb-10 flex-wrap">
+          <div className="flex flex-col flex-wrap items-center justify-center gap-2 mt-5 mb-10 sm:gap-6">
             <div></div>
-            <div className="flex justify-center  items-center sm:gap-20 gap-8 w-full ">
+            <div className="flex items-center justify-center w-full gap-8 sm:gap-20 ">
               <p className="font-bold text-[10px] sm:text-[16px]">Learning Index: {learningLevelIndex}</p>
               <p className="font-bold text-[10px] sm:text-[16px]">Learning Stage: {learningStage}</p>
             </div>
@@ -900,9 +894,9 @@ const LLXReport = () => {
                 >
                   <div className="grid lg:flex lg:justify-between">
                     <span className="text-[12px] flex items-start justify-start">{questionData[index]}</span>
-                    <div className="flex justify-center items-center">
+                    <div className="flex items-center justify-center">
                       <span className="md:text-[14px] xl:text-[16px] font-medium">{smallText[index]}: </span>
-                      <span className="font-bold mx-2">{data.count}</span>
+                      <span className="mx-2 font-bold">{data.count}</span>
                       <span className="font-medium">({data.percentage ? data.percentage.toFixed(2) : 0}%)</span>
                     </div>
                   </div>

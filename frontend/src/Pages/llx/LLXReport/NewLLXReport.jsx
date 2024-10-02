@@ -193,47 +193,62 @@ const NewLLXReport = () => {
   }, [customChannel, customInstance, customDuration]);
 
   useEffect(() => {
-    // if (instanceNames === customInstance && channelNames === customChannel) {
-    // //   setReportDisplayData(true);
-    // //   setLoading(false);
-    // }
+
   }, [channelNames, instanceNames]);
 
-  const data = {
-    labels: learningLevelData.length > 0 ? learningLevelData.map((d) => d.date) : [],
-    datasets: [
-      {
-        label: "Learning Level Index",
-        data: learningLevelData.length > 0 ? learningLevelData.map((d) => d.learningIndex) : [],
-        borderColor: "rgba(75,192,192,1)",
-        fill: false,
-      },
-    ],
-  };
+  const learningLevelValues = learningLevelData.length > 0 ? learningLevelData.map((d) => d.learningIndex) : [];
 
-  const rightChartData = {
-    labels: Object.keys(dateWiseData),
-    datasets: [
-      {
-        label: "Total Responses",
-        data: Object.values(dateWiseData).map((item) => item.totalResponses),
-        backgroundColor: "rgba(75, 192, 192, 0.6)",
-        borderWidth: 1,
-      },
-      {
-        label: "Attendance",
-        data: Object.values(dateWiseData).map((item) => item.attendance),
-        backgroundColor: "rgba(255, 159, 64, 0.6)",
-        borderWidth: 1,
-      },
-      {
-        label: "Response Percentage",
-        data: Object.values(dateWiseData).map((item) => item.responsePercentage),
-        backgroundColor: "rgba(255, 206, 86, 0.6)",
-        borderWidth: 1,
-      },
-    ],
-  };
+const maxLearningLevelValue = Math.max(...learningLevelValues);
+const extendedLearningLevelValues = [...learningLevelValues, maxLearningLevelValue + 0.2];
+
+const data = {
+  labels: learningLevelData.length > 0 ? learningLevelData.map((d) => d.date) : [],
+  datasets: [
+    {
+      label: "Learning Level Index",
+      data: extendedLearningLevelValues,
+      borderColor: "rgba(217,0,1)",
+      fill: false,
+    },
+  ],
+};
+
+
+const totalResponses = Object.values(dateWiseData).map((item) => item.totalResponses);
+const attendance = Object.values(dateWiseData).map((item) => item.attendance);
+const responsePercentage = Object.values(dateWiseData).map((item) => item.responsePercentage);
+
+const maxTotalResponses = Math.max(...totalResponses);
+const maxAttendance = Math.max(...attendance);
+const maxResponsePercentage = Math.max(...responsePercentage);
+
+const newMaxValue = Math.max(maxTotalResponses, maxAttendance, maxResponsePercentage) + 0;
+
+const rightChartData = {
+  labels: Object.keys(dateWiseData),
+  datasets: [
+    {
+      label: "Total Responses",
+      data: [...totalResponses, newMaxValue], 
+      backgroundColor: "rgba(13,29,71, 0.7)",
+      borderWidth: 1,
+    },
+    {
+      label: "Attendance",
+      data: [...attendance, newMaxValue], 
+      backgroundColor: "rgba(255, 206, 86, 0.9)",
+      borderWidth: 1,
+    },
+    {
+      label: "Response Percentage",
+      data: [...responsePercentage, newMaxValue], 
+      backgroundColor: "rgba(0, 100, 0, 0.6)",
+      borderWidth: 1,
+    },
+  ],
+};
+
+
   return (
     <div className="relative min-h-screen max-w-full bg-gray-100">
       <LLXNavbar/>

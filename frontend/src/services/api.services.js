@@ -57,6 +57,18 @@ const getUserScales = async ({workspace_id, portfolio, type_of_scale, accessToke
     }
   );
 };
+const getUserLLXScales = async ({workspace_id, portfolio, type_of_scale, accessToken}) => {
+  return await servicesAxiosInstance.post(
+    "/v1/llx/scale-management/?type=scale_details",
+    {workspace_id, portfolio, type_of_scale},
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  );
+};
 
 const saveScaleDetails = async ({hardCodedData, accessToken}) => {
   return await servicesAxiosInstance.post("/v1/voc/scale-management/?type=save_scale_details", hardCodedData, {
@@ -145,5 +157,6 @@ export {getUserLogin,
   microServicesAPIServerStatus,
   getScaleChannels,
   getScaleReport,
-  getLLXReport
+  getLLXReport,
+  getUserLLXScales
   };

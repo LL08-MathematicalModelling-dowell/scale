@@ -1,11 +1,11 @@
 import LineGraph from "@/components/Graph/LineGraph";
 import LLXSelectField from "@/components/LLXSelectField/LLXSelectField";
-import Navbar from "@/components/Navbar/Navbar";
-import {getLLXReport} from "@/services/api.services";
-import {CircularProgress} from "@mui/material";
-import {useEffect, useState} from "react";
-import {ResponsiveContainer} from "recharts";
+import { getLLXReport } from "@/services/api.services";
+import { CircularProgress } from "@mui/material";
+import { useEffect, useState } from "react";
+import { ResponsiveContainer } from "recharts";
 import NotFound from "../../../assets/dataNotFound.png";
+import LLXNavbar from "../LLXNavBar/LLXNavBar";
 
 const NewLLXReport = () => {
   const [channelNames, setChannelNames] = useState([]);
@@ -236,7 +236,7 @@ const NewLLXReport = () => {
   };
   return (
     <div className="relative min-h-screen max-w-full bg-gray-100">
-      <Navbar />
+      <LLXNavbar/>
       <div className="mx-8 py-12">
         <div className="flex flex-col items-center justify-center gap-10">
           <div className="flex flex-col justify-center gap-5 md:flex-row">
@@ -265,6 +265,8 @@ const NewLLXReport = () => {
             <p className="font-poppins md:text-lg text-sm tracking-tight font-medium text-gray-600">{errorMsg}</p>
           </div>
         )}
+
+
 
         {reportDisplayData ? (
           <div className="mt-12 flex flex-col ">

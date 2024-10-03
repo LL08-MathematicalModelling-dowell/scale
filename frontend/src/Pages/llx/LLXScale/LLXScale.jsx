@@ -1,6 +1,6 @@
 const LLXScale = () => {
     return (
-        <><p>coming soon</p></>
+        <><p className="text-3xl font-bold text-center">Coming Soon</p></>
     );
 }
 

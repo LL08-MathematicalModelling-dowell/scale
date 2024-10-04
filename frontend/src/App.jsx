@@ -43,7 +43,7 @@ const App = () => {
       {/* apna wala [done]*/}
       <Route path="/llx/userdetails" element={<LLXUserDetails />} />
       {/* alag hoga khud banaein gay ye b same hai user details ki tarhan [done]*/}
-      <Route path="/llx/scaledetails" element={<LLXScaleDetails />} />
+      <Route path="/llx/scaledetails" element={<NewLLXScaleDetails />} />
       {/* kuch pata nahin hai rehnay do */}
       <Route path="/llx/register" element={<Registration />} />
       {/* Routes for voc */}

@@ -175,7 +175,7 @@ const LLXLoginPage = () => {
         </div>
         <img src="https://dowellfileuploader.uxlivinglab.online/hr/logo-2-min-min.png" width={200} height={200} alt="Dowell Logo" />
         <h1 className="text-2xl font-bold text-red-800 mt-4 mb-2">
-              DoWell Learning Level Index
+            Welcome to DoWell Learning Level Index
         </h1>
         <form
           className="md:w-[320px] min-w-64 flex flex-col gap-4 items-center"

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import classImage from "../../../assets/class.png";
 import { useLocation } from 'react-router-dom';
+import { decodeToken } from '@/utils/tokenUtils';
 
 const buttons = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
@@ -14,15 +15,24 @@ const LLXScale = () => {
   const [channelDisplayName, setChannelDisplayName] = useState('');
   const [instanceDisplayName, setInstanceDisplayName] = useState('');
   const [isLoading, setIsLoading] = useState(true); 
+const [decodedDataType, setDecodedDataType] = useState(null)
+
+
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      const decoded = decodeToken(token);
+     setDecodedDataType(decoded);}
+  }, [ ]);
 
   const workspace_id = query.get('workspace_id');
   const scale_id = query.get('scale_id');
   const channel = query.get('channel') || '';
-  const instance = query.get('instance') || '';
+  const instance = query.get('instance_name') || '';
   const username = query.get('username') || '';
   const channelDisplayNameFromURL = query.get('channel_display_name') || '';
   const instanceDisplayNameFromURL = query.get('instance_display_name') || '';
-
+  const dataType  = decodedDataType?.data_type || ' ';
 
 
 
@@ -34,7 +44,7 @@ const LLXScale = () => {
 
   function handleButtonClick(index){
     setSubmitted(index)
-      window.location.href=`https://www.scales.uxlivinglab.online/api/v1/create-response/?user=True&scale_type=learning_index&channel=${channel}&instance=${instance}&workspace_id=${workspace_id}&username=${username}&scale_id=${scale_id}&item=${index}`
+      window.location.href=`https://www.scales.uxlivinglab.online/api/v1/create-response/?user=True&scale_type=learning_index&channel=${channel}&instance=${instance}&workspace_id=${workspace_id}&username=${username}&scale_id=${scale_id}&item=${index}&data_type=${dataType}`
     }
 
   return (

@@ -27,9 +27,13 @@ const NewLLXReport = () => {
   const [errorMsg, setErrorMsg] = useState(" ");
   const [error, setError] = useState(false);
 
-  const channelData = [{label: "Channel One", value: "channel_1"}];
+  const channelData = [{label: "Channel One", value: "channel_1"},
+    {label: "Channel Two", value: "channel_2"}
+  ];
 
-  const InstanceData = [{label: "Instance One", value: "instance_1"}];
+  const InstanceData = [{label: "Instance One", value: "instance_1"},
+    {label: "Instance Two", value: "instance_2"}
+  ];
 
   const durationData = [
     {label: "Last 7 Days", value: "seven_days"},
@@ -57,7 +61,7 @@ const NewLLXReport = () => {
 
   const fetchLLXReport = async () => {
     const payload = {
-      scale_id: "6687e18aa74d1fcdca15fde3",
+      scale_id: "6385c0f18eca0fb652c94558",
       channel_names: [`${customChannel}`],
       instance_names: [`${customInstance}`],
       period: `${customDuration}`,

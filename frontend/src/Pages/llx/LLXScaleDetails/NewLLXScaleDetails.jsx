@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import LLXNavbar from "../LLXNavBar/LLXNavBar";
 import LLXCard from "@/components/LLXCard/LLXCard";
+import { HiMiniPencilSquare } from "react-icons/hi2";
 import { Separator } from "@/components/ui/separator";
 import { useCurrentUserContext } from "@/contexts/CurrentUserContext";
 import { decodeToken } from "@/utils/tokenUtils";
@@ -36,7 +37,9 @@ const NewLLXScaleDetails = () => {
   const [sessionData, setSessionData] = useState({});
   const [reportUrl, setReportUrl] = useState([]);
   const [LoginUrl, setLoginUrl] = useState([]);
+  const [editedSessions, setEditedSessions] = useState(new Set()); 
 
+  // Load session data from localStorage on initial render
   useEffect(() => {
     const storedSessions = localStorage.getItem("sessionData");
     if (storedSessions) {
@@ -47,20 +50,18 @@ const NewLLXScaleDetails = () => {
     }
   }, []);
 
+
   useEffect(() => {
     if (!accessToken || !refreshToken) {
       navigate("/llx/");
     }
   }, [accessToken, refreshToken, navigate]);
 
+
   useEffect(() => {
     const fetchScaleDetails = async () => {
       if (!accessToken) {
         console.error("No access token found.");
-        return;
-      }
-
-      if (Object.keys(sessionData).length > 0) {
         return;
       }
 
@@ -86,8 +87,9 @@ const NewLLXScaleDetails = () => {
           const reportLinks = data.response.flatMap((item) => item.report_link || []);
           setReportUrl(reportLinks);
 
-          const LoginLinks = data.response.flatMap((item) => item.login || []);
-          setLoginUrl(LoginLinks);
+          const loginLinks = data.response.flatMap((item) => item.login || []);
+          setLoginUrl(loginLinks);
+
 
           const instancesBySession = {};
           data.response.forEach((item) => {
@@ -107,10 +109,22 @@ const NewLLXScaleDetails = () => {
             });
           });
 
-          console.log("Instances by Session:", instancesBySession);
-          setSessionData(instancesBySession);
-          localStorage.setItem("sessionData", JSON.stringify(instancesBySession));
-          console.log("Saved sessionData to localStorage:", instancesBySession);
+          
+          const storedSessions = localStorage.getItem("sessionData");
+          let localSessionData = storedSessions ? JSON.parse(storedSessions) : {};
+
+          
+          const mergedSessions = { ...instancesBySession };
+          Object.keys(localSessionData).forEach((key) => {
+            if (localSessionData[key]) {
+
+              mergedSessions[key] = localSessionData[key];
+            }
+          });
+
+          setSessionData(mergedSessions);
+          localStorage.setItem("sessionData", JSON.stringify(mergedSessions));
+          console.log("Merged sessionData stored in localStorage:", mergedSessions);
         } else {
           setIsNoScaleFound(true);
           setAlert("No scale found. Please create a scale for yourself.");
@@ -130,9 +144,73 @@ const NewLLXScaleDetails = () => {
     setSelectedScaleType(event.target.value);
   };
 
-  const filteredSessions = Object.keys(sessionData).filter((sessionName) =>
-    sessionName.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const [editSession, setEditSession] = useState(null);
+  const [newSessionName, setNewSessionName] = useState("");
+
+  const handleSessionNameClick = (sessionName) => {
+    setEditSession(sessionName);
+    setNewSessionName(sessionName);
+  };
+
+  const handleSessionInputChange = (e) => {
+    setNewSessionName(e.target.value);
+  };
+
+  const handleSessionNameSave = (oldSessionName) => {
+    if (newSessionName.trim() === "") {
+      setEditSession(null);
+      return;
+    }
+
+    
+    if (newSessionName !== oldSessionName && sessionData[newSessionName]) {
+      alert("A session with this name already exists. Please choose a different name.");
+      return;
+    }
+
+    
+    if (newSessionName !== oldSessionName) {
+      const updatedSessions = { ...sessionData };
+
+      
+      updatedSessions[newSessionName] = updatedSessions[oldSessionName];
+      delete updatedSessions[oldSessionName]; 
+
+
+      setEditedSessions((prev) => new Set(prev).add(newSessionName));
+
+
+      setSessionData(updatedSessions);
+      localStorage.setItem("sessionData", JSON.stringify(updatedSessions));
+      console.log("Updated sessionData in localStorage:", updatedSessions);
+    }
+
+    setEditSession(null); 
+  };
+
+  const handleInstanceNameChange = (sessionName, oldInstanceName, newInstanceName) => {
+    if (newInstanceName.trim() === "") {
+      alert("Instance name cannot be empty.");
+      return;
+    }
+
+    const updatedSessions = { ...sessionData };
+    const instances = updatedSessions[sessionName].map((instance) => {
+      if (instance.instanceDisplayName === oldInstanceName) {
+        return { ...instance, instanceDisplayName: newInstanceName };
+      }
+      return instance;
+    });
+
+    updatedSessions[sessionName] = instances;
+    setSessionData(updatedSessions);
+    localStorage.setItem("sessionData", JSON.stringify(updatedSessions));
+    console.log("Updated instance name in localStorage:", updatedSessions);
+  };
+
+
+  const filteredSessions = Object.keys(sessionData)
+    .filter((sessionName) => sessionName.toLowerCase().includes(searchTerm.toLowerCase()));
 
   return (
     <div className="min-h-screen max-w-full relative">
@@ -152,12 +230,7 @@ const NewLLXScaleDetails = () => {
             <label htmlFor="scale-type" className="text-lg font-semibold">
               Choose a scale type:
             </label>
-            <select
-              id="scale-type"
-              value={selectedScaleType}
-              onChange={handleScaleTypeChange}
-              className="p-2 border rounded"
-            >
+            <select id="scale-type" value={selectedScaleType} onChange={handleScaleTypeChange} className="p-2 border rounded">
               <option defaultValue="learning Index" value="Learning Index">
                 Learning Index
               </option>
@@ -173,14 +246,27 @@ const NewLLXScaleDetails = () => {
           filteredSessions.map((sessionName) => (
             <div key={sessionName} className="w-full">
               <div className="flex justify-between items-center">
-                <div className="flex items-center gap-2">
-                  <h1
-                    className="font-bold tracking-tight text-md md:text-2xl font-poppins mb-2"
-                    style={{ lineHeight: "1" }}
-                  >
-                    {sessionName}
-                  </h1>
-                </div>
+                {editSession === sessionName ? (
+                  <input
+                    type="text"
+                    value={newSessionName}
+                    onChange={handleSessionInputChange}
+                    onBlur={() => handleSessionNameSave(sessionName)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleSessionNameSave(sessionName);
+                    }}
+                    className="border-b border-gray-400 focus:outline-none text-md md:text-xl font-poppins py-1"
+                    autoFocus
+                  />
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <h1 className="font-bold tracking-tight text-md md:text-2xl font-poppins mb-2" style={{ lineHeight: "1" }}>
+                      {sessionName}
+                      {editedSessions.has(sessionName) && <span className="ml-2 text-red-500 text-xs">*</span>} {/* Red dot */}
+                    </h1>
+                    <HiMiniPencilSquare className="cursor-pointer" onClick={() => handleSessionNameClick(sessionName)} />
+                  </div>
+                )}
               </div>
               <div className="grid grid-cols-2 md:grid-cols-10 gap-2 md:gap-1">
                 {sessionData[sessionName].map((instance, index) => (
@@ -191,6 +277,7 @@ const NewLLXScaleDetails = () => {
                     scaleLink={instance.scaleLink}
                     type="session"
                     qrcodeImageUrl={instance.qrcodeImageUrl}
+                    onInstanceNameChange={(newInstanceName) => handleInstanceNameChange(sessionName, instance.instanceDisplayName, newInstanceName)}
                   />
                 ))}
               </div>
@@ -198,11 +285,11 @@ const NewLLXScaleDetails = () => {
             </div>
           ))
         ) : (
-          <div className="text-center text-gray-500">No sessions found</div>
+          <div className="text-center text-gray-500 md:text-[16px]">No sessions found</div>
         )}
 
         <div className="flex flex-col">
-          <h1 className="font-bold tracking-tight text-md md:text-2xl font-poppins mb-2">Report Link</h1>
+          <h1 className={`font-bold tracking-tight text-md md:text-2xl font-poppins mb-2 ${loading ? "hidden" : "block"}`}>Report Link</h1>
           <div className="grid md:grid-cols-10 grid-cols-1 gap-2 md:gap-1">
             {reportUrl.map((item, idx) => (
               <LLXCard key={idx} qrcodeImageUrl={item.qrcode_image_url} reportLink={item.report_link} type="report" qrcode={item.qrcode_image_url} />
@@ -212,7 +299,7 @@ const NewLLXScaleDetails = () => {
         <Separator />
 
         <div className="flex flex-col">
-          <h1 className="font-bold tracking-tight text-md md:text-2xl font-poppins mb-2">Login Link</h1>
+          <h1 className={`font-bold tracking-tight text-md md:text-2xl font-poppins mb-2 ${loading ? "hidden" : "block"}`}>Login Link</h1>
           <div className="grid md:grid-cols-10 grid-cols-1 gap-2 md:gap-1">
             {LoginUrl.map((item, idx) => (
               <LLXCard key={idx} qrcodeImageUrl={item.qrcode_image_url} LoginLink={item.login_link} type="login" qrcode={item.qrcode_image_url} />

@@ -1,8 +1,7 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import Logo from "../../../assets/VOC.png";
 import CircularProgress from "@mui/material/CircularProgress";
-import { getUserLogin, getAPIServerStatus } from "../../../services/api.services";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { getAPIServerStatus, getUserLogin } from "../../../services/api.services";
 
 const LLXLoginPage = () => {
   const navigate = useNavigate();
@@ -229,7 +228,7 @@ const LLXLoginPage = () => {
             )}
           </button>
           <div className="flex gap-2">
-            <p className="text-[16px] font-poppins font-normal">Don't have an account? </p>
+            <p className="text-[16px] font-poppins font-normal">Dont have an account? </p>
             <button
               type="button"
               className="text-[16px] font-poppins font-semibold text-blue-800 underline"

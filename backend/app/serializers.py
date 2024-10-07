@@ -110,14 +110,15 @@ class ScaleRetrievalSerializer(serializers.Serializer):
         ('stapel', 'stapel'),
         ('likert', 'likert'),
         ('percent', 'percent'),
-        ('percent_sum', 'percent_sum')
+        ('percent_sum', 'percent_sum'),
+        ('learning_index', 'learning_index')
     )
-    api_key = serializers.CharField(max_length=100, allow_blank=False, required=True)
-    workspace_id = serializers.CharField(max_length=100, allow_blank=False, required=True)
-    scale_id = serializers.CharField(max_length=100, allow_blank=True, required=False)
-    username = serializers.CharField(max_length=100, allow_blank=True, required=False)
-    scale_type = serializers.ChoiceField(choices=SCALE_TYPE_CHOICES)
+    workspace_id = serializers.CharField(max_length=100, allow_null=False, required=True)
+    _id = serializers.CharField(max_length=100, allow_null=True, required=False)
+    username = serializers.CharField(max_length=100, allow_null=True, required=False)
+    scale_type = serializers.ChoiceField(choices=SCALE_TYPE_CHOICES, allow_null=True, required=False)
     
+
 class ScaleReportSerializer(serializers.Serializer):
     SCALE_TYPE_CHOICES = (
         ("nps", "nps"),

@@ -826,10 +826,8 @@ class ScaleCreationView(APIView):
         
         if service_type == "create_scale":
             return self.create_scale(request)
-        elif service_type == "retrieve_setting_data":
-            return self.fetch_scale_settings(request)
-        elif service_type == "retrieve_response_data":
-            return self.fetch_scale_response(request)
+        elif service_type == "retrieve_scale_data":
+            return self.fetch_scale_data(request)
         elif service_type == "get_scale_report":
             return self.get_scale_report(request)
     
@@ -1112,25 +1110,39 @@ class ScaleCreationView(APIView):
             raise ValueError(f"Error extracting Learning Index scale data: {str(e)}")
     
     # Method to retrieve scale settings from the db
-    def fetch_scale_settings(self, request):
+    def fetch_scale_data(self, request):
+        api_key = request.GET.get("api_key")
+        collection_type = request.GET.get("collection_type")
+
+        if not api_key:
+            return self.error_response("Missing api_key in query parameters", error = None)
 
         serializer = ScaleRetrievalSerializer(data={
-                "api_key": request.GET.get("api_key"),
                 "workspace_id": request.data.get("workspace_id"),
                 "username": request.data.get("username"),
-                "scale_id": request.data.get("scale_id")
+                "_id": request.data.get("scale_id"),
+                "scale_type":request.data.get("scale_type")
                 })
         
         if not serializer.is_valid():
-            return self.error_response("Posting wrong data", serializers.error)
+            return self.error_response("Posting incorrect/ incomplete data", serializer.errors)
         
         filter = serializer.validated_data
+
+        if collection_type == "settings":
+            response_data = json.loads(datacube_data_retrieval(api_key, "livinglab_scales", "collection_3", filter, 10000, 0, False))
+        elif collection_type == "response":
+            response_data = json.loads(datacube_data_retrieval(api_key, "livinglab_scale_response", "collection_1", filter, 10000, 0, False))
+        else:
+            return self.error_response(message="Invalid value for collection_type", error=None)
         
-        response_data = json.loads(datacube_data_retrieval(api_key, "livinglab_scales", "collection_3", filter, 10000, 0, False))
-        response = response_data['data'][0]
-            
-                
-        return Response("ALL OKAY!")
+        response = {
+            "total_no_of_scales":len(response_data["data"]),
+            "scale_details": response_data["data"]
+        }
+        # return Response(response_data)
+    
+        return self.success_response(message="Retrieved the scale details succcessfully", data=response)
     
     def get_scale_report(self, request):
         data = {

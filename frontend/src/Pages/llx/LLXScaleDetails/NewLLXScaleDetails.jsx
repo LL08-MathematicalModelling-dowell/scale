@@ -58,7 +58,7 @@ const NewLLXScaleDetails = () => {
 
   useEffect(() => {
     if (!accessToken || !refreshToken) {
-      navigate("/voc/");
+      navigate("/llx/");
     }
   }, [accessToken, refreshToken, navigate]);
 

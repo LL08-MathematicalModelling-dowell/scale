@@ -91,7 +91,7 @@ def main():
                 scale_type
             )
 
-            report_subject = f"Your {scale_type} Scale Report for {datetime.now().strftime('%Y-%B')}"
+            report_subject = f"your voice of customers report for last One day"
 
             log_data = {
                 "workspace_id": user["workspace_id"],
@@ -115,11 +115,11 @@ def main():
                 if not response_email.get("success"):
                     logging.error("Failed to send email to %s: %s", user['email'], response_email.get("message"))
                 else:
-                    log_data["email_sent"] = True  # Update the log data
+                    log_data["email_sent"] = True  
             else:
                 logging.warning("No scale details found for user: %s", user['email'])
 
-            log_to_json(log_data)  # Log the structured data for this user
+            log_to_json(log_data)  
 
     except Exception as e:
         logging.error("An error occurred while retrieving users: %s", e)

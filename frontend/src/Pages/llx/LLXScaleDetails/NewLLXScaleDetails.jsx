@@ -14,14 +14,13 @@ function getParams(url) {
     const params = new URLSearchParams(urlObj.search);
     const instanceDisplayName = params.get("instance_display_name");
     const channelDisplayName = params.get("channel_display_name");
-    const channel = params.get("channel"); // Extract channel
-    const instanceName = params.get("instance_name"); // Extract instance_name
-
+    const channel = params.get("channel");
+    const instanceName = params.get("instance_name"); 
     return {
       instanceDisplayName: instanceDisplayName ? instanceDisplayName.split(",")[0] : null,
       channelDisplayName: channelDisplayName || null,
-      channel: channel || null, // Return the channel
-      instanceName: instanceName || null, // Return the instance_name
+      channel: channel || null, 
+      instanceName: instanceName || null, 
     };
   } catch (error) {
     console.log(error.message);
@@ -32,7 +31,7 @@ function getParams(url) {
 const NewLLXScaleDetails = () => {
   const { defaultScaleOfUser } = useCurrentUserContext();
   const accessToken = localStorage.getItem("accessToken");
-  const refreshToken = localStorage.getItem("refreshToken");
+  // const refreshToken = localStorage.getItem("refreshToken");
   const [alert, setAlert] = useState("");
   const [loading, setLoading] = useState(false);
   const [isNoScaleFound, setIsNoScaleFound] = useState(false);
@@ -44,67 +43,46 @@ const NewLLXScaleDetails = () => {
   const [LoginUrl, setLoginUrl] = useState([]);
   const [editedSessions, setEditedSessions] = useState(new Set()); 
 
-  // Load session data from localStorage on initial render
-  useEffect(() => {
-    const storedSessions = localStorage.getItem("sessionData");
-    if (storedSessions) {
-      setSessionData(JSON.parse(storedSessions));
-      console.log("Loaded sessionData from localStorage:", JSON.parse(storedSessions));
-    } else {
-      console.log("No stored session data found in localStorage.");
-    }
-  }, []);
-
-
-  useEffect(() => {
-    if (!accessToken || !refreshToken) {
-      navigate("/llx/");
-    }
-  }, [accessToken, refreshToken, navigate]);
-
-
   useEffect(() => {
     const fetchScaleDetails = async () => {
       if (!accessToken) {
         console.error("No access token found.");
         return;
       }
-
+  
       setLoading(true);
       setIsNoScaleFound(false);
-
+  
       try {
         const decodedPayload = decodeToken(accessToken);
         const workspaceId = decodedPayload.workspace_id;
         const portfolio = decodedPayload.portfolio;
-
+  
         const response = await getUserLLXScales({
           workspace_id: workspaceId,
           portfolio,
           type_of_scale: "learning_index",
           accessToken,
         });
-
+  
         const data = response.data;
         console.log("Scale Details Response:", data);
-
+  
         if (data.success && data.response.length > 0) {
           const reportLinks = data.response.flatMap((item) => item.report_link || []);
           setReportUrl(reportLinks);
-
+  
           const loginLinks = data.response.flatMap((item) => item.login || []);
           setLoginUrl(loginLinks);
-
-
+  
           const instancesBySession = {};
-          const extractedParamsArray = []; // Array to store channel and instance_name
+          const channelsAndInstances = []; 
 
           data.response.forEach((item) => {
             item.links_details.forEach((link) => {
-              const { channelDisplayName, instanceDisplayName, channel, instanceName } = getParams(link.scale_link);
-  
+              const { channel, instanceName, channelDisplayName, instanceDisplayName } = getParams(link.scale_link);
               if (channel && instanceName) {
-                extractedParamsArray.push({ channel, instanceName }); // Store channel and instance_name
+                channelsAndInstances.push({ channel, instanceName }); 
               }
   
               if (channelDisplayName) {
@@ -121,46 +99,15 @@ const NewLLXScaleDetails = () => {
             });
           });
   
-          // Save the extracted array to localStorage
-          localStorage.setItem("scaleParams", JSON.stringify(extractedParamsArray));
-          const scaleParams = JSON.parse(localStorage.getItem("scaleParams"));
-console.log(scaleParams);
-          console.log("Saved scale parameters to localStorage:", extractedParamsArray);
-
-          data.response.forEach((item) => {
-            item.links_details.forEach((link) => {
-              const { channelDisplayName, instanceDisplayName } = getParams(link.scale_link);
-              if (channelDisplayName) {
-                if (!instancesBySession[channelDisplayName]) {
-                  instancesBySession[channelDisplayName] = [];
-                }
-               console.log(channelDisplayName)
-                instancesBySession[channelDisplayName].push({
-                  instanceDisplayName,
-                  qrcode: link.qrcode_image_url,
-                  scaleLink: link.scale_link,
-                  qrcodeImageUrl: link.qrcode_image_url,
-                });
-              }
-            });
-          });
-
           
-          // const storedSessions = localStorage.getItem("sessionData");
-          // let localSessionData = storedSessions ? JSON.parse(storedSessions) : {};
+          localStorage.setItem("channelsAndInstances", JSON.stringify(channelsAndInstances));
+          console.log("Channels and Instances saved to localStorage:", channelsAndInstances);
 
-          
-          const mergedSessions = { ...instancesBySession };
-          Object.keys(localSessionData).forEach((key) => {
-            if (localSessionData[key]) {
 
-              mergedSessions[key] = localSessionData[key];
-            }
-          });
-
-          setSessionData(mergedSessions);
-          localStorage.setItem("sessionData", JSON.stringify(mergedSessions));
-          console.log("Merged sessionData stored in localStorage:", mergedSessions);
+  
+          setSessionData(instancesBySession);
+          localStorage.removeItem("sessionData"); 
+          console.log("Session data from API stored:", instancesBySession);
         } else {
           setIsNoScaleFound(true);
           setAlert("No scale found. Please create a scale for yourself.");
@@ -172,7 +119,7 @@ console.log(scaleParams);
         setLoading(false);
       }
     };
-
+  
     fetchScaleDetails();
   }, [accessToken, navigate]);
 

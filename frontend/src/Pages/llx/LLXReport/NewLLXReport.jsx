@@ -1,6 +1,7 @@
 import LineGraph from "@/components/Graph/LineGraph";
 import LLXSelectField from "@/components/LLXSelectField/LLXSelectField";
 import { getLLXReport } from "@/services/api.services";
+import {fetchScaleDetails, useScaleDetailsContext } from "@/contexts/scaleDetailsContext"; 
 import { CircularProgress } from "@mui/material";
 import { useEffect, useState } from "react";
 import { ResponsiveContainer } from "recharts";
@@ -28,26 +29,44 @@ const NewLLXReport = () => {
   const [error, setError] = useState(false);
   const [channelData, setChannelData] = useState([]);
   const [instanceData, setInstanceData] = useState([]);
+  const {   channelsReport } = useScaleDetailsContext();
+  
+
+  
+  useEffect(() => {
+    const accessToken = localStorage.getItem("accessToken");
+  
+    const fetchDetails = async () => {
+      if (accessToken) {
+        await fetchScaleDetails();
+      }
+    };
+  
+    fetchDetails();
+  }, []); 
+
 
   useEffect(() => {
-    
-    const scaleParams = JSON.parse(localStorage.getItem("scaleParams")) || [];
-    const uniqueChannels = Array.from(
-      new Set(scaleParams.map((item) => item.channel))
-    ).map((channel, index) => ({
-      label: `Session ${index + 1}`,
-      value: channel,
-    }));
-
-    const uniqueInstances = Array.from(
-      new Set(scaleParams.map((item) => item.instanceName))
-    ).map((instance, index) => ({
-      label: `Topic ${index + 1}`, 
-      value: instance,
-    }));
-    setChannelData(uniqueChannels);
-    setInstanceData(uniqueInstances);
-  }, []);
+    const scaleParams = channelsReport || [];
+    if (scaleParams.length > 0) {
+      const uniqueChannels = Array.from(
+        new Set(scaleParams.map((item) => item.channel))
+      ).map((channel, index) => ({
+        label: `Session ${index + 1}`,
+        value: channel,
+      }));
+  
+      const uniqueInstances = Array.from(
+        new Set(scaleParams.map((item) => item.instanceName))
+      ).map((instance, index) => ({
+        label: `Topic ${index + 1}`, 
+        value: instance,
+      }));
+  
+      setChannelData(uniqueChannels);
+      setInstanceData(uniqueInstances);
+    }
+  }, [channelsReport]);
 
   const durationData = [
     {label: "Last 7 Days", value: "seven_days"},

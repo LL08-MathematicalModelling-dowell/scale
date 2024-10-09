@@ -1,134 +1,48 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import LLXNavbar from "../LLXNavBar/LLXNavBar";
 import LLXCard from "@/components/LLXCard/LLXCard";
-import { HiMiniPencilSquare } from "react-icons/hi2";
 import { Separator } from "@/components/ui/separator";
 import { useCurrentUserContext } from "@/contexts/CurrentUserContext";
-import { decodeToken } from "@/utils/tokenUtils";
-import { getUserLLXScales } from "@/services/api.services";
-
-function getParams(url) {
-  try {
-    const urlObj = new URL(url);
-    const params = new URLSearchParams(urlObj.search);
-    const instanceDisplayName = params.get("instance_display_name");
-    const channelDisplayName = params.get("channel_display_name");
-    const channel = params.get("channel");
-    const instanceName = params.get("instance_name"); 
-    return {
-      instanceDisplayName: instanceDisplayName ? instanceDisplayName.split(",")[0] : null,
-      channelDisplayName: channelDisplayName || null,
-      channel: channel || null, 
-      instanceName: instanceName || null, 
-    };
-  } catch (error) {
-    console.log(error.message);
-    return null;
-  }
-}
+import { useScaleDetailsContext, fetchScaleDetails } from "@/contexts/scaleDetailsContext"; 
+import { useState, useEffect } from "react";
+import { HiMiniPencilSquare } from "react-icons/hi2";
+import LLXNavbar from "../LLXNavBar/LLXNavBar";
 
 const NewLLXScaleDetails = () => {
   const { defaultScaleOfUser } = useCurrentUserContext();
-  const accessToken = localStorage.getItem("accessToken");
-  // const refreshToken = localStorage.getItem("refreshToken");
-  const [alert, setAlert] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [isNoScaleFound, setIsNoScaleFound] = useState(false);
+  const { 
+    sessionData,
+    setSessionData,
+    reportUrl,
+    LoginUrl,
+    loading,
+    alert,
+    setAlert,     
+    isNoScaleFound,
+    setIsNoScaleFound  
+  } = useScaleDetailsContext();
+
   const [selectedScaleType, setSelectedScaleType] = useState(defaultScaleOfUser === "nps" ? "nps" : "likert");
-  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
-  const [sessionData, setSessionData] = useState({});
-  const [reportUrl, setReportUrl] = useState([]);
-  const [LoginUrl, setLoginUrl] = useState([]);
   const [editedSessions, setEditedSessions] = useState(new Set()); 
 
+  const [editSession, setEditSession] = useState(null);
+  const [newSessionName, setNewSessionName] = useState("");
+
   useEffect(() => {
-    const fetchScaleDetails = async () => {
-      if (!accessToken) {
-        console.error("No access token found.");
-        return;
-      }
-  
-      setLoading(true);
-      setIsNoScaleFound(false);
-  
-      try {
-        const decodedPayload = decodeToken(accessToken);
-        const workspaceId = decodedPayload.workspace_id;
-        const portfolio = decodedPayload.portfolio;
-  
-        const response = await getUserLLXScales({
-          workspace_id: workspaceId,
-          portfolio,
-          type_of_scale: "learning_index",
-          accessToken,
-        });
-  
-        const data = response.data;
-        console.log("Scale Details Response:", data);
-  
-        if (data.success && data.response.length > 0) {
-          const reportLinks = data.response.flatMap((item) => item.report_link || []);
-          setReportUrl(reportLinks);
-  
-          const loginLinks = data.response.flatMap((item) => item.login || []);
-          setLoginUrl(loginLinks);
-  
-          const instancesBySession = {};
-          const channelsAndInstances = []; 
-
-          data.response.forEach((item) => {
-            item.links_details.forEach((link) => {
-              const { channel, instanceName, channelDisplayName, instanceDisplayName } = getParams(link.scale_link);
-              if (channel && instanceName) {
-                channelsAndInstances.push({ channel, instanceName }); 
-              }
-  
-              if (channelDisplayName) {
-                if (!instancesBySession[channelDisplayName]) {
-                  instancesBySession[channelDisplayName] = [];
-                }
-                instancesBySession[channelDisplayName].push({
-                  instanceDisplayName,
-                  qrcode: link.qrcode_image_url,
-                  scaleLink: link.scale_link,
-                  qrcodeImageUrl: link.qrcode_image_url,
-                });
-              }
-            });
-          });
-  
-          
-          localStorage.setItem("channelsAndInstances", JSON.stringify(channelsAndInstances));
-          console.log("Channels and Instances saved to localStorage:", channelsAndInstances);
-
-
-  
-          setSessionData(instancesBySession);
-          localStorage.removeItem("sessionData"); 
-          console.log("Session data from API stored:", instancesBySession);
-        } else {
-          setIsNoScaleFound(true);
-          setAlert("No scale found. Please create a scale for yourself.");
-        }
-      } catch (error) {
-        console.error("Error fetching scale details:", error);
-        setAlert("Error fetching scale details.");
-      } finally {
-        setLoading(false);
-      }
-    };
-  
-    fetchScaleDetails();
-  }, [accessToken, navigate]);
+    const accessToken = localStorage.getItem("accessToken");
+    
+    if (accessToken) {
+      fetchScaleDetails(
+        accessToken,
+        setSessionData,
+        setIsNoScaleFound,
+        setAlert,
+      );
+    }
+  }, [setSessionData, setIsNoScaleFound, setAlert,]);
 
   const handleScaleTypeChange = (event) => {
     setSelectedScaleType(event.target.value);
   };
-
-  const [editSession, setEditSession] = useState(null);
-  const [newSessionName, setNewSessionName] = useState("");
 
   const handleSessionNameClick = (sessionName) => {
     setEditSession(sessionName);
@@ -145,23 +59,18 @@ const NewLLXScaleDetails = () => {
       return;
     }
 
-    
     if (newSessionName !== oldSessionName && sessionData[newSessionName]) {
       alert("A session with this name already exists. Please choose a different name.");
       return;
     }
 
-    
     if (newSessionName !== oldSessionName) {
       const updatedSessions = { ...sessionData };
 
-      
       updatedSessions[newSessionName] = updatedSessions[oldSessionName];
       delete updatedSessions[oldSessionName]; 
 
-
       setEditedSessions((prev) => new Set(prev).add(newSessionName));
-
 
       setSessionData(updatedSessions);
       localStorage.setItem("sessionData", JSON.stringify(updatedSessions));
@@ -190,7 +99,6 @@ const NewLLXScaleDetails = () => {
     localStorage.setItem("sessionData", JSON.stringify(updatedSessions));
     console.log("Updated instance name in localStorage:", updatedSessions);
   };
-
 
   const filteredSessions = Object.keys(sessionData)
     .filter((sessionName) => sessionName.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -245,7 +153,7 @@ const NewLLXScaleDetails = () => {
                   <div className="flex items-center gap-2">
                     <h1 className="font-bold tracking-tight text-md md:text-2xl font-poppins mb-2" style={{ lineHeight: "1" }}>
                       {sessionName}
-                      {editedSessions.has(sessionName) && <span className="ml-2 text-red-500 text-xs">*</span>} {/* Red dot */}
+                      {editedSessions.has(sessionName) && <span className="ml-2 text-red-500 text-xs">*</span>}
                     </h1>
                     <HiMiniPencilSquare className="cursor-pointer" onClick={() => handleSessionNameClick(sessionName)} />
                   </div>

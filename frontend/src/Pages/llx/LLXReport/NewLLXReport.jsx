@@ -26,10 +26,28 @@ const NewLLXReport = () => {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(" ");
   const [error, setError] = useState(false);
+  const [channelData, setChannelData] = useState([]);
+  const [instanceData, setInstanceData] = useState([]);
 
-  const channelData = [{label: "Channel One", value: "channel_1"}];
+  useEffect(() => {
+    
+    const scaleParams = JSON.parse(localStorage.getItem("scaleParams")) || [];
+    const uniqueChannels = Array.from(
+      new Set(scaleParams.map((item) => item.channel))
+    ).map((channel, index) => ({
+      label: `Session ${index + 1}`,
+      value: channel,
+    }));
 
-  const InstanceData = [{label: "Instance One", value: "instance_1"}];
+    const uniqueInstances = Array.from(
+      new Set(scaleParams.map((item) => item.instanceName))
+    ).map((instance, index) => ({
+      label: `Topic ${index + 1}`, 
+      value: instance,
+    }));
+    setChannelData(uniqueChannels);
+    setInstanceData(uniqueInstances);
+  }, []);
 
   const durationData = [
     {label: "Last 7 Days", value: "seven_days"},
@@ -57,7 +75,7 @@ const NewLLXReport = () => {
 
   const fetchLLXReport = async () => {
     const payload = {
-      scale_id: "6687e18aa74d1fcdca15fde3",
+    scale_id: "66ec3f23081ae0eb638ce059",
       channel_names: [`${customChannel}`],
       instance_names: [`${customInstance}`],
       period: `${customDuration}`,
@@ -256,7 +274,7 @@ const rightChartData = {
         <div className="flex flex-col items-center justify-center gap-10">
           <div className="flex flex-col justify-center gap-5 md:flex-row">
             <LLXSelectField handleInputChange={handleInputChange} data={channelData} triggerClass={"w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins"} placeholder="Select Channel Name" />
-            <LLXSelectField handleInputChange={handleInputChange} data={InstanceData} triggerClass={"w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins"} placeholder="Select Instance Name" />
+            <LLXSelectField handleInputChange={handleInputChange} data={instanceData} triggerClass={"w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins"} placeholder="Select Instance Name" />
             <LLXSelectField handleInputChange={handleInputChange} data={durationData} triggerClass={"w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins"} placeholder="Select Duration" />
           </div>
         </div>

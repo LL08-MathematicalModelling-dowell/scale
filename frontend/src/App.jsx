@@ -33,8 +33,8 @@ const App = () => {
       <Route path="/llx" element={<LLXLoginPage />} />
       {/* 49 number line [done]*/}
       <Route path="/llx/reports" element={<NewLLXReport />} />
-      <Route path="/llx/newreport" element={<NewLLXReport/>} />
-      <Route path="/llx/newscaledetails" element={<NewLLXScaleDetails/>} />
+      {/* <Route path="/llx/newreport" element={<NewLLXReport/>} /> */}
+      <Route path="/llx/scaledetails" element={<NewLLXScaleDetails/>} />
       
       {/* copy from ux live */}
       <Route path="/llx/report" element={<LLXOpenReportPage />} />

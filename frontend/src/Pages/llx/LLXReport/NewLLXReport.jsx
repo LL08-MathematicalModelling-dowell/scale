@@ -35,16 +35,13 @@ const NewLLXReport = () => {
   
   useEffect(() => {
     const accessToken = localStorage.getItem("accessToken");
-  
     const fetchDetails = async () => {
       if (accessToken) {
         await fetchScaleDetails();
       }
     };
-  
     fetchDetails();
-  }, []); 
-
+  }, []);
 
   useEffect(() => {
     const scaleParams = channelsReport || [];

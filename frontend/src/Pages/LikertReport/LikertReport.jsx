@@ -1,9 +1,11 @@
+
 import LineGraph from "@/components/Graph/LineGraph";
+import Navbar from "@/components/Navbar/Navbar";
 import SelectField from "@/components/SelectField/SelectField";
-import { getLikertChannelsInstances, getLikertReport } from "@/services/api.services";
-import { CircularProgress } from "@mui/material";
+import {getLikertChannelsInstances, getLikertReport} from "@/services/api.services";
+import {CircularProgress} from "@mui/material";
 import PropTypes from "prop-types";
-import { useEffect, useState } from "react";
+import {useEffect, useState} from "react";
 
 const RectangleDiv = ({className = "", scores, type, maximumScore}) => {
   const constrainedYellowPercent = scores;
@@ -115,6 +117,7 @@ const LikertReport = () => {
         setDisplayData(true);
         const reportResult = reportResponse.data;
         console.log("Report Result:", reportResult);
+
         setReportData(reportResult);
 
         setTotalResponse(reportResult?.report.no_of_responses);
@@ -123,9 +126,9 @@ const LikertReport = () => {
         const maximumScore = parseInt(totalScoreString.split("/")[1], 10);
         const score = parseInt(totalScoreString.split("/")[0], 10);
         setTotalScore(score);
-        setMaxScore(maximumScore);
-        console.log(totalScore);
-        console.log(maxScore);
+        setMaxScore(maximumScore || 0);
+        console.log(totalScore || 0);
+        console.log(maxScore || 0);
 
         const reportAverageScore = reportResult?.report?.average_score;
         const roundedAverageScore = parseFloat(reportAverageScore.toFixed(2));
@@ -173,8 +176,9 @@ const LikertReport = () => {
       if (error?.response.status === 404) {
         console.log("404 Error: Report not found:", error?.response.data?.message);
         setAlert(true);
-        setMessage("REPORT NOT FOUND");
+        setMessage("DATA NOT FOUND");
         setDisplayData(false);
+        setTotalResponse(0);
       }
     } finally {
       setLoading(false);
@@ -308,6 +312,7 @@ const LikertReport = () => {
 
   return (
     <div className="relative max-w-full min-h-screen">
+ <Navbar/>
       <div className="mx-8 my-12 ">
         <div className="flex flex-col items-center justify-center gap-10">
           <div className="flex flex-col justify-center gap-5 md:flex-row">

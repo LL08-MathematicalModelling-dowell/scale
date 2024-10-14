@@ -673,12 +673,12 @@ const Report = () => {
   }
 
   return (
-    <div className="max-h-screen max-w-full">
-      <div className="z-10">
-        <Navbar className="z-10" />
+    <div className="max-h-screen max-w-full ">
+      <div className="z-40">
+        <Navbar/>
       </div>
 
-      <div className="-z10 relative align-center ">
+      <div className="-z-10 relative align-center z-0 ">
         {defaultScaleOfUser == 'nps' ? <Box p={1} >
           {mountloading && (
             <div className="flex items-center gap-3 fixed md:top-18">

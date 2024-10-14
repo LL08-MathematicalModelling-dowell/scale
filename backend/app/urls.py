@@ -15,5 +15,6 @@ urlpatterns = [
     path('create-response/', csrf_exempt(create_scale_response), name='create-response-1'),
     path('get-response/', csrf_exempt(get_scale_response), name='get-response'),
     path('learning-index-report/', csrf_exempt(learning_index_report), name='learning-index-report'),
-    path('get-report/',ScaleReport.as_view(), name='scale-report')
+    path('get-report/',ScaleReport.as_view(), name='scale-report'),
+    path('auto-report/',Autoreport.as_view(),name='auto-report')
 ]

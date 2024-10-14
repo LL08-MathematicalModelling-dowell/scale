@@ -202,3 +202,19 @@ def targeted_population(period,api_key):
 
     response = requests.post(url, json = payload)
     return response.json()
+
+def get_display_names(channel_instance_list,current_channel_name,current_instance_name):
+    for data in channel_instance_list:
+        # print("ready", data["channel_name"])
+
+        if current_channel_name == data["channel_name"]:
+            print("ready", data["channel_name"])
+            for instance in data["instances_details"]:
+                print("ready", data["instances_details"])
+                if current_instance_name == instance["instance_name"]:
+                    channel_display_names = [data["channel_display_name"]]
+                    instance_display_names = [instance["instance_display_name"]]
+                    break
+
+    if not channel_display_names or not instance_display_names:
+        return "Channel or Instance not found"

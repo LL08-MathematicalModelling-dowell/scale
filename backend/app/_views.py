@@ -8,11 +8,12 @@ from rest_framework import status
 from ._serializers import ScaleSerializer, InstanceDetailsSerializer, ChannelInstanceSerializer, ScaleReportSerializer
 from services.datacube import datacube_data_insertion, datacube_data_retrieval, datacube_data_update, api_key
 from services.dowellclock import dowell_time
-from utils._helper import generate_urls, adjust_scale_range, scale_type_fn, calcualte_learning_index, determine_category, get_date_range
+from utils._helper import generate_urls, adjust_scale_range, scale_type_fn, calcualte_learning_index, determine_category, get_date_range, get_display_names
 from utils.eventID import get_event_id
 import json
 from collections import defaultdict
 from datetime import datetime
+from .report import fetch_score_every_hour
 # from scipy.stats import binom
 
 
@@ -128,7 +129,48 @@ class ScaleCreateAPI(APIView):
 
     def get(self, request):
         try:
-            if 'scale_id' in request.GET:
+            if 'scale_id' and 'channel_name' and 'instance_name' in request.GET:
+                print("aaaaaaaaaaaaaaa")
+                scale_id = request.GET.get('scale_id')
+                channel_name = request.GET.get('channel_name')
+                instance_name = request.GET.get('instance_name')
+
+                response_data = json.loads(datacube_data_retrieval(
+                    api_key,
+                    "livinglab_scales",
+                    "collection_3",
+                    {
+                        "_id": scale_id,
+                    }, 
+                    10000,
+                    0,
+                    False
+                    ))
+                
+                response = response_data['data'][0]
+                # print(response["settings"])
+                settings = response["settings"]
+                # return Response(response)
+                channel_instance_list = settings["channel_instance_list"]
+                # print(channel_instance_list)
+                channel_display_name, instance_display_name = get_display_names(channel_instance_list, channel_name, instance_name)
+            
+                if response:
+                    # Extract the relevant information from the response
+
+                    api_response_data = {
+                    "scale_id":response["_id"],
+                    "channel_display_name": channel_display_name, 
+                    "instance_display_name": instance_display_name
+                    } 
+                    
+                    
+                    return Response(
+                        {"success": True, "message": "settings fetched successfully", "scale_data": api_response_data},
+                        status=status.HTTP_200_OK)
+                else:
+                    return Response("Scale not found", status=status.HTTP_404_NOT_FOUND)
+            elif 'scale_id' in request.GET:
                 scale_id = request.query_params.get('scale_id')
 
                 response_data = json.loads(datacube_data_retrieval(api_key, "livinglab_scales", "collection_3", {"_id":scale_id}, 10000, 0, False))
@@ -625,4 +667,9 @@ class ScaleReport(APIView):
                 "error": str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-    
+
+class Autoreport(APIView):
+    def post(self, request):
+        scale_id = request.data.get("scale_id")
+        report = fetch_score_every_hour(scale_id)
+        return Response(report)

@@ -1,21 +1,21 @@
-import React from 'react';
-import Navbar from '../../components/Navbar/Navbar'
-import { useNavigate } from "react-router-dom";
-import { useState, useEffect,  Children } from "react";
-import { Select, MenuItem, CircularProgress, Grid, Typography, Box } from "@mui/material";
-import { Chart as ChartJS, CategoryScale, LinearScale, LineElement, PointElement, Title, Tooltip, Legend } from "chart.js";
-import { Line } from "react-chartjs-2";
-import { getUserReport, getUserScales } from "../../services/api.services";
-import { getIndividualCounts, initialScoreData, channelNames, allChannelsNameTag, instanceNames } from "../../utils/helper";
-import { processData, filterDataWithinDays, transformData, pickSevenKeys } from "../../utils/helper";
+import React from "react";
+import Navbar from "../../components/Navbar/Navbar";
+import {useNavigate} from "react-router-dom";
+import {useState, useEffect, Children} from "react";
+import {Select, MenuItem, CircularProgress, Grid, Typography, Box} from "@mui/material";
+import {Chart as ChartJS, CategoryScale, LinearScale, LineElement, PointElement, Title, Tooltip, Legend} from "chart.js";
+import {Line} from "react-chartjs-2";
+import {getUserReport, getUserScales} from "../../services/api.services";
+import {getIndividualCounts, initialScoreData, channelNames, allChannelsNameTag, instanceNames} from "../../utils/helper";
+import {processData, filterDataWithinDays, transformData, pickSevenKeys} from "../../utils/helper";
 ChartJS.register(CategoryScale, LinearScale, LineElement, PointElement, Title, Tooltip, Legend);
-import { workspaceNamesForLikert, workspaceNamesForNPS } from '@/data/Constants';
-import { useCurrentUserContext } from '@/contexts/CurrentUserContext';
-import { decodeToken } from '@/utils/tokenUtils';
-import LikertReport from '../LikertReport/LikertReport';
+import {workspaceNamesForLikert, workspaceNamesForNPS} from "@/data/Constants";
+import {useCurrentUserContext} from "@/contexts/CurrentUserContext";
+import {decodeToken} from "@/utils/tokenUtils";
+import LikertReport from "../LikertReport/LikertReport";
 
 const Report = () => {
-  const { defaultScaleOfUser, setDefaultScaleOfUser } = useCurrentUserContext();
+  const {defaultScaleOfUser, setDefaultScaleOfUser} = useCurrentUserContext();
   const navigate = useNavigate();
   const accessToken = localStorage.getItem("accessToken");
   const refreshToken = localStorage.getItem("refreshToken");
@@ -24,11 +24,11 @@ const Report = () => {
       navigate("/voc/");
     } else {
       const decodedTokenForWorkspaceName = decodeToken(accessToken);
-      if (workspaceNamesForNPS.some(workspaceName => workspaceName == decodedTokenForWorkspaceName.workspace_owner_name)) {
-        console.log('contains');
-        setDefaultScaleOfUser('nps');
-      } else if (workspaceNamesForLikert.some(workspaceName => workspaceName == decodedTokenForWorkspaceName.workspace_owner_name)) {
-        setDefaultScaleOfUser('likert');
+      if (workspaceNamesForNPS.some((workspaceName) => workspaceName == decodedTokenForWorkspaceName.workspace_owner_name)) {
+        console.log("contains");
+        setDefaultScaleOfUser("nps");
+      } else if (workspaceNamesForLikert.some((workspaceName) => workspaceName == decodedTokenForWorkspaceName.workspace_owner_name)) {
+        setDefaultScaleOfUser("likert");
       }
     }
   }, [accessToken, refreshToken, navigate]);
@@ -177,8 +177,7 @@ const Report = () => {
     if (!objectPair || !arr || arr.length == 0) {
       (labels = [1, 2, 3, 4, 5]),
         (datasetsInfo = [0, 0, 0, 0, 0]),
-        (options = npsOptions =
-        {
+        (options = npsOptions = {
           responsive: true,
           maintainAspectRatio: false,
           scales: {
@@ -362,7 +361,7 @@ const Report = () => {
         objectPair,
         totalResponses,
         score = 0;
-        
+
       if (dataForInstance.length == 0) {
         scoreCounts = dummyCount;
         percentages = dummyPercentages;
@@ -423,8 +422,7 @@ const Report = () => {
       if (!objectPair || dataForInstance.length == 0) {
         (labels = [1, 2, 3, 4, 5]),
           (datasetsInfo = [0, 0, 0, 0, 0]),
-          (options = npsOptions =
-          {
+          (options = npsOptions = {
             responsive: true,
             maintainAspectRatio: false,
             scales: {
@@ -584,24 +582,22 @@ const Report = () => {
     const LocalStorageScaleId = localStorage.getItem("scale_id");
     if (LocalStorageScaleId != null) {
       scale_id = LocalStorageScaleId;
-    }
-    else {
+    } else {
       try {
         const decodedToken = decodeToken(accessToken);
         const response = await getUserScales({
           workspace_id: decodedToken.workspace_id,
           portfolio: decodedToken.portfolio,
           type_of_scale: defaultScaleOfUser,
-          accessToken
+          accessToken,
         });
-        console.log('Scales:', response.data.response[0].scale_id);
+        console.log("Scales:", response.data.response[0].scale_id);
         scale_id = response?.data?.response[0]?.scale_id;
       } catch (error) {
-        console.error('Error fetching user scales:', error);
+        console.error("Error fetching user scales:", error);
       }
-
     }
-    console.log('scale ki id', scale_id);
+    console.log("scale ki id", scale_id);
     // return;
     // const scale_id = "66b326e41f6cf39544a2b438";
     try {
@@ -673,539 +669,426 @@ const Report = () => {
   }
 
   return (
-    <div className="max-h-screen max-w-full ">
-      <div className="z-40">
-        <Navbar/>
+    <div className="max-h-screen max-w-full relative ">
+      <div className="z-20">
+        <Navbar />
       </div>
 
-      <div className="-z-10 relative align-center z-0 ">
-        {defaultScaleOfUser == 'nps' ? <Box p={1} >
-          {mountloading && (
-            <div className="flex items-center gap-3 fixed md:top-18">
-              <CircularProgress size="1rem" />
-              <p className="font-medium text-[12px] hidden md:block">Please wait, channels loading...</p>
+      <div className=" relative align-center  ">
+        {defaultScaleOfUser == "nps" ? (
+          <Box p={1}>
+            {mountloading && (
+              <div className="flex items-center gap-3 fixed md:top-18 ">
+                <CircularProgress size="1rem" />
+                <p className="font-medium text-[12px] hidden md:block">Please wait, channels loading...</p>
+              </div>
+            )}
+            <div className="text-center py-3 z-10 relative">
+              <h1 className="text-2xl font-bold font-poppins">Net Promoter Score</h1>
             </div>
-          )}
-          <div className="text-center py-3">
-            <h1 className="text-2xl font-bold font-poppins">Net Promoter Score</h1>
-          </div>
-          <Grid
-            container
-            spacing={3}
-            alignItems="center"
-            justifyContent="center"
-          >
-            <Grid
-              item
-              xs={12}
-              md={4}
-            >
-              <Select
-                value={selectedChannel}
-                onChange={handleChannelSelect}
-                // onClick={handleFetch}
-                displayEmpty
-                fullWidth
-    
-              >
-                <MenuItem value="" >Select Channel</MenuItem>
-                {channels.map((channel) => (
-                  <MenuItem
-                    key={channel}
-                    value={channel}
-                 
-                  >
-                    {!channelNames[channel] ? "Channel_1" : channelNames[channel]}
-                  </MenuItem>
-                ))}
-              </Select>
-            </Grid>
-            <Grid
-              item
-              xs={12}
-              md={4}
-            >
-              <Select
-                value={selectedInstance}
-                onChange={handleInstanceSelect}
-                displayEmpty
-                fullWidth
-              // disabled={selectedChannel === allChannelsNameTag ||
-              //   selectedChannel.length == 0
-              // }
-              >
-                <MenuItem
-                  value=""
-                  disabled={responseData?.data}
-                >
-                  {responseData?.data ? "Exhibition  Feedback" : "Select Instance"}
-                </MenuItem>
-                {instances.map((instance) => (
-                  <MenuItem
-                    key={instance}
-                    value={instance}
+            <Grid container spacing={3} alignItems="center" justifyContent="center">
+              <Grid item xs={12} md={4}>
+                <Select
+                  value={selectedChannel}
+                  onChange={handleChannelSelect}
                   // onClick={handleFetch}
-                  >
-                    {instanceNames[instance]}
+                  displayEmpty
+                  fullWidth
+                >
+                  <MenuItem value="">Select Channel</MenuItem>
+                  {channels.map((channel) => (
+                    <MenuItem key={channel} value={channel}>
+                      {!channelNames[channel] ? "Channel_1" : channelNames[channel]}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <Select
+                  value={selectedInstance}
+                  onChange={handleInstanceSelect}
+                  displayEmpty
+                  fullWidth
+                  // disabled={selectedChannel === allChannelsNameTag ||
+                  //   selectedChannel.length == 0
+                  // }
+                >
+                  <MenuItem value="" disabled={responseData?.data}>
+                    {responseData?.data ? "Exhibition  Feedback" : "Select Instance"}
                   </MenuItem>
-                ))}
-              </Select>
+                  {instances.map((instance) => (
+                    <MenuItem
+                      key={instance}
+                      value={instance}
+                      // onClick={handleFetch}
+                    >
+                      {instanceNames[instance]}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </Grid>
+              <Grid item xs={12} md={3}>
+                <Select value={selectedDays} onChange={(e) => setSelectedDays(parseInt(e.target.value))} fullWidth disabled={selectedChannel.length === 0}>
+                  <MenuItem key={0} value={1}>
+                    24 hours
+                  </MenuItem>
+                  <MenuItem key={1} value={7}>
+                    7 days
+                  </MenuItem>
+                  <MenuItem key={2} value={30}>
+                    30 days
+                  </MenuItem>
+                  <MenuItem key={3} value={90}>
+                    90 days
+                  </MenuItem>
+                </Select>
+              </Grid>
             </Grid>
-            <Grid
-              item
-              xs={12}
-              md={3}
-            >
-              <Select
-                value={selectedDays}
-                onChange={(e) => setSelectedDays(parseInt(e.target.value))}
-                fullWidth
-                disabled={selectedChannel.length === 0}
-              >
-                <MenuItem
-                  key={0}
-                  value={1}
-                >
-                  24 hours
-                </MenuItem>
-                <MenuItem
-                  key={1}
-                  value={7}
-                >
-                  7 days
-                </MenuItem>
-                <MenuItem
-                  key={2}
-                  value={30}
-                >
-                  30 days
-                </MenuItem>
-                <MenuItem
-                  key={3}
-                  value={90}
-                >
-                  90 days
-                </MenuItem>
-              </Select>
-            </Grid>
-          </Grid>
-          {selectedChannel === allChannelsNameTag ? (
-            <>
-              {React?.Children?.toArray(
-                displayDataForAllSelection.map((item, index) => {
-                  return (
-                    <>
-                      <Typography
-                        variant="h6"
-                        align="left"
-                        style={{ marginTop: "26px" }}
-                      >
-                        {/* {index + 1}. {instanceNames[item?.instanceName.trim()]} */}
-                      </Typography>
-                      <div className="flex justify-center items-center gap-6 sm:gap-12 mt-10 flex-wrap">
-                        <p className="text-[20px] font-bold text-blue-600 mb-2">Total Responses: {item?.totalResponses}</p>
+            {selectedChannel === allChannelsNameTag ? (
+              <>
+                {React?.Children?.toArray(
+                  displayDataForAllSelection.map((item, index) => {
+                    return (
+                      <>
+                        <Typography variant="h6" align="left" style={{marginTop: "26px"}}>
+                          {/* {index + 1}. {instanceNames[item?.instanceName.trim()]} */}
+                        </Typography>
+                        <div className="flex justify-center items-center gap-6 sm:gap-12 mt-10 flex-wrap">
+                          <p className="text-[20px] font-bold text-blue-600 mb-2">Total Responses: {item?.totalResponses}</p>
 
-                        <p className="text-[20px] font-bold text-blue-600 mb-2">NPS: {(scores.Promoter.percentage - scores.Detractor.percentage).toFixed(2)}</p>
-                      </div>
-                      <div className="flex flex-col lg:flex-row justify-center md:gap-3 items-center w-[100%]">
-                        <div className="w-[90%] md:w-1/2 flex flex-col justify-start items-start">
-                          <p className="text-center font-medium p-2 w-full mt-2">Total Score:</p>
-                          <div
-                            style={{
-                              width: "100%",
-                              maxWidth: "600px",
-                              margin: "0 auto",
-                              position: "relative",
-                              paddingBottom: "20px",
-                            }}
-                            className="mb-"
-                          >
+                          <p className="text-[20px] font-bold text-blue-600 mb-2">NPS: {(scores.Promoter.percentage - scores.Detractor.percentage).toFixed(2)}</p>
+                        </div>
+                        <div className="flex flex-col lg:flex-row justify-center md:gap-3 items-center w-[100%]">
+                          <div className="w-[90%] md:w-1/2 flex flex-col justify-start items-start">
+                            <p className="text-center font-medium p-2 w-full mt-2">Total Score:</p>
                             <div
                               style={{
-                                border: "1px solid #ddd",
-                                borderRadius: "12px",
-                                overflow: "hidden",
                                 width: "100%",
+                                maxWidth: "600px",
+                                margin: "0 auto",
                                 position: "relative",
+                                paddingBottom: "20px",
                               }}
+                              className="mb-"
                             >
                               <div
                                 style={{
-                                  width: `${(item?.totalScoreData / (item?.totalResponses * 10)) * 100 || 0}%`,
-                                  backgroundColor: "blue",
-                                  height: "20px",
-                                  transition: "width 0.5s ease-in-out",
+                                  border: "1px solid #ddd",
+                                  borderRadius: "12px",
+                                  overflow: "hidden",
+                                  width: "100%",
                                   position: "relative",
                                 }}
-                              ></div>
-                            </div>
-                            <div
-                              style={{
-                                width: `${(item?.totalScoreData / (item?.totalResponses * 10)) * 100 || 0}%`,
-
-                                position: "relative",
-                              }}
-                            >
-                              <span
-                                className={`absolute font-bold text-[12px] text-blue-600 ${item?.totalResponses == 0 && "hidden"}`}
+                              >
+                                <div
+                                  style={{
+                                    width: `${(item?.totalScoreData / (item?.totalResponses * 10)) * 100 || 0}%`,
+                                    backgroundColor: "blue",
+                                    height: "20px",
+                                    transition: "width 0.5s ease-in-out",
+                                    position: "relative",
+                                  }}
+                                ></div>
+                              </div>
+                              <div
                                 style={{
-                                  right: 0,
-                                  bottom: "-20px",
-                                  transform: "translateX(50%)",
-                                  whiteSpace: "nowrap",
+                                  width: `${(item?.totalScoreData / (item?.totalResponses * 10)) * 100 || 0}%`,
+
+                                  position: "relative",
                                 }}
                               >
-                                {item?.totalScoreData}
-                              </span>
-                            </div>
-                            <div
-                              style={{
-                                position: "absolute",
-                                left: 0,
-                                top: "20px",
-                                fontSize: "12px",
-                              }}
-                            >
-                              0
-                            </div>
-                            <div
-                              style={{
-                                position: "absolute",
-                                right: 0,
-                                top: "20px",
-                                fontSize: "12px",
-                              }}
-                              className={` ${item?.totalResponses == 0 && "hidden"}`}
-                            >
-                              {item?.totalResponses * 10}
+                                <span
+                                  className={`absolute font-bold text-[12px] text-blue-600 ${item?.totalResponses == 0 && "hidden"}`}
+                                  style={{
+                                    right: 0,
+                                    bottom: "-20px",
+                                    transform: "translateX(50%)",
+                                    whiteSpace: "nowrap",
+                                  }}
+                                >
+                                  {item?.totalScoreData}
+                                </span>
+                              </div>
+                              <div
+                                style={{
+                                  position: "absolute",
+                                  left: 0,
+                                  top: "20px",
+                                  fontSize: "12px",
+                                }}
+                              >
+                                0
+                              </div>
+                              <div
+                                style={{
+                                  position: "absolute",
+                                  right: 0,
+                                  top: "20px",
+                                  fontSize: "12px",
+                                }}
+                                className={` ${item?.totalResponses == 0 && "hidden"}`}
+                              >
+                                {item?.totalResponses * 10}
+                              </div>
                             </div>
                           </div>
+                          <div className="w-[90%] md:w-1/2 flex flex-col justify-start items-start mb-[10px]">
+                            <p className="text-center font-medium p-2 w-full">NPS Category Distribution</p>
+                            <Box position="relative" height="24px" width="100%" maxWidth="600px" margin="0 auto" borderRadius="12px" overflow="hidden" border="1px solid #ddd" text="black">
+                              {Object.entries(item?.scoreCounts || {}).map(([score, data], index) => (
+                                <Box
+                                  key={score}
+                                  position="absolute"
+                                  left={`${Object.entries(item?.scoreCounts || {})
+                                    .slice(0, index)
+                                    .reduce((acc, [_, val]) => acc + val.percentage, 0)}%`}
+                                  width={`${data.percentage}%`}
+                                  height="100%"
+                                  bgcolor={score === "Detractor" ? "red" : score === "Passive" ? "yellow" : "green"}
+                                  display="flex"
+                                  flexDirection="column"
+                                  alignItems="center"
+                                  justifyContent="center"
+                                  style={{
+                                    color: "black",
+                                    fontSize: "10px",
+                                    fontWeight: "bold",
+                                    whiteSpace: "nowrap",
+                                  }}
+                                >
+                                  {data.percentage.toFixed(1)}%
+                                </Box>
+                              ))}
+                            </Box>
+                          </div>
                         </div>
-                        <div className="w-[90%] md:w-1/2 flex flex-col justify-start items-start mb-[10px]">
-                          <p className="text-center font-medium p-2 w-full">NPS Category Distribution</p>
-                          <Box
-                            position="relative"
-                            height="24px"
-                            width="100%"
-                            maxWidth="600px"
-                            margin="0 auto"
-                            borderRadius="12px"
-                            overflow="hidden"
-                            border="1px solid #ddd"
-                            text="black"
-                          >
-                          {Object.entries(item?.scoreCounts || {}).map(([score, data], index) => (
-  <Box
-    key={score}
-    position="absolute"
-    left={`${Object.entries(item?.scoreCounts || {})
-      .slice(0, index)
-      .reduce((acc, [_, val]) => acc + val.percentage, 0)}%`}
-    width={`${data.percentage}%`}
-    height="100%"
-    bgcolor={score === "Detractor" ? "red" : score === "Passive" ? "yellow" : "green"}
-    display="flex"
-    flexDirection="column"
-    alignItems="center"
-    justifyContent="center"
-    style={{
-      color: "black",
-      fontSize: "10px",
-      fontWeight: "bold",
-      whiteSpace: "nowrap",
-    }}
-  >
-    {data.percentage.toFixed(1)}%
-  </Box>
-))}
 
-                          </Box>
+                        <Grid item xs={12} md={0} className="block mb-5 md:hidden ">
+                          <>
+                            <Box
+                              sx={{
+                                mt: 4,
+                                width: "100%",
+                                height: {xs: "300px", sm: "400px"},
+                                maxWidth: "900px",
+                                mx: "auto",
+                              }}
+                            >
+                              <Line options={npsOptionData} data={item?.npsData} />
+                            </Box>
+                            <Box
+                              sx={{
+                                my: 4,
+                                width: "100%",
+                                height: {xs: "300px", sm: "400px"},
+                                maxWidth: "900px",
+                                mx: "auto",
+                              }}
+                            >
+                              <Line options={options} data={item.chartData} />
+                            </Box>
+                          </>
+                        </Grid>
+
+                        <div className="hidden md:flex justify-center items-center mt-10 gap-12 flex-wrap">
+                          <Grid item xs={12} md={5}>
+                            <Box
+                              sx={{
+                                width: "600px",
+                                height: {xs: "300px", sm: "380px"},
+                              }}
+                            >
+                              <Line options={options} data={item?.chartData} />
+                            </Box>
+                          </Grid>
+                          <Grid item xs={12} md={5}>
+                            <Box
+                              sx={{
+                                width: "600px",
+                                height: {xs: "300px", sm: "380px"},
+                              }}
+                            >
+                              <Line options={npsOptionData} data={item?.npsData} />
+                            </Box>
+                          </Grid>
                         </div>
-                      </div>
+                      </>
+                    );
+                  })
+                )}
+              </>
+            ) : (
+              <>
+                <div className="flex justify-center items-center gap-6 sm:gap-12 mt-10  flex-wrap ">
+                  <p className="text-[20px] font-bold text-blue-600 mb-2">Total Responses: {totalCount}</p>
 
-                      <Grid
-                        item
-                        xs={12}
-                        md={0}
-                        className="block mb-5 md:hidden "
-                      >
-                        <>
-                          <Box
-                            sx={{
-                              mt: 4,
-                              width: "100%",
-                              height: { xs: "300px", sm: "400px" },
-                              maxWidth: "900px",
-                              mx: "auto",
-                            }}
-                          >
-                            <Line
-                              options={npsOptionData}
-                              data={item?.npsData}
-                            />
-                          </Box>
-                          <Box
-                            sx={{
-                              my: 4,
-                              width: "100%",
-                              height: { xs: "300px", sm: "400px" },
-                              maxWidth: "900px",
-                              mx: "auto",
-                            }}
-                          >
-                            <Line
-                              options={options}
-                              data={item.chartData}
-                            />
-                          </Box>
-                        </>
-                      </Grid>
-
-                      <div className="hidden md:flex justify-center items-center mt-10 gap-12 flex-wrap">
-                        <Grid
-                          item
-                          xs={12}
-                          md={5}
-                        >
-                          <Box
-                            sx={{
-                              width: "600px",
-                              height: { xs: "300px", sm: "380px" },
-                            }}
-                          >
-                            <Line
-                              options={options}
-                              data={item?.chartData}
-                            />
-                          </Box>
-                        </Grid>
-                        <Grid
-                          item
-                          xs={12}
-                          md={5}
-                        >
-                          <Box
-                            sx={{
-                              width: "600px",
-                              height: { xs: "300px", sm: "380px" },
-                            }}
-                          >
-                            <Line
-                              options={npsOptionData}
-                              data={item?.npsData}
-                            />
-                          </Box>
-                        </Grid>
-                      </div>
-                    </>
-                  );
-                })
-              )}
-            </>
-          ) : (
-            <>
-              <div className="flex justify-center items-center gap-6 sm:gap-12 mt-10  flex-wrap ">
-                <p className="text-[20px] font-bold text-blue-600 mb-2">Total Responses: {totalCount}</p>
-
-                <p className="text-[20px] font-bold text-blue-600 mb-2">NPS: {(scores.Promoter.percentage - scores.Detractor.percentage).toFixed(2)}</p>
-              </div>
-              <div className="flex flex-col lg:flex-row justify-center md:gap-3 items-center w-[100%]">
-                <div className="w-[90%] md:w-1/2 flex flex-col justify-start items-start">
-                  <p className="text-center font-medium p-2 w-full mt-2">Total Score</p>
-                  <div
-                    style={{
-                      width: "100%",
-                      maxWidth: "600px",
-                      margin: "0 auto",
-                      position: "relative",
-                      paddingBottom: "20px",
-                    }}
-                    className="mb-"
-                  >
+                  <p className="text-[20px] font-bold text-blue-600 mb-2">NPS: {(scores.Promoter.percentage - scores.Detractor.percentage).toFixed(2)}</p>
+                </div>
+                <div className="flex flex-col lg:flex-row justify-center md:gap-3 items-center w-[100%]">
+                  <div className="w-[90%] md:w-1/2 flex flex-col justify-start items-start">
+                    <p className="text-center font-medium p-2 w-full mt-2">Total Score</p>
                     <div
                       style={{
-                        border: "1px solid #ddd",
-                        overflow: "hidden",
                         width: "100%",
+                        maxWidth: "600px",
+                        margin: "0 auto",
                         position: "relative",
-                        borderRadius: "12px",
+                        paddingBottom: "20px",
                       }}
+                      className="mb-"
                     >
                       <div
                         style={{
+                          border: "1px solid #ddd",
+                          overflow: "hidden",
+                          width: "100%",
+                          position: "relative",
+                          borderRadius: "12px",
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: `${(totalScore / (totalCount * 10)) * 100 || 0}%`,
+                            backgroundColor: totalCount == 0 ? "white" : "blue",
+                            height: "20px",
+                            transition: "width 0.5s ease-in-out",
+                            position: "relative",
+                          }}
+                        ></div>
+                      </div>
+                      <div
+                        style={{
                           width: `${(totalScore / (totalCount * 10)) * 100 || 0}%`,
-                          backgroundColor: totalCount == 0 ? "white" : "blue",
-                          height: "20px",
-                          transition: "width 0.5s ease-in-out",
+
                           position: "relative",
                         }}
-                      ></div>
-                    </div>
-                    <div
-                      style={{
-                        width: `${(totalScore / (totalCount * 10)) * 100 || 0}%`,
-
-                        position: "relative",
-                      }}
-                    >
-                      <span
-                        className={`absolute font-bold text-[12px] text-blue-600 ${totalCount == 0 && "hidden"}`}
+                      >
+                        <span
+                          className={`absolute font-bold text-[12px] text-blue-600 ${totalCount == 0 && "hidden"}`}
+                          style={{
+                            right: 0,
+                            bottom: "-20px",
+                            transform: "translateX(50%)",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {totalScore}
+                        </span>
+                      </div>
+                      <div
                         style={{
-                          right: 0,
-                          bottom: "-20px",
-                          transform: "translateX(50%)",
-                          whiteSpace: "nowrap",
+                          position: "absolute",
+                          left: 0,
+                          top: "20px",
+                          fontSize: "12px",
                         }}
                       >
-                        {totalScore}
-                      </span>
-                    </div>
-                    <div
-                      style={{
-                        position: "absolute",
-                        left: 0,
-                        top: "20px",
-                        fontSize: "12px",
-                      }}
-                    >
-                      0
-                    </div>
-                    <div
-                      style={{
-                        position: "absolute",
-                        right: 0,
-                        top: "20px",
-                        fontSize: "12px",
-                      }}
-                      className={` ${totalCount == 0 && "hidden"}`}
-                    >
-                      {totalCount * 10}
+                        0
+                      </div>
+                      <div
+                        style={{
+                          position: "absolute",
+                          right: 0,
+                          top: "20px",
+                          fontSize: "12px",
+                        }}
+                        className={` ${totalCount == 0 && "hidden"}`}
+                      >
+                        {totalCount * 10}
+                      </div>
                     </div>
                   </div>
+                  <div className="w-[90%] md:w-1/2 flex flex-col justify-start items-start mb-[10px]">
+                    <p className="text-center font-medium p-2 w-full">NPS Category Distribution</p>
+                    <Box position="relative" height="24px" width="100%" maxWidth="600px" margin="0 auto" borderRadius="12px" overflow="hidden" border="1px solid #ddd" text="black">
+                      {Object.entries(scores).map(([score, data], index) => (
+                        <Box
+                          key={score}
+                          position="absolute"
+                          left={`${Object.entries(scores)
+                            .slice(0, index)
+                            .reduce((acc, [_, val]) => acc + val.percentage, 0)}%`}
+                          width={`${data.percentage}%`}
+                          height="100%"
+                          bgcolor={score === "Detractor" ? "red" : score === "Passive" ? "yellow" : "green"}
+                          display="flex"
+                          alignItems="center"
+                          justifyContent="center"
+                          style={{
+                            color: "black",
+                            fontSize: "12px",
+                            fontWeight: "bold",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {/* {data.count>0 ?  data.count  :""} */}
+                          {data.percentage.toFixed(1)}%
+                        </Box>
+                      ))}
+                    </Box>
+                  </div>
                 </div>
-                <div className="w-[90%] md:w-1/2 flex flex-col justify-start items-start mb-[10px]">
-                  <p className="text-center font-medium p-2 w-full">NPS Category Distribution</p>
-                  <Box
-                    position="relative"
-                    height="24px"
-                    width="100%"
-                    maxWidth="600px"
-                    margin="0 auto"
-                    borderRadius="12px"
-                    overflow="hidden"
-                    border="1px solid #ddd"
-                    text="black"
-                  >
-                    {Object.entries(scores).map(([score, data], index) => (
-                      <Box
-                        key={score}
-                        position="absolute"
-                        left={`${Object.entries(scores)
-                          .slice(0, index)
-                          .reduce((acc, [_, val]) => acc + val.percentage, 0)}%`}
-                        width={`${data.percentage}%`}
-                        height="100%"
-                        bgcolor={score === "Detractor" ? "red" : score === "Passive" ? "yellow" : "green"}
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="center"
-                        style={{
-                          color: "black",
-                          fontSize: "12px",
-                          fontWeight: "bold",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        {/* {data.count>0 ?  data.count  :""} */}
-                        {data.percentage.toFixed(1)}%
-                      </Box>
-                    ))}
-                  </Box>
-                </div>
-              </div>
 
-              <Grid
-                item
-                xs={12}
-                md={0}
-                className="block md:hidden"
-              >
-                {selectedChannel.length < 1 || selectedInstance.length < 1 ? null : (
-                  <>
-                    <Box
-                      sx={{
-                        mt: 4,
-                        width: "100%",
-                        height: { xs: "300px", sm: "400px" },
-                        maxWidth: "900px",
-                        mx: "auto",
-                      }}
-                    >
-                      <Line
-                        options={npsOptionData}
-                        data={npsDataForChart}
-                      />
-                    </Box>
-                    <Box
-                      sx={{
-                        my: 4,
-                        width: "100%",
-                        height: { xs: "300px", sm: "400px" },
-                        maxWidth: "900px",
-                        mx: "auto",
-                      }}
-                    >
-                      <Line
-                        options={options}
-                        data={dataForChart}
-                      />
-                    </Box>
-                  </>
-                )}
-              </Grid>
-              <div className="hidden md:flex flex-row  justify-center items-center mt-10 gap-12 px-12 ">
-                {selectedChannel.length < 1 || selectedInstance.length < 1 ? null : (
-                  <>
-                    <Grid
-                      item
-                      xs={12}
-                      md={5}
-                    >
+                <Grid item xs={12} md={0} className="block md:hidden">
+                  {selectedChannel.length < 1 || selectedInstance.length < 1 ? null : (
+                    <>
                       <Box
                         sx={{
-                          width: "600px",
-                          height: { xs: "300px", sm: "380px" },
+                          mt: 4,
+                          width: "100%",
+                          height: {xs: "300px", sm: "400px"},
+                          maxWidth: "900px",
+                          mx: "auto",
                         }}
                       >
-                        <Line
-                          options={options}
-                          data={dataForChart}
-                        />
+                        <Line options={npsOptionData} data={npsDataForChart} />
                       </Box>
-                    </Grid>
-                    <Grid
-                      item
-                      xs={12}
-                      md={5}
-                    >
                       <Box
                         sx={{
-                          width: "600px",
-                          height: { xs: "300px", sm: "380px" },
+                          my: 4,
+                          width: "100%",
+                          height: {xs: "300px", sm: "400px"},
+                          maxWidth: "900px",
+                          mx: "auto",
                         }}
                       >
-                        <Line
-                          options={npsOptionData}
-                          data={npsDataForChart}
-                        />
+                        <Line options={options} data={dataForChart} />
                       </Box>
-                    </Grid>
-                  </>
-                )}
-              </div>
-            </>
-          )}
-        </Box> : <LikertReport/>}
+                    </>
+                  )}
+                </Grid>
+                <div className="hidden md:flex flex-row  justify-center items-center mt-10 gap-12 px-12 ">
+                  {selectedChannel.length < 1 || selectedInstance.length < 1 ? null : (
+                    <>
+                      <Grid item xs={12} md={5}>
+                        <Box
+                          sx={{
+                            width: "600px",
+                            height: {xs: "300px", sm: "380px"},
+                          }}
+                        >
+                          <Line options={options} data={dataForChart} />
+                        </Box>
+                      </Grid>
+                      <Grid item xs={12} md={5}>
+                        <Box
+                          sx={{
+                            width: "600px",
+                            height: {xs: "300px", sm: "380px"},
+                          }}
+                        >
+                          <Line options={npsOptionData} data={npsDataForChart} />
+                        </Box>
+                      </Grid>
+                    </>
+                  )}
+                </div>
+              </>
+            )}
+          </Box>
+        ) : (
+          <LikertReport />
+        )}
       </div>
     </div>
   );

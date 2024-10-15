@@ -176,7 +176,7 @@ const LikertReport = () => {
       if (error?.response.status === 404) {
         console.log("404 Error: Report not found:", error?.response.data?.message);
         setAlert(true);
-        setMessage("DATA NOT FOUND");
+        setMessage("NO RESPONSES FOUND");
         setDisplayData(false);
         setTotalResponse(0);
       }
@@ -330,7 +330,7 @@ const LikertReport = () => {
             <div className="">
               {loading ? <CircularProgress /> : null}
               <h3 className="text-2xl font-bold tracking-tight text-gray-500 font-poppins">{message}</h3>
-              <p className="font-poppins text-gray-800 text-[15px] tracking-tight mt-1">{loading ? "Please wait while we fetching the data" : "Please contact admin if possibly you have this report"}</p>
+              <p className="font-poppins text-gray-800 text-[15px] tracking-tight mt-1">{loading ? "Please wait while we fetching the data" : "No data response."}</p>
             </div>
           </div>
         )}

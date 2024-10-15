@@ -1073,10 +1073,10 @@ class ScaleCreationView(APIView):
             return {
                     "api_key": request.GET.get("api_key"),
                     "workspace_id": request.data.get("workspace_id"),
-                    "username": request.data.get("username"),
                     "settings": {
+                        "username": request.data.get("username"),
                         "scale_name": request.data.get("scale_name"),
-                        "scale_type": request.GET.get("scale_type"),
+                        "scale_category": request.GET.get("scale_type"),
                         "user_type": request.data.get("user_type"),
                         "no_of_responses": request.data.get("no_of_responses"),
                         "channel_instance_list": request.data.get("channel_instance_list")
@@ -1090,10 +1090,10 @@ class ScaleCreationView(APIView):
             return {
                     "api_key": request.GET.get("api_key"),
                     "workspace_id": request.data.get("workspace_id"),
-                    "username": request.data.get("username"),
                     "settings":{
+                        "username": request.data.get("username"),
                         "scale_name": request.data.get("scale_name"),
-                        "scale_type": request.GET.get("scale_type"),
+                        "scale_category": request.GET.get("scale_type"),
                         "user_type": request.data.get("user_type"),
                         "no_of_responses": request.data.get("no_of_responses"),
                         "channel_instance_list": request.data.get("channel_instance_list")
@@ -1107,10 +1107,10 @@ class ScaleCreationView(APIView):
             return {
                 "api_key": request.GET.get("api_key"),
                 "workspace_id": request.data.get("workspace_id"),
-                "username": request.data.get("username"),
                 "settings":{
+                    "username": request.data.get("username"),
                     "scale_name": request.data.get("scale_name"),
-                    "scale_type": request.GET.get("scale_type"),
+                    "scale_category": request.GET.get("scale_type"),
                     "user_type": request.data.get("user_type"),
                     "no_of_responses": request.data.get("no_of_responses"),
                     "channel_instance_list": request.data.get("channel_instance_list"),
@@ -1125,10 +1125,10 @@ class ScaleCreationView(APIView):
             return {
                     "api_key": request.GET.get("api_key"),
                     "workspace_id": request.data.get("workspace_id"),
-                    "username": request.data.get("username"),
                     "settings":{
+                        "username": request.data.get("username"),
                         "scale_name": request.data.get("scale_name"),
-                        "scale_type": request.GET.get("scale_type"),
+                        "scale_category": request.GET.get("scale_type"),
                         "user_type": request.data.get("user_type"),
                         "no_of_responses": request.data.get("no_of_responses"),
                         "channel_instance_list": request.data.get("channel_instance_list"),
@@ -1143,11 +1143,11 @@ class ScaleCreationView(APIView):
         try:
             return {
                     "api_key": request.GET.get("api_key"),
-                    "workspace_id": request.data.get("workspace_id"),
-                    "username": request.data.get("username"),
+                    "workspace_id": request.data.get("workspace_id"), 
                     "settings":{
+                        "username": request.data.get("username"),
                         "scale_name": request.data.get("scale_name"),
-                        "scale_type": request.GET.get("scale_type"),
+                        "scale_category": request.GET.get("scale_type"),
                         "user_type": request.data.get("user_type"),
                         "no_of_responses": request.data.get("no_of_responses"),
                         "channel_instance_list": request.data.get("channel_instance_list")
@@ -1162,38 +1162,86 @@ class ScaleCreationView(APIView):
         
         if not api_key:
             return self.error_response("Missing api_key in query parameters", error = None)
+        
+        if 'workspace_id' and 'scale_id' and 'channel_name' and 'instance_name' in request.data:
+            data = {
+                "scale_id": request.data.get("scale_id"),
+                "workspace_id": request.data.get("workspace_id"),
+                "channel_name": request.data.get("channel_name"),
+                "instance_name": request.data.get("instance_name")
+            }
+            filter = {
+                "_id": request.data.get("scale_id"),
+                "workspace_id": request.data.get("workspace_id")
+            }
 
-        serializer = ScaleRetrievalSerializer(data={
+        elif 'workspace_id' and 'scale_id' in request.data:
+            data = {
+                "workspace_id": request.data.get("workspace_id"),
+                "scale_id": request.data.get("scale_id")
+            }
+            filter = {
+                "_id": request.data.get("scale_id")
+            }
+
+        elif 'workspace_id' and 'username' and "scale_type" in request.data:
+            data = {
                 "workspace_id": request.data.get("workspace_id"),
                 "username": request.data.get("username"),
-                "scale_type":request.data.get("scale_type"),
-                "_id": request.data.get("scale_id"),
-                "channel_name":request.data.get("channel_name"),
-                "instance_name":request.data.get("instance_name")
-                })
+                "scale_type": request.data.get("scale_type")
+            }
+            filter = {
+                "workspace_id": request.data.get("workspace_id"),
+                "settings.username": request.data.get("username"),
+                "settings.scale_category": request.data.get("scale_type")
+            }
+    
+        elif 'workspace_id' in request.data:
+            data = {
+                "workspace_id": request.data.get("workspace_id")
+            }
+            filter = data
+
+        serializer = ScaleRetrievalSerializer(data=data)
         
         if not serializer.is_valid():
             return self.error_response("Posting incorrect/ incomplete data", serializer.errors)
-        # return Response(serializer.validated_data)
-        filter = serializer.validated_data
+        
+        workspace_id = serializer.validated_data["workspace_id"]
         
         response_json = json.loads(datacube_data_retrieval(api_key, "livinglab_scales", "collection_3", filter, 10000, 0, False))
-        response_data = response_json["data"]
-        # return Response(response_json)
+        # response_json = json.loads(datacube_data_retrieval(
+        #         api_key,
+        #         f"{workspace_id}_scale_meta_data",
+        #         f"{workspace_id}_scale_setting",
+        #         filter,
+        #         10000,
+        #         0,
+        #         False
+        #     ))
 
-        if serializer.validated_data["channel_name"] and serializer.validated_data["instance_name"]:
+        response_data = response_json["data"]
+        if not response_data:
+            return self.error_response("Could not find the requested resource. Please check if the scale exists.", None)
+        
+        if "channel_name" and "instance_name" in request.data:
             channel_instance_list = response_data[0]["settings"].get("channel_instance_list")
             channel_display_name, instance_display_name = get_display_names(channel_instance_list, serializer.validated_data["channel_name"], serializer.validated_data["instance_name"])
             response = {
                 "channel_display_name": channel_display_name,
                 "instance_display_name": instance_display_name
             }
-
-        response = {
-            "total_no_of_scales":len(response_data),
-            "scale_details": response_data
-        }
-        # return Response(serializer.validated_data)
+        else:
+            response = {
+                "total_no_of_scales":len(response_data),
+                "scale_details": [{
+                    "scale_id":response["_id"],
+                    "scale_name": response["settings"].get("scale_name"),
+                    "scale_type":response["settings"].get("scale_category"),
+                    "no_of_channels":response["settings"].get("no_of_channels"),
+                    "channel_instance_details": response["settings"].get("channel_instance_list")
+                } for response in response_data]
+            }
     
         return self.success_response(message="Retrieved the scale details succcessfully", data=response)
     

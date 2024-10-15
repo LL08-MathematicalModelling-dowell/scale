@@ -114,7 +114,7 @@ class ScaleRetrievalSerializer(serializers.Serializer):
         ('learning_index', 'learning_index')
     )
     workspace_id = serializers.CharField(max_length=100, allow_null=False, required=True)
-    _id = serializers.CharField(max_length=100, allow_null=True, required=False)
+    scale_id = serializers.CharField(max_length=100, allow_null=True, required=False)
     username = serializers.CharField(max_length=100, allow_null=True, required=False)
     scale_type = serializers.ChoiceField(choices=SCALE_TYPE_CHOICES, allow_null=True, required=False)
     channel_name = serializers.CharField(max_length=100, allow_null=True, required=False)

@@ -312,7 +312,6 @@ const LikertReport = () => {
 
   return (
     <div className="relative max-w-full min-h-screen">
- <Navbar/>
       <div className="mx-8 my-12 ">
         <div className="flex flex-col items-center justify-center gap-10">
           <div className="flex flex-col justify-center gap-5 md:flex-row">

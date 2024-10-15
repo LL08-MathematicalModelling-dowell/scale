@@ -39,15 +39,10 @@ const App = () => {
   </ScaleDetailsProvider>
 } />
       
-      {/* copy from ux live */}
       <Route path="/llx/report" element={<LLXOpenReportPage />} />
-      {/* not confirmed but 48 49 50 line routes */}
       <Route path="/llx/scale" element={<LLXScale />} />
-      {/* apna wala [done]*/}
       <Route path="/llx/userdetails" element={<LLXUserDetails />} />
-      {/* alag hoga khud banaein gay ye b same hai user details ki tarhan [done]*/}
       <Route path="/llx/scaledetails" element={<NewLLXScaleDetails />} />
-      {/* kuch pata nahin hai rehnay do */}
       <Route path="/llx/register" element={<Registration />} />
       {/* Routes for voc */}
       <Route path="/scale" element={<HomePage />} />

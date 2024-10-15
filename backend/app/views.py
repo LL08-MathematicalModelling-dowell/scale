@@ -1176,7 +1176,6 @@ class ScaleCreationView(APIView):
             }
 
         elif 'workspace_id' and 'scale_id' in request.data:
-            print("here")
             data = {
                 "workspace_id": request.data.get("workspace_id"),
                 "scale_id": request.data.get("scale_id")
@@ -1208,9 +1207,23 @@ class ScaleCreationView(APIView):
         if not serializer.is_valid():
             return self.error_response("Posting incorrect/ incomplete data", serializer.errors)
         
+        workspace_id = serializer.validated_data["workspace_id"]
+        
         response_json = json.loads(datacube_data_retrieval(api_key, "livinglab_scales", "collection_3", filter, 10000, 0, False))
-        response_data = response_json["data"]
+        # response_json = json.loads(datacube_data_retrieval(
+        #         api_key,
+        #         f"{workspace_id}_scale_meta_data",
+        #         f"{workspace_id}_scale_setting",
+        #         filter,
+        #         10000,
+        #         0,
+        #         False
+        #     ))
 
+        response_data = response_json["data"]
+        if not response_data:
+            return self.error_response("Could not find the requested resource. Please check if the scale exists.", None)
+        
         if "channel_name" and "instance_name" in request.data:
             channel_instance_list = response_data[0]["settings"].get("channel_instance_list")
             channel_display_name, instance_display_name = get_display_names(channel_instance_list, serializer.validated_data["channel_name"], serializer.validated_data["instance_name"])
@@ -1221,7 +1234,13 @@ class ScaleCreationView(APIView):
         else:
             response = {
                 "total_no_of_scales":len(response_data),
-                "scale_details": response_data
+                "scale_details": [{
+                    "scale_id":response["_id"],
+                    "scale_name": response["settings"].get("scale_name"),
+                    "scale_type":response["settings"].get("scale_category"),
+                    "no_of_channels":response["settings"].get("no_of_channels"),
+                    "channel_instance_details": response["settings"].get("channel_instance_list")
+                } for response in response_data]
             }
     
         return self.success_response(message="Retrieved the scale details succcessfully", data=response)

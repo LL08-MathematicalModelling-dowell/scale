@@ -83,6 +83,7 @@ services:
       - queue-net
     restart: always
     command: cron -f  
+    # command: python3 /usr/src/app/schedule.py
 
   nginx:
     build:

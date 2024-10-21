@@ -1,7 +1,7 @@
 import LineGraph from "@/components/Graph/LineGraph";
 import LLXSelectField from "@/components/LLXSelectField/LLXSelectField";
-import { getLLXReport } from "@/services/api.services";
-import {fetchScaleDetails, useScaleDetailsContext } from "@/contexts/scaleDetailsContext"; 
+import { getLLXReport, getllxReportPayload } from "@/services/api.services";
+import {fetchScaleDetails} from "@/contexts/scaleDetailsContext"; 
 import { CircularProgress } from "@mui/material";
 import { useEffect, useState } from "react";
 import { ResponsiveContainer } from "recharts";
@@ -29,7 +29,9 @@ const NewLLXReport = () => {
   const [error, setError] = useState(false);
   const [channelData, setChannelData] = useState([]);
   const [instanceData, setInstanceData] = useState([]);
-  const {   channelsReport } = useScaleDetailsContext();
+  const [msgType, setMsgType] = useState(false)
+  const [selectedChannel, setSelectedChannel] = useState([ ]);
+
   
 
   
@@ -44,26 +46,49 @@ const NewLLXReport = () => {
   }, []);
 
   useEffect(() => {
-    const scaleParams = channelsReport || [];
-    if (scaleParams.length > 0) {
-      const uniqueChannels = Array.from(
-        new Set(scaleParams.map((item) => item.channel))
-      ).map((channel, index) => ({
-        label: `Session ${index + 1}`,
-        value: channel,
-      }));
+    const payload = {
+      workspace_id: "66b9ab8f8e615ce827af9115", 
+      scale_id: "670d30ee96d6eb96a29021f6", 
+    };
   
-      const uniqueInstances = Array.from(
-        new Set(scaleParams.map((item) => item.instanceName))
-      ).map((instance, index) => ({
-        label: `Topic ${index + 1}`, 
-        value: instance,
-      }));
+    const fetchLLXPayload = async () => {
+      setLoading(true);
+      setMsgType(true)
+      try {
+        const responseList = await getllxReportPayload(payload);
+        
+        if (responseList.status === 201) {
+          setLoading(false)
+          const responseData = responseList.data;
+          console.log(responseData);
+
+          const getChannels = responseData.data.scale_details.flatMap(scale => 
+            scale.channel_instance_details.map(channel => ({
+              label: channel.channel_display_name,
+              value: channel.channel_name,
+              instances: channel.instances_details.map(instance => ({
+                  label: instance.instance_display_name,
+                  value: instance.instance_name
+              }))
+            }))
+          );
+         setChannelData(getChannels);
+         console.log(channelData) 
+
+         const allInstances = getChannels.flatMap(channel => channel.instances);
+         console.log(allInstances)
+         setInstanceData(allInstances)
+
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchLLXPayload()
+  }, []);  
+
   
-      setChannelData(uniqueChannels);
-      setInstanceData(uniqueInstances);
-    }
-  }, [channelsReport]);
+
 
   const durationData = [
     {label: "Last 7 Days", value: "seven_days"},
@@ -72,15 +97,21 @@ const NewLLXReport = () => {
   ];
 
   const handleInputChange = (value) => {
-    {
-      value.startsWith("ins") ? setCustomInstance(value) : null;
+    if (value.startsWith("ins")) {
+      setCustomInstance(value);
+    } else if (value.startsWith("cha")) {
+      setCustomChannels(value);
+    } else if (value.endsWith("days")) {
+      setCustomDuration(value);
     }
-    {
-      value.startsWith("cha") ? setCustomChannels(value) : null;
+  };
+
+  const handleChannelSelect = (selectedValue) => {
+    const selected = channelData.find(channel => channel.value === selectedValue);
+    if (selected) {
+      setInstanceData(selected.instances); 
     }
-    {
-      value.endsWith("days") ? setCustomDuration(value) : null;
-    }
+    setCustomChannels(selectedValue); 
   };
 
   useEffect(() => {
@@ -100,6 +131,7 @@ const NewLLXReport = () => {
     try {
       setLoading(true);
       setReportDisplayData(false);
+      setMsgType(false)
       setError(false);
       const llxResponse = await getLLXReport(payload);
       console.log(llxResponse);
@@ -289,9 +321,9 @@ const rightChartData = {
       <div className="mx-8 py-12">
         <div className="flex flex-col items-center justify-center gap-10">
           <div className="flex flex-col justify-center gap-5 md:flex-row">
-            <LLXSelectField handleInputChange={handleInputChange} data={channelData} triggerClass={"w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins"} placeholder="Select Channel Name" />
-            <LLXSelectField handleInputChange={handleInputChange} data={instanceData} triggerClass={"w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins"} placeholder="Select Instance Name" />
-            <LLXSelectField handleInputChange={handleInputChange} data={durationData} triggerClass={"w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins"} placeholder="Select Duration" />
+            <LLXSelectField handleInputChange={handleChannelSelect} data={channelData} triggerClass={"w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins"} placeholder="Select Channel Name" />
+            <LLXSelectField handleInputChange={handleInputChange} data={instanceData} triggerClass={"w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins"} placeholder="Select Instance Name" disabled={!customChannel}  />
+            <LLXSelectField handleInputChange={handleInputChange} data={durationData} triggerClass={"w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins"} placeholder="Select Duration" disabled={!customChannel} />
           </div>
         </div>
         <div className="mt-14 flex items-center justify-center gap-14">
@@ -303,7 +335,7 @@ const rightChartData = {
           <div className="w-full h-full flex flex-col gap-2 items-center justify-center mt-32">
             <CircularProgress />
             <h2 className="text-xl font-poppins font-bold text-green-800">Loading...</h2>
-            <p className="font-poppins md:text-md text-sm tracking-tight font-medium text-gray-600">Please wait while fetching your report</p>
+            <p className="font-poppins md:text-md text-sm tracking-tight font-medium text-gray-600">{msgType === true ? "Fetching channels and instances" : "Please wait while fetching your report"}</p>
           </div>
         )}
 

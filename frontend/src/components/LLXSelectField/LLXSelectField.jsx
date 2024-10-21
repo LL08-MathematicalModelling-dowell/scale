@@ -1,10 +1,10 @@
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 import PropTypes from "prop-types";
 
-const LLXSelectField = ({triggerClass, placeholder, data, handleInputChange}) => {
+const LLXSelectField = ({triggerClass, placeholder, data, handleInputChange, disabled}) => {
   return (
     <div>
-      <Select onValueChange={(value) => handleInputChange(value, data.label)}>
+      <Select disabled={disabled} onValueChange={(value) => handleInputChange(value, data.label)}>
         <SelectTrigger className={triggerClass}>
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
@@ -25,6 +25,7 @@ LLXSelectField.propTypes = {
   placeholder: PropTypes.string,
   data: PropTypes.array,
   handleInputChange: PropTypes.func,
+  disabled: PropTypes.bool,
 };
 
 export default LLXSelectField;

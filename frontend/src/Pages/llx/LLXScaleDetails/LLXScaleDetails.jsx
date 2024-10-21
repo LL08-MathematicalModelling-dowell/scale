@@ -48,11 +48,7 @@ const LLXScaleDetails = () => {
 
   const scaleOptions = [
     {value: "llx", label: "Learning Index"},
-    // {value: "nps_lite", label: "NPS Lite"},
-    // {value: "stapel", label: "Stapel"},
-    // {value: "likert", label: "Likert"},
-    // {value: "percent", label: "Percent"},
-    // {value: "percent_sum", label: "Percent Sum"},
+
   ];
 
   useEffect(() => {
@@ -78,7 +74,7 @@ const LLXScaleDetails = () => {
         const response = await getUserScales({
           workspace_id: workspaceId,
           portfolio,
-          type_of_scale: selectedScaleType, // Fetch data based on selected scale type
+          type_of_scale: selectedScaleType, 
           accessToken,
         });
 
@@ -102,7 +98,7 @@ const LLXScaleDetails = () => {
     };
 
     fetchScaleDetails();
-  }, [accessToken, selectedScaleType, navigate]); // Re-fetch data when selected scale type changes
+  }, [accessToken, selectedScaleType, navigate]); 
 
   const handleScaleTypeChange = (event) => {
     setSelectedScaleType(event.target.value);
@@ -114,7 +110,6 @@ const LLXScaleDetails = () => {
       return;
     }
 
-    // setLoading(true);
     try {
       setIsCreateScaleLoading(true);
       const decodedPayload = decodeToken(accessToken);

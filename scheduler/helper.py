@@ -197,7 +197,7 @@ def send_email(toname, toemail, subject, date, button_link, qrcode_link, scale_d
     
     payload = {
         "toname": toname,
-        "toemail": "mdashsharma95@gmail.com",
+        "toemail": toemail,
         "subject": subject,
         "email_content": email_content
     }

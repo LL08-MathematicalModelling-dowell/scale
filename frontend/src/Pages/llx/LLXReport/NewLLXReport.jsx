@@ -23,14 +23,13 @@ const NewLLXReport = () => {
   const [customChannel, setCustomChannels] = useState("");
   const [customInstance, setCustomInstance] = useState("");
   const [customDuration, setCustomDuration] = useState("");
-  const [reportDisplayData, setReportDisplayData] = useState(false);
+  const [reportDisplayData, setReportDisplayData] = useState(true);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(" ");
   const [error, setError] = useState(false);
   const [channelData, setChannelData] = useState([]);
   const [instanceData, setInstanceData] = useState([]);
   const [msgType, setMsgType] = useState(false)
-  const [selectedChannel, setSelectedChannel] = useState([ ]);
 
   
 
@@ -54,13 +53,15 @@ const NewLLXReport = () => {
     const fetchLLXPayload = async () => {
       setLoading(true);
       setMsgType(true)
+      setReportDisplayData(false)
       try {
         const responseList = await getllxReportPayload(payload);
         
         if (responseList.status === 201) {
+           setReportDisplayData(true)
           setLoading(false)
           const responseData = responseList.data;
-          console.log(responseData);
+          // console.log(responseData);
 
           const getChannels = responseData.data.scale_details.flatMap(scale => 
             scale.channel_instance_details.map(channel => ({
@@ -76,7 +77,7 @@ const NewLLXReport = () => {
          console.log(channelData) 
 
          const allInstances = getChannels.flatMap(channel => channel.instances);
-         console.log(allInstances)
+        //  console.log(allInstances)
          setInstanceData(allInstances)
 
         }
@@ -114,11 +115,11 @@ const NewLLXReport = () => {
     setCustomChannels(selectedValue); 
   };
 
-  useEffect(() => {
-    console.log(customChannel);
-    console.log(customInstance);
-    console.log(customDuration);
-  });
+  // useEffect(() => {
+  //   console.log(customChannel);
+  //   console.log(customInstance);
+  //   console.log(customDuration);
+  // });
 
   const fetchLLXReport = async () => {
     const payload = {
@@ -134,10 +135,9 @@ const NewLLXReport = () => {
       setMsgType(false)
       setError(false);
       const llxResponse = await getLLXReport(payload);
-      console.log(llxResponse);
       if (llxResponse.status === 201) {
         const llxResult = llxResponse.data?.data;
-        console.log(llxResult);
+
 
         const allChannels = llxResult.map((item) => item.channel);
         const uniqueChannel = [...new Set(allChannels)];
@@ -170,7 +170,7 @@ const NewLLXReport = () => {
                 acc[date] = [];
               }
               acc[date].push(item);
-              console.log(acc);
+
               return acc;
             }, {});
 
@@ -183,7 +183,7 @@ const NewLLXReport = () => {
                 percentages: lastResponse.learning_index_data.learning_level_percentages,
                 stage: lastResponse.learning_index_data.learning_stage,
               };
-              console.log(acc);
+
               return acc;
             }, {});
 
@@ -191,13 +191,13 @@ const NewLLXReport = () => {
           };
 
           const learningDataResult = getLastLearningData(llxResult);
-          console.log(learningDataResult);
+   
 
           const mostRecentDate = Object.keys(learningDataResult).sort((a, b) => new Date(b) - new Date(a))[0];
-          console.log(mostRecentDate);
+
           const mostRecentData = learningDataResult[mostRecentDate];
 
-          console.log(mostRecentData);
+
 
           if (mostRecentData) {
             setLearningStages(mostRecentData.stage);
@@ -209,14 +209,11 @@ const NewLLXReport = () => {
             setApplying(Math.round(mostRecentData.percentages.applying || 0, 2));
           }
 
-          console.log(reading);
-
           if (llxResult && Array.isArray(llxResult)) {
             const formattedData = llxResult.map((item) => ({
               date: item?.date_created?.split(" ")[0] || "Unknown",
               learningIndex: item?.learning_index_data?.learning_level_index || 0,
             }));
-            console.log(formattedData);
             setLearningLevelData(formattedData);
           }
 
@@ -246,7 +243,7 @@ const NewLLXReport = () => {
         setErrorMsg("Data Not Found");
         console.log("Data Not Found");
       }
-      console.log(error);
+      // console.log(error);
     } finally {
       setLoading(false);
     }

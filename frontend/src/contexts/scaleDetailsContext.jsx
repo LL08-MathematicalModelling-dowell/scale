@@ -2,6 +2,7 @@ import { createContext, useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getUserLLXScales } from "@/services/api.services";
 import { decodeToken } from "@/utils/tokenUtils";
+import PropTypes from 'prop-types'
 
 const scaleDetailsContext = createContext();
 
@@ -21,6 +22,8 @@ function getParams(url) {
       channel: channel || null,
       instanceName: instanceName || null,
     };
+
+    
   } catch (error) {
     console.log(error.message);
     return null;
@@ -73,6 +76,8 @@ export const fetchScaleDetails = async (accessToken, setSessionData, setReportUr
               instancesBySession[channelDisplayName] = [];
             }
             instancesBySession[channelDisplayName].push({
+              channel,
+              instanceName,
               instanceDisplayName,
               qrcode: link.qrcode_image_url,
               scaleLink: link.scale_link,
@@ -85,11 +90,9 @@ export const fetchScaleDetails = async (accessToken, setSessionData, setReportUr
  
      
       setChannelsReport(channelsAndInstances); 
-
-      
       setSessionData(instancesBySession);
-      localStorage.removeItem("sessionData");
-      console.log("Session data from API stored:", instancesBySession);
+      console.log("Channels and instances:", instancesBySession);
+
     } else {
       setIsNoScaleFound(true);
       setAlert("No scale found. Please create a scale for yourself.");
@@ -144,4 +147,8 @@ export const ScaleDetailsProvider = ({ children }) => {
       {children}
     </scaleDetailsContext.Provider>
   );
+};
+
+ScaleDetailsProvider.propTypes = {
+  children: PropTypes.node.isRequired,
 };

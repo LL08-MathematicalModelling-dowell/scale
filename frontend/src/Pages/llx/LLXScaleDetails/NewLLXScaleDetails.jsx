@@ -1,44 +1,38 @@
 import LLXCard from "@/components/LLXCard/LLXCard";
 import { Separator } from "@/components/ui/separator";
 import { useCurrentUserContext } from "@/contexts/CurrentUserContext";
-import { useScaleDetailsContext, fetchScaleDetails } from "@/contexts/scaleDetailsContext"; 
+import { useScaleDetailsContext, fetchScaleDetails } from "@/contexts/scaleDetailsContext";
 import { useState, useEffect } from "react";
 import { HiMiniPencilSquare } from "react-icons/hi2";
 import LLXNavbar from "../LLXNavBar/LLXNavBar";
+import { updateScaleDetails } from "@/services/api.services";
 
 const NewLLXScaleDetails = () => {
   const { defaultScaleOfUser } = useCurrentUserContext();
-  const { 
+  const {
     sessionData,
     setSessionData,
     reportUrl,
     LoginUrl,
     loading,
     alert,
-    setAlert,     
+    setAlert,
     isNoScaleFound,
-    setIsNoScaleFound  
+    setIsNoScaleFound,
   } = useScaleDetailsContext();
 
   const [selectedScaleType, setSelectedScaleType] = useState(defaultScaleOfUser === "nps" ? "nps" : "likert");
   const [searchTerm, setSearchTerm] = useState("");
-  const [editedSessions, setEditedSessions] = useState(new Set()); 
-
+  const [editedSessions, setEditedSessions] = useState(new Set());
   const [editSession, setEditSession] = useState(null);
   const [newSessionName, setNewSessionName] = useState("");
 
   useEffect(() => {
     const accessToken = localStorage.getItem("accessToken");
-    
     if (accessToken) {
-      fetchScaleDetails(
-        accessToken,
-        setSessionData,
-        setIsNoScaleFound,
-        setAlert,
-      );
+      fetchScaleDetails(accessToken, setSessionData, setIsNoScaleFound, setAlert);
     }
-  }, [setSessionData, setIsNoScaleFound, setAlert,]);
+  }, [setSessionData, setIsNoScaleFound, setAlert]);
 
   const handleScaleTypeChange = (event) => {
     setSelectedScaleType(event.target.value);
@@ -53,6 +47,42 @@ const NewLLXScaleDetails = () => {
     setNewSessionName(e.target.value);
   };
 
+  const updateScaleInDatabase = async (updatedSession) => {
+    const accessToken = localStorage.getItem("accessToken");
+    const sessionArray = updatedSession;
+
+    const payload = {
+      workspace_id: "6385c0e48eca0fb652c9447b",
+      scale_id: "670d30ee96d6eb96a29021f6",
+      update_settings: {
+        user_type: true,
+        no_of_channels: Object.keys(sessionArray).length,
+        channel_instance_list: Object.entries(sessionArray).map(([sessionName, instances]) => ({
+          channel_name: instances[0].channel,
+          channel_display_name: sessionName,
+          instances_details: instances.map((instance) => ({
+            instance_name: instance.instanceName,
+            instance_display_name: instance.instanceDisplayName,
+          })),
+        })),
+        no_of_responses: 10000,
+      },
+    };
+
+    try {
+      const response = await updateScaleDetails(payload, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      console.log("Scale details updated successfully:", response);
+      alert("Scale details updated successfully.");
+    } catch (error) {
+      console.error("Error updating scale details:", error);
+      alert("Failed to update scale details.");
+    }
+  };
+
   const handleSessionNameSave = (oldSessionName) => {
     if (newSessionName.trim() === "") {
       setEditSession(null);
@@ -64,20 +94,22 @@ const NewLLXScaleDetails = () => {
       return;
     }
 
-    if (newSessionName !== oldSessionName) {
-      const updatedSessions = { ...sessionData };
+    // Map over sessionData entries and update only the renamed session
+    const updatedSessions = Object.entries(sessionData).map(([key, value]) => {
+      if (key === oldSessionName) {
+        return [newSessionName, value]; // Rename session
+      }
+      return [key, value]; // Keep other sessions unchanged
+    });
 
-      updatedSessions[newSessionName] = updatedSessions[oldSessionName];
-      delete updatedSessions[oldSessionName]; 
+    const updatedSessionData = Object.fromEntries(updatedSessions);
 
-      setEditedSessions((prev) => new Set(prev).add(newSessionName));
+    setEditedSessions((prev) => new Set(prev).add(newSessionName));
+    setSessionData(updatedSessionData);
 
-      setSessionData(updatedSessions);
-      localStorage.setItem("sessionData", JSON.stringify(updatedSessions));
-      console.log("Updated sessionData in localStorage:", updatedSessions);
-    }
+    updateScaleInDatabase(updatedSessionData);
 
-    setEditSession(null); 
+    setEditSession(null);
   };
 
   const handleInstanceNameChange = (sessionName, oldInstanceName, newInstanceName) => {
@@ -96,12 +128,12 @@ const NewLLXScaleDetails = () => {
 
     updatedSessions[sessionName] = instances;
     setSessionData(updatedSessions);
-    localStorage.setItem("sessionData", JSON.stringify(updatedSessions));
-    console.log("Updated instance name in localStorage:", updatedSessions);
+    updateScaleInDatabase(updatedSessions);
   };
 
-  const filteredSessions = Object.keys(sessionData)
-    .filter((sessionName) => sessionName.toLowerCase().includes(searchTerm.toLowerCase()));
+  const filteredSessions = Object.keys(sessionData).filter((sessionName) =>
+    sessionName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="min-h-screen max-w-full relative">
@@ -153,7 +185,7 @@ const NewLLXScaleDetails = () => {
                   <div className="flex items-center gap-2">
                     <h1 className="font-bold tracking-tight text-md md:text-2xl font-poppins mb-2" style={{ lineHeight: "1" }}>
                       {sessionName}
-                      {editedSessions.has(sessionName) && <span className="ml-2 text-red-500 text-xs">*</span>}
+                      {/* {editedSessions.has(sessionName) && <span className="ml-2 text-red-500 text-xs">*</span>} */}
                     </h1>
                     <HiMiniPencilSquare className="cursor-pointer" onClick={() => handleSessionNameClick(sessionName)} />
                   </div>
@@ -168,7 +200,9 @@ const NewLLXScaleDetails = () => {
                     scaleLink={instance.scaleLink}
                     type="session"
                     qrcodeImageUrl={instance.qrcodeImageUrl}
-                    onInstanceNameChange={(newInstanceName) => handleInstanceNameChange(sessionName, instance.instanceDisplayName, newInstanceName)}
+                    onInstanceNameChange={(newInstanceName) =>
+                      handleInstanceNameChange(sessionName, instance.instanceDisplayName, newInstanceName)
+                    }
                   />
                 ))}
               </div>
@@ -178,7 +212,6 @@ const NewLLXScaleDetails = () => {
         ) : (
           <div className="text-center text-gray-500 md:text-[16px]">No sessions found</div>
         )}
-
         <div className="flex flex-col">
           <h1 className={`font-bold tracking-tight text-md md:text-2xl font-poppins mb-2 ${loading ? "hidden" : "block"}`}>Report Link</h1>
           <div className="grid md:grid-cols-10 grid-cols-1 gap-2 md:gap-1">
@@ -188,12 +221,11 @@ const NewLLXScaleDetails = () => {
           </div>
         </div>
         <Separator />
-
         <div className="flex flex-col">
           <h1 className={`font-bold tracking-tight text-md md:text-2xl font-poppins mb-2 ${loading ? "hidden" : "block"}`}>Login Link</h1>
           <div className="grid md:grid-cols-10 grid-cols-1 gap-2 md:gap-1">
             {LoginUrl.map((item, idx) => (
-              <LLXCard key={idx} qrcodeImageUrl={item.qrcode_image_url} LoginLink={item.login_link} type="login" qrcode={item.qrcode_image_url} />
+              <LLXCard key={idx} qrcodeImageUrl={item.qrcode_image_url} loginLink={item.login_link} type="login" qrcode={item.qrcode_image_url} />
             ))}
           </div>
         </div>

@@ -44,7 +44,7 @@ const LikertReport = () => {
   const [totalScore, setTotalScore] = useState(0);
   const [averageScore, setAverageScore] = useState(0);
   const [reportData, setReportData] = useState([]);
-  const [displayData, setDisplayData] = useState(false);
+  const [displayData, setDisplayData] = useState(true);
   const [alert, setAlert] = useState(false);
   const [message, setMessage] = useState(" ");
   const [totalResponse, setTotalResponse] = useState(0);

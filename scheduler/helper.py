@@ -55,7 +55,7 @@ import requests
 
 def send_email(toname, toemail, subject, date, button_link, qrcode_link, scale_data_table, location_data_table):
     scale_data_rows = scale_data_table.splitlines()
-    limited_scale_data = "\n".join(scale_data_rows[-10:])
+    limited_scale_data = "\n".join(scale_data_rows)
     
     url = "https://100085.pythonanywhere.com/api/email/"
     

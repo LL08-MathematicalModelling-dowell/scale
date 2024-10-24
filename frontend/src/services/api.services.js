@@ -1,4 +1,4 @@
-import {servicesAxiosInstance, scaleAxiosInstance, otpAxiosInstance} from "./config";
+import {servicesAxiosInstance, otpAxiosInstance} from "./config";
 
 const getServerStatus = async () => {
   return await servicesAxiosInstance.get("/");
@@ -137,6 +137,14 @@ const getLLXReport = async (payload) => {
   return await servicesAxiosInstance.post(`v1/scale-services/?service_type=get_scale_report&scale_type=learning_index`, payload);
 }
 
+const updateScaleDetails = async (payload) => {
+  return await servicesAxiosInstance.put(`v1/scale-services/`, payload)
+}
+
+const getllxReportPayload = async (payload) => {
+  return await servicesAxiosInstance.post(`v1/scale-services/?service_type=get_scale_details&api_key=1b834e07-c68b-4bf6-96dd-ab7cdc62f07f`, payload)
+}
+
 
 export {getUserLogin, 
   getServerStatus, 
@@ -158,5 +166,7 @@ export {getUserLogin,
   getScaleChannels,
   getScaleReport,
   getLLXReport,
-  getUserLLXScales
+  getUserLLXScales,
+  updateScaleDetails,
+  getllxReportPayload
   };

@@ -94,7 +94,6 @@ const NewLLXScaleDetails = () => {
       return;
     }
 
-    // Map over sessionData entries and update only the renamed session
     const updatedSessions = Object.entries(sessionData).map(([key, value]) => {
       if (key === oldSessionName) {
         return [newSessionName, value]; // Rename session

@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useLocation } from 'react-router-dom';
 import { CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, Button } from '@mui/material'; // Import Dialog components
 import npsScale from "../../assets/nps-scale.png";
-import { saveLocationData, scaleResponse } from "../../services/api.services";
+import { saveLocationData, scaleResponse, sendFeedbackEmail } from "../../services/api.services";
 import voc from '../../assets/VOC.png';
 import { sendEmail } from "../../services/emailServices";
 import voc1 from '../../assets/likertScaleEmojis/VoC1.svg';
@@ -30,6 +30,8 @@ const LikertScale = () => {
     const channel = searchParams.get("channel");
     const instance = searchParams.get("instance_name");
     const scaleType = searchParams.get("scale_type");
+    const [latitude, setLatitude] = useState('');
+    const [longitude, setLongitude] = useState('');
 
     const allParamsPresent = workspace_id && username && scale_id && channel && instance;
 
@@ -37,6 +39,9 @@ const LikertScale = () => {
         if (!hasLocationDataBeenSaved.current && navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(async (position) => {
                 const { latitude, longitude } = position.coords;
+
+                setLongitude(longitude);
+                setLatitude(latitude);
 
                 const locationData = {
                     latitude,
@@ -105,7 +110,27 @@ const LikertScale = () => {
                     username: name || username,
                 });
                 console.log("Email sent successfully.");
-                setOpenModal(true); // Open modal instead of showing Snackbar
+                
+                const currentDate = new Date();
+                const formattedDate = `${currentDate.toLocaleDateString()} ${currentDate.toLocaleTimeString()}`;
+
+                const payload = {
+                    workspaceId: workspace_id, 
+                    customerName: name || "Anonymous User", 
+                    customerEmail: email || "Anonymous Email", 
+                    location:"", 
+                    latitude, 
+                    longitude,
+                    scaleResponse: submitted,
+                    description : feedback ,
+                    type: getInstanceDisplayName(window.location.href),
+                    formattedDate: formattedDate
+                }
+                
+                await sendFeedbackEmail(payload)
+                console.log("feedback sent successfully.");
+                
+                setOpenModal(true); 
             }
         } catch (error) {
             console.error("Error sending email:", error);

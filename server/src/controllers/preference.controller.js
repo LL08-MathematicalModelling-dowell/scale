@@ -193,7 +193,8 @@ const sendFeedbackEmail = asyncHandler(async (req, res) => {
         longitude,
         scaleResponse,
         description,
-        type
+        type,
+        formattedDate
     }
 
     sendEmailToOwner(data)

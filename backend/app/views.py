@@ -370,7 +370,7 @@ class ScaleManagement(APIView):
         else:
             return self.handle_error(request)
 
-    @login_required
+    # @login_required
     def save_scale_details(self, request):
         workspace_id = request.data.get("workspace_id")
         username = request.data.get("username")
@@ -553,7 +553,7 @@ class ScaleManagement(APIView):
             "response": data_to_be_inserted
         })
 
-    @login_required
+    # @login_required
     def scale_details(self, request):
         workspace_id = request.data.get("workspace_id")
         portfolio = request.data.get("portfolio")
@@ -607,7 +607,7 @@ class ScaleManagement(APIView):
             "response": response['data']
         }, status=status.HTTP_200_OK)
     
-    @login_required
+    # @login_required
     def save_scale_details_type(self, request):
         workspace_id = request.data.get("workspace_id")
         username = request.data.get("username")

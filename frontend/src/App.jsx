@@ -57,14 +57,14 @@ const App = () => {
       <Route path="/scale" element={<HomePage />} />
       <Route path="/server-status" element={<Healthcheck />} />
       <Route path="/voc" element={<Login />} />
-      <Route path="/voc/reports" element={<Report />} />
+      <Route path="/voc/report" element={<Report />} />
       <Route path="/voc/report" element={<OpenReportPage />} />
       <Route path="/voc/likert-report" element={<LikertReport />} />
       <Route path="/voc/scale" element={<Scales />} />
       <Route path="/voc/scaledetails" element={<ScaleDetails />} />
       <Route path="/voc/userdetails" element={<UserDetails />} />
       <Route path="/voc/register" element={<Registration />} />
-      <Route path="/voc/new" element={<NewReport />} />
+      <Route path="/voc/reports" element={<NewReport />} />
       <Route path="/voc/preference" element={<Preference/>} />
       {/* Route for creating or edit scale */}
       <Route path="/edit-scale" element={<EditScale />} />

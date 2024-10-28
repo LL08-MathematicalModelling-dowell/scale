@@ -145,7 +145,9 @@ const getllxReportPayload = async (payload) => {
   return await servicesAxiosInstance.post(`v1/scale-services/?service_type=get_scale_details&api_key=1b834e07-c68b-4bf6-96dd-ab7cdc62f07f`, payload)
 }
 
-
+export const sendFeedbackEmail = async (payload) => {
+  return await otpAxiosInstance.post("/v1/preference-services/send-email-feedback", payload);
+}
 export {getUserLogin, 
   getServerStatus, 
   getAPIServerStatus, 

@@ -5,7 +5,7 @@ import routes from './src/routes/index.js';
 import { connectToDb } from './src/config/db.config.js';
 import config from './src/config/index.js';
 import { getCurrentTimestamp } from "./src/utils/helper.js"
-import { saveLocationWorker } from "./src/config/workers.config.js"
+import { saveLocationWorker, sendFeedbackEmailWorker } from "./src/config/workers.config.js"
 import os from 'os';
 
 const app = express();
@@ -72,6 +72,7 @@ const initializeWorker = (worker, name) => {
 connectToDb()
 .then(()=>{
     initializeWorker(saveLocationWorker, 'Save Location Worker');
+    initializeWorker(sendFeedbackEmailWorker, 'Send Feedback Email Worker');
     app.listen(config.PORT, onListening);
 }).catch((error) => {
     return { error: 'Failed to connect to DB' }

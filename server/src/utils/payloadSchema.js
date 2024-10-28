@@ -133,11 +133,24 @@ const updatePreferenceSchema = z.object({
 });
 
 
-  
+const emailFeedbackSchema = z.object({
+    workspaceId: z.string().min(10).max(1000),
+    customerName: z.string().min(6).max(32),
+    customerEmail: z.string().optional(),
+    location: z.string().optional(),
+    latitude: z.number().optional(),
+    longitude: z.number().optional(),
+    scaleDesign: z.string().optional(),
+    scaleResponse: z.number().optional(),
+    description : z.string().optional(),
+    type: z.string().optional(),
+    formattedDate: z.string().optional()
+})
 export {
     sendOtpSchema,
     validateOtpSchema,
     locationSchema,
     preferenceSchema,
-    updatePreferenceSchema
+    updatePreferenceSchema,
+    emailFeedbackSchema
 }

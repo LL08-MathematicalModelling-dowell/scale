@@ -1,7 +1,8 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import PayloadValidationServices from "../services/validation.services.js";
 import Preference from "../models/preference.schema.js";
-import { preferenceSchema,updatePreferenceSchema } from "../utils/payloadSchema.js";
+import { preferenceSchema,updatePreferenceSchema, emailFeedbackSchema } from "../utils/payloadSchema.js";
+import { sendEmailToOwner } from "../config/producer.config.js"
 
 
 const createPreference = asyncHandler(async (req, res) => {
@@ -158,10 +159,60 @@ const deletePreference = asyncHandler(async (req,res) => {
         message: "Preference deleted successfully"
     });
 })
+
+const sendFeedbackEmail = asyncHandler(async (req, res) => {
+    const { workspaceId, customerName, customerEmail, location, latitude, longitude, scaleResponse,description , type, formattedDate } = req.body
+
+    const validationResult = PayloadValidationServices.validateData(emailFeedbackSchema, {
+        workspaceId, 
+        customerName, 
+        customerEmail, 
+        location, 
+        latitude, 
+        longitude, 
+        scaleResponse,
+        description,
+        type,
+        formattedDate
+    })
+
+    if (!validationResult.isValid) {
+        return res.status(400).json({
+            success: false,
+            message: "Invalid payload",
+            errors: validationResult.errors
+        });
+    }
+
+    const data = {
+        workspaceId,
+        customerName,
+        customerEmail,
+        location,
+        latitude,
+        longitude,
+        scaleResponse,
+        description,
+        type,
+        formattedDate
+    }
+
+    sendEmailToOwner(data)
+
+
+    return res
+    .status(200)
+    .json({
+        success: true,
+        message: "Feedback email sent successfully",
+    });
+    
+});
 export {
     createPreference,
     userPreference,
     updateUserPreference,
-    deletePreference
+    deletePreference,
+    sendFeedbackEmail
 }
     

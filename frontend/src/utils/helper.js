@@ -1,12 +1,20 @@
 export function getIndividualCounts(data) {
+  if (!data || data.length === 0) {
+    return {
+      detractorCounts: [0, 0, 0, 0, 0],
+      promoterCounts: [0, 0, 0, 0, 0],
+      passiveCounts: [0, 0, 0, 0, 0],
+    };
+  }
+
   let detractorCounts = [];
   let promoterCounts = [];
   let passiveCounts = [];
 
   data.forEach((entry) => {
-    detractorCounts.push(entry.detractorCount);
-    promoterCounts.push(entry.promoterCount);
-    passiveCounts.push(entry.passiveCount);
+    detractorCounts.push(entry.detractorCount || 0);
+    promoterCounts.push(entry.promoterCount || 0);
+    passiveCounts.push(entry.passiveCount || 0);
   });
 
   return {
@@ -136,18 +144,21 @@ export function transformData(originalData, days) {
 export function pickSevenKeys(transformedData) {
   const keys = Object.keys(transformedData);
   const totalKeys = keys.length;
-  const interval = Math.floor(totalKeys / 6); // Calculate the interval to ensure 7 keys including the first and last
+
+  if (totalKeys === 0) {
+    // Return a default value if there is no data
+    return { "N/A": { detractorCount: 0, promoterCount: 0, passiveCount: 0 } };
+  }
+
+  const interval = Math.floor(totalKeys / 6);
   const selectedKeys = [];
 
-  // Add the first key
   selectedKeys.push(keys[0]);
 
-  // Add keys at regular intervals
   for (let i = interval; i < totalKeys; i += interval) {
     selectedKeys.push(keys[i]);
   }
 
-  // Add the last key
   selectedKeys.push(keys[totalKeys - 1]);
 
   const selectedKeysObject = {};

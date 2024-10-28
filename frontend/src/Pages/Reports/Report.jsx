@@ -87,6 +87,7 @@ const Report = () => {
   const [mountloading, setMountLoading] = useState(false);
   useEffect(() => {
     fetchData();
+    
     setMountLoading(true);
   }, []);
 
@@ -340,6 +341,7 @@ const Report = () => {
     });
   }, [selectedDays, selectedInstance, responseData, selectedChannel]);
 
+  
   useEffect(() => {
     if (selectedChannel !== allChannelsNameTag) {
       if (selectedInstance.length == 0) {
@@ -600,7 +602,7 @@ const Report = () => {
 
   useEffect(() => {
     if (selectedChannel === allChannelsNameTag) {
-      // Accumulate data for all instances
+      // Accumulate data for all instances when "All Channels" is selected
       const accumulatedData = instances.flatMap((instance) =>
         responseData.filter((item) => item.instance_name.trim() === instance)
       );
@@ -610,8 +612,17 @@ const Report = () => {
         (item) => item.instance_name.trim() === selectedInstance && item.channel_name === selectedChannel
       );
       handleDataUpdate(filteredData);
+    } else if (selectedChannel.length > 0 && selectedInstance.length === 0) {
+      // Handle the case where a channel is selected but no instance is selected
+      const filteredData = responseData.filter(
+        (item) => item.channel_name === selectedChannel
+      );
+      handleDataUpdate(filteredData);
     }
   }, [selectedDays, selectedInstance, responseData, selectedChannel]);
+
+  
+
 
     const handleDataUpdate = (data) => {
       if (data.length === 0) {
@@ -756,6 +767,7 @@ const Report = () => {
         ],
       });
     };
+    
 
   const fetchData = async () => {
     //check in local storage if present use scale_id = scale_id from local storage
@@ -777,7 +789,6 @@ const Report = () => {
           type_of_scale: defaultScaleOfUser,
           accessToken,
         });
-        console.log("Scales:", response.data.response[0].scale_id);
         scale_id = response?.data?.response[0]?.scale_id;
       } catch (error) {
         console.error("Error fetching user scales:", error);
@@ -809,6 +820,8 @@ const Report = () => {
         if (!uniqueChannels.has(trimmedName)) {
           uniqueChannels.add(trimmedName);
         }
+
+        
       });
       uniqueChannelNames[`${allChannelsNameTag}`] = "All Channels";
       setChannels([allChannelsNameTag, ...Array.from(uniqueChannels)]);
@@ -829,9 +842,10 @@ const Report = () => {
   const handleChannelSelect = (event) => {
     setSelectedChannel(event.target.value);
     if (event.target.value === allChannelsNameTag) {
-      setSelectedInstance(" ");
-      setScores(initialScoreData);
-      setTotalCount(0);
+      setSelectedInstance(""); // Reset instance selection
+      setScores(initialScoreData); // Reset scores to initial state
+      setTotalCount(0); // Reset total count
+      setDisplayDataForAllSelection([]); // Clear data for all selection
     }
   };
 

@@ -1,10 +1,10 @@
-import { Route, Routes } from "react-router-dom";
+import {Route, Routes} from "react-router-dom";
 import CreatingScale from "./Pages/CreateNewScale/CreatingScale";
 import EditScale from "./Pages/EditScale/EditScale";
 import HomePage from "./Pages/HomePage/HomePage";
 import LikertReport from "./Pages/LikertReport/LikertReport";
 import Login from "./Pages/Login/Login";
-import Registration from './Pages/Registration/RegistrationPage';
+import Registration from "./Pages/Registration/RegistrationPage";
 import OpenReportPage from "./Pages/Reports/OpenReportPage";
 import Report from "./Pages/Reports/Report";
 import ScaleDetails from "./Pages/Scale/ScaleDetails";
@@ -20,8 +20,10 @@ import LLXScale from "./Pages/llx/LLXScale/LLXScale";
 import NewLLXScaleDetails from "./Pages/llx/LLXScaleDetails/NewLLXScaleDetails";
 import LLXUserDetails from "./Pages/llx/LLXUserDetails/LLXUserDetails";
 import Confirm from "./components/ScaleForm/Confirm";
-import { ScaleDetailsProvider } from "./contexts/scaleDetailsContext";
+import {ScaleDetailsProvider} from "./contexts/scaleDetailsContext";
 import useDowellLogin from "./hooks/useDowellLogin";
+import NewReport from "./Pages/Reports/NewReport";
+import Preference from "./Pages/Preference/Preference";
 
 const App = () => {
   useDowellLogin();
@@ -31,7 +33,14 @@ const App = () => {
       {/* login page only change the logo [done]*/}
       <Route path="/llx" element={<LLXLoginPage />} />
       {/* 49 number line [done]*/}
-      <Route path="/llx/reports" element={<ScaleDetailsProvider><NewLLXReport /></ScaleDetailsProvider>} />
+      <Route
+        path="/llx/reports"
+        element={
+          <ScaleDetailsProvider>
+            <NewLLXReport />
+          </ScaleDetailsProvider>
+        }
+      />
       {/* <Route path="/llx/newreport" element={<NewLLXReport/>} /> */}
       <Route path="/llx/scaledetails" element={
   <ScaleDetailsProvider>
@@ -48,15 +57,17 @@ const App = () => {
       <Route path="/scale" element={<HomePage />} />
       <Route path="/server-status" element={<Healthcheck />} />
       <Route path="/voc" element={<Login />} />
-      <Route path="/voc/reports" element={<Report />} />
+      <Route path="/voc/report" element={<Report />} />
       <Route path="/voc/report" element={<OpenReportPage />} />
       <Route path="/voc/likert-report" element={<LikertReport />} />
       <Route path="/voc/scale" element={<Scales />} />
       <Route path="/voc/scaledetails" element={<ScaleDetails />} />
       <Route path="/voc/userdetails" element={<UserDetails />} />
       <Route path="/voc/register" element={<Registration />} />
+      <Route path="/voc/reports" element={<NewReport />} />
+      <Route path="/voc/preference" element={<Preference/>} />
       {/* Route for creating or edit scale */}
-      <Route path='/edit-scale' element={<EditScale />} />
+      <Route path="/edit-scale" element={<EditScale />} />
       <Route path="/scale-creating" element={<CreatingScale />} />
       <Route path="/confirmed" element={<Confirm />} />
       <Route path="/scale-reports" element={<ScalesReport />} />

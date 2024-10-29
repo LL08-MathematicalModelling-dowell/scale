@@ -196,34 +196,33 @@ def upload_qr_code_image(img, file_name):
 
 def dowell_login(workspace_name, username, password):
     url = 'https://100093.pythonanywhere.com/api/portfoliologin'
+    
     payload = {
         'portfolio': username,
         'password': password,
         'workspace_name': workspace_name,
         "username": "false",
     }
+
     try:
         response = requests.post(url, json=payload)
-        response.raise_for_status()
+        response_data = response.json()
+
+        if 'message' in response_data and 'username or password wrong' in response_data['message'].lower():
+            payload["username"] = "true"
+            response = requests.post(url, json=payload)
+            response_data = response.json()
+        
         return {
             "success": True,
-            "message": "Login successful",
-            "response": response.json()
+            "message": "Authentication result",
+            "response": response_data
         }
-    except requests.exceptions.HTTPError as http_err:
-        return {
-            "success": False,
-            "message": f"Server responded with status code {response.status_code}: {http_err}"
-        }
+
     except requests.exceptions.RequestException as req_err:
         return {
             "success": False,
             "message": f"Request failed: {req_err}"
-        }
-    except ValueError as json_err:
-        return {
-            "success": False,
-            "message": f"Error parsing JSON response: {json_err}"
         }
 
 

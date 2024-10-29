@@ -43,12 +43,39 @@ const Report = () => {
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [dataForChart, setDataForChart] = useState({
-    labels: [],
-    datasets: [],
+    labels: [1, 2, 3, 4, 5],
+    datasets: [
+      {
+        label: "Detractor",
+        data: [0, 0, 0, 0, 0],
+        borderColor: "red",
+        backgroundColor: "red",
+      },
+      {
+        label: "Promoter",
+        data: [0, 0, 0, 0, 0],
+        borderColor: "green",
+        backgroundColor: "green",
+      },
+      {
+        label: "Passive",
+        data: [0, 0, 0, 0, 0],
+        borderColor: "yellow",
+        backgroundColor: "yellow",
+      },
+    ],
   });
+  
   const [npsDataForChart, setNpsDataForChart] = useState({
-    labels: [],
-    datasets: [],
+    labels: [1, 2, 3, 4, 5],
+    datasets: [
+      {
+        label: "NPS",
+        data: [0, 0, 0, 0, 0],
+        borderColor: "red",
+        backgroundColor: "red",
+      },
+    ],
   });
   const [displayDataForAllSelection, setDisplayDataForAllSelection] = useState([]);
   const [dateIndexPair, setDateCountPair] = useState({});
@@ -60,6 +87,7 @@ const Report = () => {
   const [mountloading, setMountLoading] = useState(false);
   useEffect(() => {
     fetchData();
+    
     setMountLoading(true);
   }, []);
 
@@ -313,6 +341,7 @@ const Report = () => {
     });
   }, [selectedDays, selectedInstance, responseData, selectedChannel]);
 
+  
   useEffect(() => {
     if (selectedChannel !== allChannelsNameTag) {
       if (selectedInstance.length == 0) {
@@ -571,6 +600,175 @@ const Report = () => {
     setDisplayDataForAllSelection(allData);
   }, [selectedChannel, responseData, instances, selectedDays]);
 
+  useEffect(() => {
+    if (selectedChannel === allChannelsNameTag) {
+      // Accumulate data for all instances when "All Channels" is selected
+      const accumulatedData = instances.flatMap((instance) =>
+        responseData.filter((item) => item.instance_name.trim() === instance)
+      );
+      handleDataUpdate(accumulatedData);
+    } else if (selectedChannel.length > 0 && selectedInstance.length > 0) {
+      const filteredData = responseData.filter(
+        (item) => item.instance_name.trim() === selectedInstance && item.channel_name === selectedChannel
+      );
+      handleDataUpdate(filteredData);
+    } else if (selectedChannel.length > 0 && selectedInstance.length === 0) {
+      // Handle the case where a channel is selected but no instance is selected
+      const filteredData = responseData.filter(
+        (item) => item.channel_name === selectedChannel
+      );
+      handleDataUpdate(filteredData);
+    }
+  }, [selectedDays, selectedInstance, responseData, selectedChannel]);
+
+  
+
+
+    const handleDataUpdate = (data) => {
+      if (data.length === 0) {
+        // Set default chart data when no data is available
+        setTotalScore(0);
+        setTotalCount(0);
+        setDataForChart({
+          labels: [1, 2, 3, 4, 5],
+          datasets: [
+            {
+              label: "Detractor",
+              data: [0, 0, 0, 0, 0],
+              borderColor: "red",
+              backgroundColor: "red",
+            },
+            {
+              label: "Promoter",
+              data: [0, 0, 0, 0, 0],
+              borderColor: "green",
+              backgroundColor: "green",
+            },
+            {
+              label: "Passive",
+              data: [0, 0, 0, 0, 0],
+              borderColor: "yellow",
+              backgroundColor: "yellow",
+            },
+          ],
+        });
+        setNpsDataForChart({
+          labels: [1, 2, 3, 4, 5],
+          datasets: [
+            {
+              label: "NPS",
+              data: [0, 0, 0, 0, 0],
+              borderColor: "red",
+              backgroundColor: "red",
+            },
+          ],
+        });
+        return;
+      }
+    
+      // Calculate scores and update state
+      let scoreCounts = {
+        detractor: 0,
+        passive: 0,
+        promoter: 0,
+      };
+      let score = 0;
+    
+      data.forEach((res) => {
+        scoreCounts[res.category] += 1;
+        score += res.score;
+      });
+    
+      setTotalScore(score);
+      const totalResponses = data.length;
+    
+      const percentages = {
+        Detractor: (scoreCounts.detractor / totalResponses) * 100,
+        Passive: (scoreCounts.passive / totalResponses) * 100,
+        Promoter: (scoreCounts.promoter / totalResponses) * 100,
+      };
+    
+      const scorePercentages = {
+        Detractor: {
+          count: scoreCounts.detractor,
+          percentage: percentages.Detractor,
+        },
+        Passive: {
+          count: scoreCounts.passive,
+          percentage: percentages.Passive,
+        },
+        Promoter: {
+          count: scoreCounts.promoter,
+          percentage: percentages.Promoter,
+        },
+      };
+    
+      setScores(scorePercentages);
+      setTotalCount(totalResponses);
+    
+      // Set up chart data
+      const processedData = processData(data);
+      const transData = transformData(processedData, selectedDays);
+      const objectPair = pickSevenKeys(transData);
+      const labels = Object.keys(objectPair);
+      const datasetsInfo = Object.values(objectPair);
+    
+      let detractorCounts = [],
+        passiveCounts = [],
+        promoterCounts = [],
+        npsCounts = [];
+    
+      let obj = getIndividualCounts(datasetsInfo);
+      detractorCounts = obj.detractorCounts;
+      promoterCounts = obj.promoterCounts;
+      passiveCounts = obj.passiveCounts;
+    
+      for (let i = 0; i < detractorCounts.length; i++) {
+        const val = detractorCounts[i] + promoterCounts[i] + passiveCounts[i];
+        if (val === 0) {
+          npsCounts[i] = 0;
+        } else {
+          npsCounts[i] = (((promoterCounts[i] - detractorCounts[i]) / val) * 100).toFixed(2);
+        }
+      }
+    
+      setDataForChart({
+        labels: labels,
+        datasets: [
+          {
+            label: "Detractor",
+            data: detractorCounts,
+            borderColor: "red",
+            backgroundColor: "red",
+          },
+          {
+            label: "Promoter",
+            data: promoterCounts,
+            borderColor: "green",
+            backgroundColor: "green",
+          },
+          {
+            label: "Passive",
+            data: passiveCounts,
+            borderColor: "yellow",
+            backgroundColor: "yellow",
+          },
+        ],
+      });
+      setNpsDataForChart({
+        labels: labels,
+        datasets: [
+          {
+            label: "NPS",
+            data: npsCounts,
+            borderColor: "red",
+            backgroundColor: "red",
+          },
+        ],
+      });
+    };
+    
+
   const fetchData = async () => {
     //check in local storage if present use scale_id = scale_id from local storage
     //if not in local storage hit get scale details api
@@ -591,7 +789,6 @@ const Report = () => {
           type_of_scale: defaultScaleOfUser,
           accessToken,
         });
-        console.log("Scales:", response.data.response[0].scale_id);
         scale_id = response?.data?.response[0]?.scale_id;
       } catch (error) {
         console.error("Error fetching user scales:", error);
@@ -623,6 +820,8 @@ const Report = () => {
         if (!uniqueChannels.has(trimmedName)) {
           uniqueChannels.add(trimmedName);
         }
+
+        
       });
       uniqueChannelNames[`${allChannelsNameTag}`] = "All Channels";
       setChannels([allChannelsNameTag, ...Array.from(uniqueChannels)]);
@@ -635,17 +834,18 @@ const Report = () => {
     }
   };
 
-  const handleFetch = () => {
-    setLoading(true);
-    fetchData();
-  };
+  // const handleFetch = () => {
+  //   setLoading(true);
+  //   fetchData();
+  // };
 
   const handleChannelSelect = (event) => {
     setSelectedChannel(event.target.value);
     if (event.target.value === allChannelsNameTag) {
-      setSelectedInstance(" ");
-      setScores(initialScoreData);
-      setTotalCount(0);
+      setSelectedInstance(""); // Reset instance selection
+      setScores(initialScoreData); // Reset scores to initial state
+      setTotalCount(0); // Reset total count
+      setDisplayDataForAllSelection([]); // Clear data for all selection
     }
   };
 
@@ -885,7 +1085,7 @@ const Report = () => {
                                 mx: "auto",
                               }}
                             >
-                              <Line options={options} data={item.chartData} />
+                              <Line options={options} data={item?.chartData} />
                             </Box>
                           </>
                         </Grid>

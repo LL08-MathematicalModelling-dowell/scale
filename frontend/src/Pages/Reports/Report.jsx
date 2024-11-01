@@ -786,9 +786,11 @@ const Report = () => {
         const response = await getUserScales({
           workspace_id: decodedToken.workspace_id,
           portfolio: decodedToken.portfolio,
-          type_of_scale: defaultScaleOfUser,
+          type_of_scale: "nps",
           accessToken,
         });
+        console.log(response)
+        
         scale_id = response?.data?.response[0]?.scale_id;
       } catch (error) {
         console.error("Error fetching user scales:", error);

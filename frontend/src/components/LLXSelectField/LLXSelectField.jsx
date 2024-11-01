@@ -2,6 +2,7 @@ import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/c
 import PropTypes from "prop-types";
 
 const LLXSelectField = ({triggerClass, placeholder, data, handleInputChange, disabled}) => {
+
   return (
     <div>
       <Select disabled={disabled} onValueChange={(value) => handleInputChange(value, data.label)}>

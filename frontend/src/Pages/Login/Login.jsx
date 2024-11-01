@@ -148,6 +148,8 @@ const Login = () => {
     }));
   };
 
+  
+
   const handleRegister = () => {
     const queryParams = new URLSearchParams(location.search);
     const workspaceName = queryParams.get("workspace_name")

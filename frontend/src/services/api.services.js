@@ -136,6 +136,9 @@ const getScaleReport = async (payload) => {
 const getLLXReport = async (payload) => {
   return await servicesAxiosInstance.post(`v1/scale-services/?service_type=get_scale_report&scale_type=learning_index`, payload);
 }
+const getVocReport = async (payload) => {
+  return await servicesAxiosInstance.post(`v1/scale-services/?service_type=get_scale_report&scale_type=nps`, payload);
+}
 
 const updateScaleDetails = async (payload) => {
   return await servicesAxiosInstance.put(`v1/scale-services/`, payload)
@@ -170,5 +173,7 @@ export {getUserLogin,
   getLLXReport,
   getUserLLXScales,
   updateScaleDetails,
-  getllxReportPayload
+  getllxReportPayload,
+  getVocReport
+
   };

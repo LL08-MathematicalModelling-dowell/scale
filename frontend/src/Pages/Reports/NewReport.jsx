@@ -4,7 +4,7 @@ import Navbar from "@/components/Navbar/Navbar";
 import SelectField from "@/components/SelectField/SelectField";
 import {useCurrentUserContext} from "@/contexts/CurrentUserContext";
 import {workspaceNamesForLikert, workspaceNamesForNPS} from "@/data/Constants";
-import {getLikertChannelsInstances, getLikertReport, getllxReportPayload, getUserScales, getVocReport} from "@/services/api.services";
+import { getllxReportPayload, getUserScales, getVocReport} from "@/services/api.services";
 import {decodeToken} from "@/utils/tokenUtils";
 import {CircularProgress} from "@mui/material";
 import PropTypes from "prop-types";
@@ -88,6 +88,7 @@ const LikertReport = () => {
   const [channelData, setChannelData] = useState([]);
   const [instanceData, setInstanceData] = useState([]);
   const [scaleId, setScaleId] = useState("");
+  const [scaleType, setScaleType] = useState(" ")
   const [workspaceId, setWorkspaceId] = useState("");
   const [dayWise, setDayWise] = useState({
     labels: [],
@@ -129,6 +130,7 @@ const LikertReport = () => {
             type_of_scale: defaultScaleOfUser,
             accessToken,
           });
+
   
           scale_id = response?.data?.response[0]?.scale_id;
           setScaleId(scale_id);
@@ -152,11 +154,12 @@ const LikertReport = () => {
       try {
         setLoading(true); 
         setAlert()
-        setMessage("Loading channels")
         const responseList = await getllxReportPayload(payload);
+        console.log(responseList);
         if (responseList.status === 201) {
           const responseData = responseList.data;
-  
+          const reportScaleType = responseList.scaleType
+          setScaleType(reportScaleType);
           const getChannels = responseData.data.scale_details.flatMap((scale) =>
             scale.channel_instance_details.map((channel) => ({
               label: channel.channel_display_name,
@@ -277,9 +280,9 @@ const LikertReport = () => {
     try {
       setLoading(true)
           setDisplayData(false);
-         setMessage("Loading...");
+          setMessage("Loading...");
         setAlert(true)
-      const reportResponse = await getVocReport(payload);
+      const reportResponse = await getVocReport(payload,  scaleType);
       console.log("Report Response Status:", reportResponse);
       if (reportResponse.status === 201) {
         setDisplayData(true);
@@ -356,13 +359,14 @@ const LikertReport = () => {
       } else {
         console.log("Non-200/404 Response:", reportResponse);
         setAlert(true);
-        setMessage("Failed to fetch Likert Scale Report");
+        setMessage("Failed to fetch NPS Report data");
       }
     } catch (error) {
       console.log("Catch Error: Failed to fetch Likert report data", error?.response);
       if (error.response.status === 400) {
         console.log("404 Error: Report not found:", error?.response.data?.message);
         setAlert(true);
+
         setMessage("NO RESPONSES FOUND");
         setDisplayData(false);
         setTotalResponse(0);

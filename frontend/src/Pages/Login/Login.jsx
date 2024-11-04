@@ -2,10 +2,10 @@ import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Logo from "../../assets/VOC.png";
 import CircularProgress from "@mui/material/CircularProgress";
-import { getUserLogin, getAPIServerStatus, getUserScales } from "../../services/api.services";
-import { decodeToken} from "@/utils/tokenUtils";
-import { workspaceNamesForLikert, workspaceNamesForNPS } from "@/data/Constants";
-import { useCurrentUserContext } from "@/contexts/CurrentUserContext";
+import { getUserLogin, getAPIServerStatus } from "../../services/api.services";
+// import { decodeToken} from "@/utils/tokenUtils";
+// import { workspaceNamesForLikert, workspaceNamesForNPS } from "@/data/Constants";
+// import { useCurrentUserContext } from "@/contexts/CurrentUserContext";
 
 
 const Login = () => {
@@ -27,7 +27,7 @@ const Login = () => {
     password: false,
   });
 
-  const {defaultScaleOfUser, setDefaultScaleOfUser} = useCurrentUserContext();
+  // const {defaultScaleOfUser, setDefaultScaleOfUser} = useCurrentUserContext();
 
 
   useEffect(() => {
@@ -133,27 +133,27 @@ const Login = () => {
       console.log(loginResponse)
       if (loginResponse.success) {
 
-        const decodedTokenForWorkspaceName = decodeToken(loginResponse.access_token);
-        if (workspaceNamesForNPS.some((workspaceName) => workspaceName == decodedTokenForWorkspaceName.workspace_owner_name)) {
-          console.log("contains");
-          setDefaultScaleOfUser("nps");
-        } else if (workspaceNamesForLikert.some((workspaceName) => workspaceName == decodedTokenForWorkspaceName.workspace_owner_name)) {
-          setDefaultScaleOfUser("likert");
-        }
+      //   const decodedTokenForWorkspaceName = decodeToken(loginResponse.access_token);
+      //   if (workspaceNamesForNPS.some((workspaceName) => workspaceName == decodedTokenForWorkspaceName.workspace_owner_name)) {
+      //     console.log("contains");
+      //     setDefaultScaleOfUser("nps");
+      //   } else if (workspaceNamesForLikert.some((workspaceName) => workspaceName == decodedTokenForWorkspaceName.workspace_owner_name)) {
+      //     setDefaultScaleOfUser("likert");
+      //   }
 
-        const successToken = loginResponse.access_token;
-        const decodeKey = decodeToken(successToken);
-        console.log(decodeKey)
-        const accessToken = loginResponse.access_token
+      //   const successToken = loginResponse.access_token;
+      //   const decodeKey = decodeToken(successToken);
+      //   console.log(decodeKey)
+      //   const accessToken = loginResponse.access_token
         
-        const response = await getUserScales({
-          workspace_id: decodeKey.workspace_id,
-          portfolio: decodeKey.portfolio,
-          type_of_scale: defaultScaleOfUser,
-          accessToken,
-      })
+      //   const response = await getUserScales({
+      //     workspace_id: decodeKey.workspace_id,
+      //     portfolio: decodeKey.portfolio,
+      //     type_of_scale: defaultScaleOfUser,
+      //     accessToken,
+      // })
 
-      console.log(response)
+      // console.log(response)
         navigate("/voc/reports");
       } else {
         setStatusMessage("Login failed.");

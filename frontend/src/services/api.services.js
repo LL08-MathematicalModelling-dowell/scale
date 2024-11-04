@@ -136,8 +136,8 @@ const getScaleReport = async (payload) => {
 const getLLXReport = async (payload) => {
   return await servicesAxiosInstance.post(`v1/scale-services/?service_type=get_scale_report&scale_type=learning_index`, payload);
 }
-const getVocReport = async (payload) => {
-  return await servicesAxiosInstance.post(`v1/scale-services/?service_type=get_scale_report&scale_type=nps`, payload);
+const getVocReport = async (payload, scaleType) => {
+  return await servicesAxiosInstance.post(`v1/scale-services/?service_type=get_scale_report&scale_type=${scaleType}`, payload);
 }
 
 const updateScaleDetails = async (payload) => {

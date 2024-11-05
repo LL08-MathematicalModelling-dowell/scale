@@ -284,10 +284,12 @@ class UserManagement(APIView):
         user_id = request.data.get("user_id")
         latitude = request.data.get("latitude")
         longitude = request.data.get("longitude")
+        workspace_name= request.data.get("workspace_name")
 
         serializer = EmailSerializer(data={
             "email": email,
-            "user_id": user_id
+            "user_id": user_id,
+            "workspace_name":workspace_name
         })
 
         if not serializer.is_valid():
@@ -298,55 +300,148 @@ class UserManagement(APIView):
             }, status=status.HTTP_400_BAD_REQUEST)
         
         # TODO: Replace this when required
-        workspace_name = "manish_test_error_login"
 
-        response = get_portfolio_details(workspace_name, user_id)
-
-        if not response["success"]:
-            return Response({
-                "success": False,
-                "message": response["message"]
-            }, status=status.HTTP_404_NOT_FOUND)
-
-        portfolio_details = response["response"][0]
-        customer_id = portfolio_details["portfolio_info"]["portfolio_name"]
-        product_id = workspace_name
-        user_id = user_id
-        password = portfolio_details["portfolio_info"]["password"]
-
-        if latitude and longitude:
-            try:
-                save_location_data(
-                    workspace_id=portfolio_details["userinfo"]["owner_id"],
-                    latitude=latitude,
-                    longitude=longitude,
-                    user_id=user_id,
-                    event="registration"
-                )
-            except Exception as e:
-                print(f"Location save failed: {e}")
-                pass
-
-        response_send_email = json.loads(send_email(
-            toname=email,
-            toemail=email,
-            customer_id=customer_id,
-            product_id=product_id,    
-            user_id=user_id,
-            password=password,        
-            login_link="https://www.scales.uxlivinglab.online/voc/"
+        user_email_response = json.loads(datacube_data_retrieval(
+            api_key, 
+            "voc", 
+            "voc_user_management", 
+            {
+                "portfolio_username": user_id,
+                "workspace_name": workspace_name
+            },
+            0,
+            0,
+            False
         ))
 
-        if not response_send_email["success"]:
+        if not user_email_response["data"]:
             return Response({
                 "success": False,
-                "message": "Failed to send email, Please try again"
-            }, status=status.HTTP_400_BAD_REQUEST)
+                "message": "Please enter valid user ID"
+            }, status=status.HTTP_404_NOT_FOUND)
 
-        return Response({
-            "success": True,
-            "message": "Email sent successfully"
-        }, status=status.HTTP_200_OK)
+        if user_email_response["data"][0]["email"] == "":
+            response = get_portfolio_details(workspace_name, user_id)
+
+            if not response["success"]:
+                return Response({
+                    "success": False,
+                    "message": response["message"]
+                }, status=status.HTTP_404_NOT_FOUND)
+        
+            user_update = json.loads(datacube_data_update(
+                api_key,
+                "voc",
+                "voc_user_management",
+                {"_id":user_email_response["data"][0]["_id"]},  
+                {
+
+                    "email": email
+                }
+            ))
+
+            if not user_update["success"]:
+                return Response({
+                    "success": False,
+                    "message": "Faild to update email"
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            portfolio_details = response["response"][0]
+            customer_id = portfolio_details["portfolio_info"]["portfolio_name"]
+            product_id = workspace_name
+            user_id = user_id
+            password = portfolio_details["portfolio_info"]["password"]
+
+            if latitude and longitude:
+                try:
+                    save_location_data(
+                        workspace_id=portfolio_details["userinfo"]["owner_id"],
+                        latitude=latitude,
+                        longitude=longitude,
+                        user_id=user_id,
+                        event="registration"
+                    )
+                except Exception as e:
+                    print(f"Location save failed: {e}")
+                    pass
+
+            response_send_email = json.loads(send_email(
+                toname=email,
+                toemail=email,
+                customer_id=customer_id,
+                product_id=product_id,    
+                user_id=user_id,
+                password=password,        
+                login_link="https://www.scales.uxlivinglab.online/voc/"
+            ))
+
+            if not response_send_email["success"]:
+                return Response({
+                    "success": False,
+                    "message": "Failed to send email, Please try again"
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            return Response({
+                "success": True,
+                "message": "Email sent successfully"
+            }, status=status.HTTP_200_OK)
+        
+        if user_email_response["data"][0]["email"]!= email:
+            return Response({
+                "success": False,
+                "message": "This account is already registered with any other email"
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        if user_email_response["data"][0]["email"] == email:
+            response = get_portfolio_details(workspace_name, user_id)
+
+            if not response["success"]:
+                return Response({
+                    "success": False,
+                    "message": response["message"]
+                }, status=status.HTTP_404_NOT_FOUND)
+
+            portfolio_details = response["response"][0]
+            customer_id = portfolio_details["portfolio_info"]["portfolio_name"]
+            product_id = workspace_name
+            user_id = user_id
+            password = portfolio_details["portfolio_info"]["password"]
+
+            if latitude and longitude:
+                try:
+                    save_location_data(
+                        workspace_id=portfolio_details["userinfo"]["owner_id"],
+                        latitude=latitude,
+                        longitude=longitude,
+                        user_id=user_id,
+                        event="registration"
+                    )
+                except Exception as e:
+                    print(f"Location save failed: {e}")
+                    pass
+
+            response_send_email = json.loads(send_email(
+                toname=email,
+                toemail=email,
+                customer_id=customer_id,
+                product_id=product_id,    
+                user_id=user_id,
+                password=password,        
+                login_link="https://www.scales.uxlivinglab.online/voc/"
+            ))
+
+            if not response_send_email["success"]:
+                return Response({
+                    "success": False,
+                    "message": "Failed to send email, Please try again"
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            return Response({
+                "success": True,
+                "message": "Email sent successfully"
+            }, status=status.HTTP_200_OK)
+        
+
 
     def handle_error(self, request): 
         return Response({

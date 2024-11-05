@@ -17,6 +17,9 @@ const Registration = () => {
   const [longitude, setLongitude] = useState(null);
   const navigate = useNavigate();
 
+  const queryParams = new URLSearchParams(location.search);
+  const workspaceName = queryParams.get("workspace_name");
+
   useEffect(() => {
     // Get user's current location
     if (navigator.geolocation) {
@@ -93,26 +96,30 @@ const Registration = () => {
     setLoading(true);
 
     try {
-      const response = await emailServiceForUserDetails(email, userId,latitude, longitude);
-      if (response.data.success) {
-        setStatusMessage("Email sent successfully.");
-        setIsSuccess(true);
-        setTimeout(() => {
-          navigate("/voc");
-        }, 2000);
-      } else {
-        setStatusMessage(response.data.message || "Failed to send email. Please try again.");
-        setIsSuccess(false);
-      }
+        const response = await emailServiceForUserDetails(email, userId, latitude, longitude, workspaceName);
+        if (response.data.success) {
+            setStatusMessage(response.data.message);
+            setIsSuccess(true);
+            const timeoutId = setTimeout(() => {
+                navigate("/voc");
+            }, 2000);
+
+            // Clear timeout if component unmounts
+            return () => clearTimeout(timeoutId);
+        } else {
+            setStatusMessage(response.data.message);
+            setIsSuccess(false);
+        }
     } catch (error) {
-      console.log(error);
-      
-      setStatusMessage("Failed to send email. Please try again.");
-      setIsSuccess(false);
+        console.error(error);
+        const errorMessage = error.response?.data?.message;
+        setStatusMessage(errorMessage);
+        setIsSuccess(false);
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };
+};
+
 
   const handleHome = () => navigate("/voc");
 

@@ -29,6 +29,7 @@ class ScaleRetrieveSerializer(serializers.Serializer):
 class EmailSerializer(serializers.Serializer):
     email = serializers.EmailField()
     user_id = serializers.CharField()
+    workspace_name=serializers.CharField()
 
 class SaceScaleDetailsSerializer(serializers.Serializer):
     TYPE_OF_SCALE = (

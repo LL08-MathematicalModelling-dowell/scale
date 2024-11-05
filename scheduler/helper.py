@@ -51,11 +51,22 @@ def format_location_data(data):
                 ', '.join(map(str, entry['longitudes']))
             ])
     return tabulate(table_data, headers=['Date', 'Time Range', 'Total Events', 'Latitudes', 'Longitudes'], tablefmt='html')
-import requests
 
-def send_email(toname, toemail, subject, date, button_link, qrcode_link, scale_data_table, location_data_table):
+
+def send_email(toname, toemail, subject, date, button_link, qrcode_link, scale_data_table, location_data_table, user_id, customer_id, product_id, report_period):
+    def highlight_data_row(row):
+        
+        import re
+        has_numbers = bool(re.search(r'\d+\.?\d*', row))
+        if has_numbers:
+            if row.strip().startswith('<tr'):
+                return row.replace('<tr', '<tr class="highlight"', 1)
+            else:
+                return f'<tr class="highlight">{row}</tr>'
+        return row if row.strip().startswith('<tr') else f'<tr>{row}</tr>'
     scale_data_rows = scale_data_table.splitlines()
-    limited_scale_data = "\n".join(scale_data_rows)
+    processed_rows = [highlight_data_row(row) for row in scale_data_rows]
+    limited_scale_data = "\n".join(processed_rows)
     
     url = "https://100085.pythonanywhere.com/api/email/"
     
@@ -74,87 +85,143 @@ def send_email(toname, toemail, subject, date, button_link, qrcode_link, scale_d
             color: #333;
         }}
         .email-container {{
-            max-width: 600px;
+            max-width: 800px;
             margin: 20px auto;
             background-color: #ffffff;
-            padding: 30px;
-            border-radius: 10px;
+            padding: 40px;
+            border-radius: 15px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }}
+        .logo-container {{
             text-align: center;
+            margin-bottom: 30px;
         }}
         .logo-container img {{
-            max-width: 120px;
+            max-width: 150px;
             height: auto;
-            margin-bottom: 20px;
         }}
         .content {{
             font-size: 16px;
-            line-height: 1.5;
-            color: #555;
+            line-height: 1.6;
+            color: #444;
         }}
-        .greeting {{
-            font-size: 20px;
+        .header-info {{
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }}
+        .info-grid {{
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }}
+        .info-item {{
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 8px;
+        }}
+        .info-label {{
             font-weight: bold;
+            color: #28a745;
+            font-size: 14px;
+        }}
+        .info-value {{
+            margin-top: 5px;
+            font-size: 15px;
+        }}
+        .report-title {{
+            font-size: 24px;
             color: #2c3e50;
+            margin: 30px 0 20px;
+            text-align: center;
+        }}
+        table {{
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 25px 0;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }}
+        th, td {{
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }}
+        th {{
+            background-color: #28a745;
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 14px;
+        }}
+        tr:nth-child(even) {{
+            background-color: #f9f9f9;
+        }}
+        tr:hover {{
+            background-color: #f5f5f5;
+        }}
+        .highlight {{
+            background-color: #e8f5e9 !important;
+        }}
+        tr.highlight:nth-child(even) {{
+            background-color: #e0f0e3 !important;
+        }}
+        tr.highlight:hover {{
+            background-color: #d7ebd9 !important;
+        }}
+        .total-row {{
+            background-color: #e8f5e9;
+            font-weight: bold;
         }}
         .button {{
             display: inline-block;
-            padding: 12px 25px;
+            padding: 14px 30px;
             background-color: #28a745;
             color: #ffffff;
             text-decoration: none;
             font-size: 16px;
             font-weight: bold;
             border-radius: 50px;
-            margin-top: 25px;
-            transition: background-color 0.3s ease;
+            margin: 30px 0;
+            transition: all 0.3s ease;
+            text-align: center;
         }}
         .button:hover {{
             background-color: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
         }}
         .qrcode-container {{
-            margin-top: 30px;
+            text-align: center;
+            margin: 40px 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
         }}
         .qrcode-container img {{
-            max-width: 150px;
+            max-width: 180px;
             height: auto;
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }}
         .footer {{
             margin-top: 40px;
-            font-size: 12px;
-            color: #999;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            font-size: 14px;
+            color: #666;
+            text-align: center;
         }}
         .footer a {{
-            color: #999;
+            color: #28a745;
             text-decoration: none;
         }}
         .footer a:hover {{
-            color: #555;
-        }}
-        table {{
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }}
-        th, td {{
-            padding: 12px;
-            text-align: left;
-        }}
-        th {{
-            background-color: #28a745;
-            color: white;
-            font-weight: bold;
-        }}
-        tr:nth-child(even) {{
-            background-color: #f9f9f9;
-        }}
-        tr:hover {{
-            background-color: #f1f1f1;
+            text-decoration: underline;
         }}
         </style>
     </head>
@@ -167,28 +234,54 @@ def send_email(toname, toemail, subject, date, button_link, qrcode_link, scale_d
                 />
             </div>
             <div class="content">
-                <p class="greeting">Hey {toname},</p>
-                <p>Date: {date}</p>
-                <h2>Scale Data</h2>
+                <p>{toname},</p>
+                
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">User ID:</div>
+                        <div class="info-value">{user_id}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Customer ID:</div>
+                        <div class="info-value">{customer_id}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Product ID:</div>
+                        <div class="info-value">{product_id}</div>
+                    </div>
+                </div>
+                
+                <div class="header-info">
+                    <div class="info-label">Date:</div>
+                    <div class="info-value">{date}</div>
+                </div>
+
+                <h2 class="report-title">Voice of Customers Report - {report_period}</h2>
+                
                 <table>
                     <tbody>
                         {limited_scale_data}
                     </tbody>
                 </table>
-                <p>We’ve prepared the report based on your feedback. Below are the first 10 data entries. If you want to see all the data, you can click the button below to view your personalized report.</p>
-                <a href="{button_link}" class="button">View All</a>
+
+                <div style="text-align: center;">
+                    <a href="{button_link}" class="button">View Detailed Report</a>
+                </div>
             </div>
+            
             <div class="qrcode-container">
-                <p>Or scan this QR code to access the report:</p>
+                <p>Scan QR code to access the report:</p>
                 <img src="{qrcode_link}" alt="QR Code" />
             </div>
-            <div class="content">
-                <p>Thank you for choosing us to take your survey!</p>
+            
+            <div class="content" style="text-align: center;">
+                <p>Thank you for using Voice of Customers!</p>
                 <p>Visit our website: <a href="https://dowellresearch.sg/" target="_blank">dowellresearch.sg</a></p>
             </div>
+            
             <div class="footer">
-                <p>This email was sent to <a href="mailto:{toemail}">{toemail}</a>. If you didn't expect this, please ignore.</p>
-                <p>&copy; 2024 Dowell Research. All rights reserved.</p>
+                <p>This email was sent to <a href="mailto:{toemail}">{toemail}</a>. If you didn't expect this, please mail to <a href="mailto:mail@dowellresearch.com">mail@dowellresearch.com</a></p>
+                <p>&copy; @uxlivinglab. All rights reserved.</p>
             </div>
         </div>
     </body>
@@ -205,8 +298,6 @@ def send_email(toname, toemail, subject, date, button_link, qrcode_link, scale_d
     response = requests.post(url, json=payload)
     
     return response.text
-
-
 
 # def send_email(toname, toemail, subject, date, button_link, qrcode_link, scale_data_table, location_data_table):
 #     url = "https://100085.pythonanywhere.com/api/email/"

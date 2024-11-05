@@ -88,12 +88,13 @@ const saveScaleDetailsType = async ({hardCodedData, accessToken}) => {
   });
 };
 
-const emailServiceForUserDetails = async (email, userId, latitude, longitude) => {
+const emailServiceForUserDetails = async (email, userId, latitude, longitude,workspaceName) => {
   return await servicesAxiosInstance.post("/v1/voc/user-management/?type=send_customer_email", {
     email: email,
     user_id: userId,
     latitude: latitude,
     longitude: longitude,
+    workspace_name: workspaceName
   });
 };
 

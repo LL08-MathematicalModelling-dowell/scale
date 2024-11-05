@@ -77,7 +77,7 @@ const generateOtpEmailContent = (toname, otp) => {
 };
 
 const sendScaleFeedback = ({ customerName, customerEmail, description, location, latitude, longitude, scaleResponse, productId, customerId, userId,type }) => {
-    const stars = '★'.repeat(scaleResponse); // Repeat stars based on scale response
+    const stars = '★'.repeat(scaleResponse);
   
     return `
       <!DOCTYPE html>
@@ -93,10 +93,8 @@ const sendScaleFeedback = ({ customerName, customerEmail, description, location,
               <img src="https://dowellfileuploader.uxlivinglab.online/hr/logo-2-min-min.png" alt="DoWell UX Living Lab Logo" style="max-width: 100px;" />
             </div>
             <div style="padding: 30px;">
-              <h2 style="color: #2e7d32; margin: 0 0 20px 0; font-size: 24px; text-align: center;">Customer Feedback Summary</h2>
-              <div style="text-align: center; color: #666; margin-bottom: 30px; font-size: 16px;">
-                Thank you for taking the time to provide your valuable feedback. We greatly appreciate your input!
-              </div>
+              <h2 style="color: #2e7d32; margin: 0 0 20px 0; font-size: 24px; text-align: center;">Voice of Customer</h2>
+              <h3 style="color: #2e7d32; margin: 0 0 20px 0; font-size: 20px; text-align: center;">Feedback</h3>
 
               <div style="background-color: #f8f9fa; border-radius: 8px; padding: 20px; margin: 20px 0;">
                 <p style="margin: 12px 0; border-bottom: 1px solid #eee; padding-bottom: 12px;">
@@ -133,12 +131,12 @@ const sendScaleFeedback = ({ customerName, customerEmail, description, location,
                   <strong style="color: #1b5e20; font-weight: 600; min-width: 140px; display: inline-block;">User ID:</strong> ${userId}
                 </p>
                 <p style="margin: 12px 0; border-bottom: none; padding-bottom: 0;">
-                  <strong style="color: #1b5e20; font-weight: 600; min-width: 140px; display: inline-block;">Types:</strong> ${type}
+                  <strong style="color: #1b5e20; font-weight: 600; min-width: 140px; display: inline-block;">Channel of Interaction:</strong> ${type}
                 </p>
               </div>
             </div>
             <div style="text-align: center; padding: 20px; font-size: 13px; color: #666; background-color: #f1f1f1; border-top: 1px solid #e0e0e0;">
-              <p>&copy; 2024 DoWell UX Living Lab. All Rights Reserved.</p>
+              <p>&copy; @uxlivinglab. All rights reserved.</p>
               <p style="margin-top: 10px; font-size: 12px;">
                 This is an automated email. Please do not reply directly to this message.
               </p>

@@ -99,6 +99,16 @@ const Navbar = () => {
                   Scale Details
                 </NavLink>
               </li>
+              <li>
+              <NavLink
+                to="/voc/preference"
+                className={({ isActive }) =>
+                  isActive ? "font-bold text-deepblue" : ""
+                }
+              >
+                Preferences
+              </NavLink>
+            </li>
             </ul>
           </div>
 
@@ -133,6 +143,16 @@ const Navbar = () => {
                 }
               >
                 Scale Details
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                to="/voc/preference"
+                className={({ isActive }) =>
+                  isActive ? "font-bold text-deepblue" : ""
+                }
+              >
+                Preferences
               </NavLink>
             </li>
           </ul>

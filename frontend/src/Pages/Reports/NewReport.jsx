@@ -10,6 +10,7 @@ import {CircularProgress} from "@mui/material";
 import PropTypes from "prop-types";
 import {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
+import LikertReport from "../LikertReport/LikertReport";
 
 const RectangleDiv = ({className = "", scores, type, maximumScore, npsDistribution}) => {
   if (npsDistribution) {
@@ -62,7 +63,7 @@ RectangleDiv.propTypes = {
   npsDistribution: PropTypes.object,
 };
 
-const LikertReport = () => {
+const NewReport = () => {
   // const [normalizedData, setNormalizedData] = useState([]);
   // const [channelName, setChannelName] = useState([]);
   // const [instanceName, setInstanceName] = useState([]);
@@ -89,7 +90,7 @@ const LikertReport = () => {
   const [instanceData, setInstanceData] = useState([]);
   const [scaleId, setScaleId] = useState("");
   const [scaleType, setScaleType] = useState(" ")
-  const [workspaceId, setWorkspaceId] = useState("");
+  // const [workspaceId, setWorkspaceId] = useState("");
   const [dayWise, setDayWise] = useState({
     labels: [],
     datasets: [],
@@ -99,10 +100,9 @@ const LikertReport = () => {
   const navigate = useNavigate();
   const accessToken = localStorage.getItem("accessToken");
   const refreshToken = localStorage.getItem("refreshToken");
-
   useEffect(() => {
     if (!accessToken || !refreshToken) {
-      navigate("/voc/");
+      navigate("/voc");
     } else {
       const decodedTokenForWorkspaceName = decodeToken(accessToken);
       if (workspaceNamesForNPS.some((workspaceName) => workspaceName == decodedTokenForWorkspaceName.workspace_owner_name)) {
@@ -114,11 +114,13 @@ const LikertReport = () => {
     }
   }, [accessToken, refreshToken, navigate]);
 
+
+
+  
+
   useEffect(() => {
 
-    const fetchPayload = async () => {
-    // Start loading at the beginning
-  
+    const fetchPayload = async () => {  
       let scale_id = localStorage.getItem("scale_id");
   
       if (!scale_id) {
@@ -136,14 +138,13 @@ const LikertReport = () => {
           setScaleId(scale_id);
         } catch (error) {
           console.error("Error fetching user scales:", error);
-          setLoading(false); // Set loading to false in case of an error during fetching scales
+          setLoading(false); 
           return;
         }
       } else {
         setScaleId(scale_id);
       }
   
-      // Use updated workspaceId and scaleId
       const decodedToken = decodeToken(accessToken);
       const payload = {
         workspace_id: decodedToken.workspace_id,
@@ -156,10 +157,13 @@ const LikertReport = () => {
         setAlert()
         const responseList = await getllxReportPayload(payload);
         console.log(responseList);
+        
         if (responseList.status === 201) {
           const responseData = responseList.data;
-          const reportScaleType = responseList.scaleType
-          setScaleType(reportScaleType);
+       const reportScaleType = responseData.data.scale_details[0].scale_type
+                 console.log(responseData)
+                 console.log(reportScaleType)
+           setScaleType(reportScaleType);
           const getChannels = responseData.data.scale_details.flatMap((scale) =>
             scale.channel_instance_details.map((channel) => ({
               label: channel.channel_display_name,
@@ -193,57 +197,6 @@ const LikertReport = () => {
       fetchPayload();
     }
   }, [accessToken, refreshToken, defaultScaleOfUser]);
-
-  // const fetchLikertChannelInstances = async () => {
-  //   const scale_id = "66c9d21e9090b1529d108a63";
-  //   setInstanceLoading(true);
-  //   try {
-  //     const channelDetailsResponse = await getLikertChannelsInstances(scale_id);
-  //     if (channelDetailsResponse.status === 200) {
-  //       const data = channelDetailsResponse.data;
-  //       const channels =
-  //         data && data.scale_data && data.scale_data.channel_instance_details
-  //           ? [
-  //               {label: "All channels", value: "all"},
-  //               ...data.scale_data.channel_instance_details.map((item) => ({
-  //                 label: item.channel_display_name,
-  //                 value: item.channel_name,
-  //               })),
-  //             ]
-  //           : [
-  //               {
-  //                 label: "All Channels",
-  //                 value: "all",
-  //               },
-  //             ];
-
-  //       setChannelName(channels);
-  //       console.log(channelName);
-
-  //       const instances = data?.scale_data?.channel_instance_details.flatMap((item) =>
-  //         item.instances_details.map((instance) => ({
-  //           label: instance.instance_display_name,
-  //           value: instance.instance_name,
-  //         }))
-  //       );
-  //       setInstanceName(instances);
-  //     } else {
-  //       console.log("Channel API call was not successful:", channelDetailsResponse);
-  //       setAlert(true);
-  //       setMessage("Failed to fetch channel instances.");
-  //     }
-  //   } catch (error) {
-  //     console.log("Failed to fetch Likert report data", error);
-  //     setAlert(true);
-  //     setMessage("An error occurred while fetching channel instances.");
-  //   } finally {
-  //     setInstanceLoading(false); // End loading
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   fetchLikertChannelInstances();
-  // }, []);
 
   const fetchVocReport = async () => {
     let scale_id;
@@ -282,7 +235,7 @@ const LikertReport = () => {
           setDisplayData(false);
           setMessage("Loading...");
         setAlert(true)
-      const reportResponse = await getVocReport(payload,  scaleType);
+      const reportResponse = await getVocReport(payload, scaleType);
       console.log("Report Response Status:", reportResponse);
       if (reportResponse.status === 201) {
         setDisplayData(true);
@@ -409,7 +362,10 @@ const LikertReport = () => {
   return (
     <div className="relative max-w-full min-h-screen overflow-hidden">
       <Navbar />
-      <div className=" my-3 ">
+      <div>
+        {defaultScaleOfUser == 'nps' ? (
+          <div>
+            <div className=" my-3 ">
         <div className="flex  items-center justify-center">
           <h1 className="font-poppins tracking-tight text-2xl mb-4 font-bold">NET PROMOTER SCORE</h1>
         </div>
@@ -487,8 +443,15 @@ const LikertReport = () => {
           <p className="text-xl font-semibold tracking-tight text-green-800 font-poppins">Please wait, while fetching VOC your report...</p>
         </div>
       ) : null}
+          </div>
+        ): (
+          <div>
+            <LikertReport/>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
 
-export default LikertReport;
+export default NewReport;

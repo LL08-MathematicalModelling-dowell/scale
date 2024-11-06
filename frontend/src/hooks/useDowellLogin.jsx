@@ -66,7 +66,7 @@ export default function useDowellLogin() {
         if (localAPIKey) {
             setCurrentUserApiKey(localAPIKey);
         } else {
-            getApiKeyInfoFromClientAdmin(localUserDetails?.userinfo?.client_admin_id).then(res => {
+            getApiKeyInfoFromClientAdmin("6385c0f18eca0fb652c94558").then(res => {
                 setCurrentUserApiKey(res?.data?.data?.api_key);
             }).catch(err => {
                 console.log('err while fetching api key', err);
@@ -86,7 +86,8 @@ export default function useDowellLogin() {
                 getUserInfoFromClientAdmin(session_id)
                     .then(async (res) => {
                         try {
-                            const apiKeyRes = (await getApiKeyInfoFromClientAdmin(res.data?.userinfo?.client_admin_id)).data;
+                            // const apiKeyRes = (await getApiKeyInfoFromClientAdmin(res.data?.userinfo?.client_admin_id)).data;
+                            const apiKeyRes = (await getApiKeyInfoFromClientAdmin("6385c0f18eca0fb652c94558")).data;
                             setCurrentUserApiKey(apiKeyRes?.data?.api_key);
 
                             sessionStorage.setItem(
@@ -117,7 +118,7 @@ export default function useDowellLogin() {
                 .then(async (res) => {
                     try {
                         console.log('api key from client admin', res.data?.userinfo?.client_admin_id);
-                        const apiKeyRes = (await getApiKeyInfoFromClientAdmin(res.data?.userinfo?.client_admin_id)).data;
+                        const apiKeyRes = (await getApiKeyInfoFromClientAdmin("6385c0f18eca0fb652c94558")).data;
                         setCurrentUserApiKey(apiKeyRes?.data?.api_key);
 
                         sessionStorage.setItem(

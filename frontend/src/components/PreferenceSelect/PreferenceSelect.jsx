@@ -1,18 +1,20 @@
+// PreferenceSelect.js
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import PropTypes from "prop-types";
 
-const PreferenceSelect = ({ triggerClass, placeholder, data, handleInputChange, disabled, type, inputClass, customClass }) => {
+const PreferenceSelect = ({ triggerClass, placeholder, data, handleInputChange, disabled, type, inputClass, customClass, name }) => {
   return (
     <div>
       {type === "input" ? (
         <input
+          name={name}
           className={inputClass}
           placeholder={placeholder}
           disabled={disabled}
-          onChange={(e) => handleInputChange(e.target.value, type)}
+          onChange={(e) => handleInputChange(e, e.target.value, name)}
         />
       ) : (
-        <Select disabled={disabled} onValueChange={(value) => handleInputChange(value, type)}>
+        <Select disabled={disabled} onValueChange={(value) => handleInputChange(null, value, name)}>
           <SelectTrigger className={type === "rating" ? customClass : triggerClass}>
             <SelectValue placeholder={placeholder} />
           </SelectTrigger>
@@ -38,6 +40,7 @@ PreferenceSelect.propTypes = {
   type: PropTypes.string,
   inputClass: PropTypes.string,
   customClass: PropTypes.string,
+  name: PropTypes.string,
 };
 
 export default PreferenceSelect;

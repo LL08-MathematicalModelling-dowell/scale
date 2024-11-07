@@ -112,8 +112,9 @@ const sendScaleFeedback = ({ customerName, customerEmail, description, location,
               <p style="margin: 12px 0; border-bottom: 1px solid #eee; padding-bottom: 12px;">
                 <strong style="color: #1b5e20; font-weight: 600; min-width: 140px; display: inline-block;">Customer Email:</strong> ${customerEmail}
               </p>
-              <p style="margin: 12px 0; border-bottom: 1px solid #eee; padding-bottom: 12px;">
-                <strong style="color: #1b5e20; font-weight: 600; min-width: 140px; display: inline-block;">Location:</strong> ${location}
+              <p style="margin: 12px 0; border-bottom: 1px solid #eee; padding-bottom: 12px; word-wrap: break-word; white-space: normal;">
+                <strong style="color: #1b5e20; font-weight: 600; min-width: 140px; display: inline-block;">Location:</strong> 
+                ${location}
               </p>
               <p style="margin: 12px 0; border-bottom: 1px solid #eee; padding-bottom: 12px;">
                 <strong style="color: #1b5e20; font-weight: 600; min-width: 140px; display: inline-block;">Description:</strong> ${description}

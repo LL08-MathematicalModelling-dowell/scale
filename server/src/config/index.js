@@ -11,7 +11,8 @@ const config = {
     JWT_SECRET: process.env.JWT_SECRET,
     redisHost: process.env.REDIS_HOST ,
     redisPort: process.env.REDIS_PORT ,
-    redisPassword: process.env.REDIS_PASSWORD 
+    redisPassword: process.env.REDIS_PASSWORD,
+    GOOGLE_API_KEY: process.env.GOOGLE_API_KEY
 };
 
 console.log(config);

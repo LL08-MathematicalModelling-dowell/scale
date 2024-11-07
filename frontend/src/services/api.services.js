@@ -88,12 +88,13 @@ const saveScaleDetailsType = async ({hardCodedData, accessToken}) => {
   });
 };
 
-const emailServiceForUserDetails = async (email, userId, latitude, longitude) => {
+const emailServiceForUserDetails = async (email, userId, latitude, longitude,workspaceName) => {
   return await servicesAxiosInstance.post("/v1/voc/user-management/?type=send_customer_email", {
     email: email,
     user_id: userId,
     latitude: latitude,
     longitude: longitude,
+    workspace_name: workspaceName
   });
 };
 
@@ -136,6 +137,9 @@ const getScaleReport = async (payload) => {
 const getLLXReport = async (payload) => {
   return await servicesAxiosInstance.post(`v1/scale-services/?service_type=get_scale_report&scale_type=learning_index`, payload);
 }
+const getVocReport = async (payload, scaleType) => {
+  return await servicesAxiosInstance.post(`v1/scale-services/?service_type=get_scale_report&scale_type=${scaleType}`, payload);
+}
 
 const updateScaleDetails = async (payload) => {
   return await servicesAxiosInstance.put(`v1/scale-services/`, payload)
@@ -148,6 +152,11 @@ const getllxReportPayload = async (payload) => {
 export const sendFeedbackEmail = async (payload) => {
   return await otpAxiosInstance.post("/v1/preference-services/send-email-feedback", payload);
 }
+
+const createPreferenceApi = async (payload) => {
+  return await otpAxiosInstance.post("/v1/preference-services", payload);
+}
+
 export {getUserLogin, 
   getServerStatus, 
   getAPIServerStatus, 
@@ -170,5 +179,7 @@ export {getUserLogin,
   getLLXReport,
   getUserLLXScales,
   updateScaleDetails,
-  getllxReportPayload
+  getllxReportPayload,
+  getVocReport,
+ createPreferenceApi
   };

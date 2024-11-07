@@ -54,16 +54,20 @@ def main():
             scale_data_table = format_scale_data(response_data_report)
             location_data_table = format_location_data(response_location_data_report)
 
-            set_data_to_email = [
-                user["portfolio"],
-                user["email"], 
-                report_subject, 
-                datetime.now().strftime("%Y-%B %-d"), 
-                scale_details["response"][0]["report_link"]["report_link"], 
-                scale_details["response"][0]["report_link"]["qrcode_image_url"],
-                response_data_report,
-                response_location_data_report
-            ]
+            # set_data_to_email = [
+            #     user["portfolio"],
+            #     user["email"], 
+            #     report_subject, 
+            #     datetime.now().strftime("%Y-%B %-d"), 
+            #     scale_details["response"][0]["report_link"]["report_link"], 
+            #     scale_details["response"][0]["report_link"]["qrcode_image_url"],
+            #     response_data_report,
+            #     response_location_data_report,
+            #     user["portfolio_username"],
+            #     user["portfolio"],
+            #     user["workspace_name"],
+            #     "One Day"
+            # ]
 
             email_response = send_email(
                 user["portfolio"],
@@ -73,10 +77,20 @@ def main():
                 scale_details["response"][0]["report_link"]["report_link"], 
                 scale_details["response"][0]["report_link"]["qrcode_image_url"],
                 scale_data_table,
-                location_data_table
+                location_data_table,
+                user["portfolio_username"],
+                user["portfolio"],
+                user["workspace_name"],
+                "One Day"
             )
 
-            print(f"Email sent to {user['email']}. Response: {email_response}")
+            # print("----------------------------")
+            # print("----------------------------")
+            # print("User Details:")
+            # print(set_data_to_email)
+            # print("----------------------------")
+            # print("----------------------------")
+            print(f"Email sent to {user['email']}. Response:{email_response}")
 
 
     except Exception as e:

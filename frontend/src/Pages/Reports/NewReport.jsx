@@ -1,66 +1,97 @@
-
 import LineGraph from "@/components/Graph/LineGraph";
 import Navbar from "@/components/Navbar/Navbar";
 // import Navbar from "@/components/Navbar/Navbar";
 import SelectField from "@/components/SelectField/SelectField";
-import { useCurrentUserContext } from "@/contexts/CurrentUserContext";
-import { workspaceNamesForLikert, workspaceNamesForNPS } from "@/data/Constants";
-import {getLikertChannelsInstances, getLikertReport, getUserScales} from "@/services/api.services";
-import { decodeToken } from "@/utils/tokenUtils";
+import {useCurrentUserContext} from "@/contexts/CurrentUserContext";
+import {workspaceNamesForLikert, workspaceNamesForNPS} from "@/data/Constants";
+import { getllxReportPayload, getUserScales, getVocReport} from "@/services/api.services";
+import {decodeToken} from "@/utils/tokenUtils";
 import {CircularProgress} from "@mui/material";
 import PropTypes from "prop-types";
 import {useEffect, useState} from "react";
-import { useNavigate } from "react-router-dom";
+import {useNavigate} from "react-router-dom";
+import LikertReport from "../LikertReport/LikertReport";
 
-const RectangleDiv = ({className = "", scores, type, maximumScore}) => {
-  const constrainedYellowPercent = scores;
-  const greenPercent = 100 - constrainedYellowPercent;
-  console.log(maximumScore);
-
-  return (
-    <div className="flex flex-col">
-      <div className={`relative flex w-full h-6 rounded-full overflow-hidden ${className}`}>
-        <div className="flex items-center justify-center px-4 font-bold text-black bg-yellow-500 " style={{width: `${constrainedYellowPercent + 100}%`}}>
-          <p> {constrainedYellowPercent}</p>
-        </div>
-        <div className="flex items-center justify-center font-bold text-black border-2 border-gray-200" style={{width: `${greenPercent}%`}}>
-          {"    "}
+const RectangleDiv = ({className = "", scores, type, maximumScore, npsDistribution}) => {
+  if (npsDistribution) {
+    const {promoter, detractor, passive} = npsDistribution;
+    return (
+      <div className="flex flex-col">
+        <div className={`relative flex w-full h-6 rounded-full overflow-hidden ${className}`}>
+          <div className="flex items-center justify-center px-2 font-bold text-white bg-red-600" style={{width: `${detractor}%`}}>
+            <p>{detractor}%</p>
+          </div>
+          <div className="flex items-center justify-center px-2 font-bold text-black bg-yellow-500" style={{width: `${passive}%`}}>
+            <p>{passive}%</p>
+          </div>
+          <div className="flex items-center justify-center px-2 font-bold text-white bg-green-600" style={{width: `${promoter}%`}}>
+            <p>{promoter}%</p>
+          </div>
         </div>
       </div>
-      {/* Labels */}
-      <div className="flex justify-between w-full gap-y-2">
-        <p className="text-sm font-medium font-poppins">0</p>
-        <p className="text-sm font-medium font-poppins"> {type === "averageScore" ? "5" : maximumScore}</p>
+    );
+  } else {
+    const constrainedYellowPercent = scores;
+    const greenPercent = 100 - constrainedYellowPercent;
+    console.log(maximumScore);
+
+    return (
+      <div className="flex flex-col">
+        <div className={`relative flex w-full h-6 rounded-full overflow-hidden ${className}`}>
+          <div className="flex items-center justify-center px-4 font-bold text-black bg-yellow-500 " style={{width: `${constrainedYellowPercent + 100}%`}}>
+            <p> {constrainedYellowPercent}</p>
+          </div>
+          <div className="flex items-center justify-center font-bold text-black border-2 border-gray-200" style={{width: `${greenPercent}%`}}>
+            {"    "}
+          </div>
+        </div>
+        {/* Labels */}
+        <div className="flex justify-between w-full gap-y-2">
+          <p className="text-sm font-medium font-poppins">0</p>
+          <p className="text-sm font-medium font-poppins"> {type === "averageScore" ? "5" : maximumScore}</p>
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
 };
 
 RectangleDiv.propTypes = {
   className: PropTypes.string,
-  scores: PropTypes.number.isRequired,
-  type: PropTypes.string.isRequired,
+  scores: PropTypes.number,
+  type: PropTypes.string,
+  maximumScore: PropTypes.number,
+  npsDistribution: PropTypes.object,
 };
 
-const LikertReport = () => {
-  const [normalizedData, setNormalizedData] = useState([]);
-  const [channelName, setChannelName] = useState([]);
-  const [instanceName, setInstanceName] = useState([]);
+const NewReport = () => {
+  // const [normalizedData, setNormalizedData] = useState([]);
+  // const [channelName, setChannelName] = useState([]);
+  // const [instanceName, setInstanceName] = useState([]);
   const [totalScore, setTotalScore] = useState(0);
-  const [averageScore, setAverageScore] = useState(0);
-  const [reportData, setReportData] = useState([]);
+  // const [averageScore, setAverageScore] = useState(0);
+  // const [reportData, setReportData] = useState([]);
   const [displayData, setDisplayData] = useState(true);
   const [alert, setAlert] = useState(false);
   const [message, setMessage] = useState(" ");
   const [totalResponse, setTotalResponse] = useState(0);
-  const [dailyCountsData, setDailyCountsData] = useState([]);
+  const [dailyCountsData, setDailyCountsData] = useState({
+    labels: [],
+    datasets: [],
+  });
   const [duration, setDuration] = useState(null);
   const [instanceValue, setInstanceValue] = useState(null);
   const [channelValue, setChannelValue] = useState(null);
   const [instanceLoading, setInstanceLoading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [maxScore, setMaxScore] = useState(0);
-  const [overallScoreData, setOverallScoreData] = useState({
+  const [npsScore, setNpsScore] = useState(0);
+  const [npsDistribution, setNpsDistribution] = useState({});
+  const [channelData, setChannelData] = useState([]);
+  const [instanceData, setInstanceData] = useState([]);
+  const [scaleId, setScaleId] = useState("");
+  const [scaleType, setScaleType] = useState(" ")
+  // const [workspaceId, setWorkspaceId] = useState("");
+  const [dayWise, setDayWise] = useState({
     labels: [],
     datasets: [],
   });
@@ -71,7 +102,7 @@ const LikertReport = () => {
   const refreshToken = localStorage.getItem("refreshToken");
   useEffect(() => {
     if (!accessToken || !refreshToken) {
-      navigate("/voc/");
+      navigate("/voc");
     } else {
       const decodedTokenForWorkspaceName = decodeToken(accessToken);
       if (workspaceNamesForNPS.some((workspaceName) => workspaceName == decodedTokenForWorkspaceName.workspace_owner_name)) {
@@ -83,263 +114,227 @@ const LikertReport = () => {
     }
   }, [accessToken, refreshToken, navigate]);
 
-  const fetchLikertChannelInstances = async () => {
-    const scale_id = "66c9d21e9090b1529d108a63";
-    setInstanceLoading(true);
-    try {
-      const channelDetailsResponse = await getLikertChannelsInstances(scale_id);
-      if (channelDetailsResponse.status === 200) {
-        const data = channelDetailsResponse.data;
-        const channels = data && data.scale_data && data.scale_data.channel_instance_details      ? [
-          {label: "All channels", value: "all"},
-          ...data.scale_data.channel_instance_details.map((item)=> ({
-            label: item.channel_display_name,
-            value: item.channel_name,
-          })),
-        ] : [
-          {
-            label: "All Channels", value: "all"
-          }
-        ]
-        
-        setChannelName(channels);
 
-        const instances = data?.scale_data?.channel_instance_details.flatMap((item) =>
-          item.instances_details.map((instance) => ({
-            label: instance.instance_display_name,
-            value: instance.instance_name,
-          }))
-        );
-        setInstanceName(instances);
-      } else {
-        console.log("Channel API call was not successful:", channelDetailsResponse);
-        setAlert(true);
-        setMessage("Failed to fetch channel instances.");
-      }
-    } catch (error) {
-      console.log("Failed to fetch Likert report data", error);
-      setAlert(true);
-      setMessage("An error occurred while fetching channel instances.");
-    } finally {
-      setInstanceLoading(false); // End loading
-    }
-  };
+
+  
 
   useEffect(() => {
-    fetchLikertChannelInstances();
-  }, [ ]);
 
+    const fetchPayload = async () => {  
+      let scale_id = localStorage.getItem("scale_id");
+  
+      if (!scale_id) {
+        try {
+          const decodedToken = decodeToken(accessToken);
+          const response = await getUserScales({
+            workspace_id: decodedToken.workspace_id,
+            portfolio: decodedToken.portfolio,
+            type_of_scale: defaultScaleOfUser,
+            accessToken,
+          });
 
-
-  const fetchLikertReport = async () => {
-   let scale_id
-   const LocalStorageScaleId = localStorage.getItem("scale_id");
-   if(LocalStorageScaleId != null){
-    scale_id = LocalStorageScaleId;
-   }else{
-    try{
+  
+          scale_id = response?.data?.response[0]?.scale_id;
+          setScaleId(scale_id);
+        } catch (error) {
+          console.error("Error fetching user scales:", error);
+          setLoading(false); 
+          return;
+        }
+      } else {
+        setScaleId(scale_id);
+      }
+  
       const decodedToken = decodeToken(accessToken);
-      const response = await getUserScales({
+      const payload = {
         workspace_id: decodedToken.workspace_id,
-        portfolio: decodedToken.portfolio,
-        type_of_scale: defaultScaleOfUser,
-        accessToken,
-      });
-      scale_id = response?.data?.response[0]?.scale_id;
-    }catch(error){
-      console.error('Error fetching user scales:', error);
+        scale_id: scale_id, // Use local `scale_id`
+      };
+      console.log(payload);
+  
+      try {
+        setLoading(true); 
+        setAlert()
+        const responseList = await getllxReportPayload(payload);
+        console.log(responseList);
+        
+        if (responseList.status === 201) {
+          const responseData = responseList.data;
+       const reportScaleType = responseData.data.scale_details[0].scale_type
+                 console.log(responseData)
+                 console.log(reportScaleType)
+           setScaleType(reportScaleType);
+          const getChannels = responseData.data.scale_details.flatMap((scale) =>
+            scale.channel_instance_details.map((channel) => ({
+              label: channel.channel_display_name,
+              value: channel.channel_name,
+              instances: channel.instances_details.map((instance) => ({
+                label: instance.instance_display_name,
+                value: instance.instance_name,
+              })),
+            }))
+          );
+          setChannelData(getChannels);
+  
+          const allInstances = getChannels
+            .flatMap((channel) => channel.instances)
+            .filter((instance, index, self) => index === self.findIndex((i) => i.value === instance.value));
+          setInstanceData(allInstances);
+        } else {
+          setAlert(true);
+          setMessage("Failed to fetch the Likert Scale Report");
+        }
+      } catch (error) {
+        console.log("Error while fetching payload:", error);
+        setAlert(true);
+        setMessage("An error occurred while fetching data.");
+      } finally {
+        setLoading(false); // Ensure loading is set to false after all operations
+      }
+    };
+  
+    if (accessToken && refreshToken) {
+      fetchPayload();
     }
-   }
-   console.log(scale_id)
+  }, [accessToken, refreshToken, defaultScaleOfUser]);
 
-   const payload = {
-    scale_id: "66c9d21e9090b1529d108a63",
-    channel_names:channelValue === "all" ? channelName.map((ch) => ch.value).filter((val) => val !== "all"):  [`${channelValue}`],
-    instance_names: [`${instanceValue}`],
-    period: `${duration}`,
-  };
+  const fetchVocReport = async () => {
+    let scale_id;
+    const LocalStorageScaleId = localStorage.getItem("scale_id");
 
-  setLoading(true);
-  setDisplayData(false);
-  setMessage("Loading...");
-  try {
-    const reportResponse = await getLikertReport(payload);
-    console.log("Report Response Status:", reportResponse.status);
-
-    if (reportResponse.status === 200) {
-      setDisplayData(true);
-      const reportResult = reportResponse.data;
-      console.log("Report Result:", reportResult);
-
-      setReportData(reportResult);
-
-      setTotalResponse(reportResult?.report.no_of_responses);
-      const totalScoreString = reportResult?.report?.total_score;
-      console.log(totalScoreString);
-      const maximumScore = parseInt(totalScoreString.split("/")[1], 10);
-      const score = parseInt(totalScoreString.split("/")[0], 10);
-      setTotalScore(score);
-      setMaxScore(maximumScore || 0);
-      console.log(totalScore || 0);
-      console.log(maxScore || 0);
-
-      const reportAverageScore = reportResult?.report?.average_score;
-      const roundedAverageScore = parseFloat(reportAverageScore.toFixed(2));
-      setAverageScore(roundedAverageScore);
-
-      const dailyCounts = reportResult?.report?.daily_counts;
-      console.log("Array of Daily Counts:", dailyCounts);
-
-      const dailyLabels = dailyCounts ? Object.keys(dailyCounts) : [];
-      const dailyDatasets = [1, 2, 3, 4, 5].map((count) => ({
-        label: `${count}`,
-        data: dailyLabels.map((date) => dailyCounts[date]?.[count] || 0),
-        borderColor: `hsl(${count * 72}, 70%, 50%)`,
-      }));
-
-      console.log(dailyDatasets);
-
-      setDailyCountsData({
-        labels: dailyLabels,
-        datasets: dailyDatasets,
-      });
-
-      const normalized = normalizeDatasets(dailyDatasets);
-      setNormalizedData(normalized);
-
-      const overallDistribution = reportResponse?.data?.report?.overall_score_distribution;
-      console.log("Overall Score Distribution:", overallDistribution);
-
-      const overallLabels = overallDistribution ? Object.keys(overallDistribution) : [];
-      const overallDataset = [
-        {
-          label: " ",
-          data: overallLabels.map((score) => overallDistribution[score] || 0),
-          borderColor: "rgb(34,197,94)",
-        },
-      ];
-      setOverallScoreData({labels: overallLabels, datasets: overallDataset});
+    if (LocalStorageScaleId != null) {
+      scale_id = LocalStorageScaleId;
+      setScaleId(scale_id);
     } else {
-      console.log("Non-200/404 Response:", reportResponse);
-      setAlert(true);
-      setMessage("Failed to fetch Likert Scale Report");
+      try {
+        const decodedToken = decodeToken(accessToken);
+        const response = await getUserScales({
+          workspace_id: decodedToken.workspace_id,
+          portfolio: decodedToken.portfolio,
+          type_of_scale: defaultScaleOfUser,
+          accessToken,
+        });
+        scale_id = response?.data?.response[0]?.scale_id;
+        console.log(scale_id);
+      } catch (error) {
+        console.error("Error fetching user scales:", error);
+      }
     }
-  } catch (error) {
-    console.log("Catch Error: Failed to fetch Likert report data", error?.response);
-    if (error?.response.status === 404) {
-      console.log("404 Error: Report not found:", error?.response.data?.message);
-      setAlert(true);
-      setMessage("NO RESPONSES FOUND");
-      setDisplayData(false);
-      setTotalResponse(0);
-    }
-  } finally {
-    setLoading(false);
-  }
+    console.log(scale_id);
 
+    const payload = {
+      scale_id: scaleId,
+      channel_names: channelValue === "all" ? channelName.map((ch) => ch.value).filter((val) => val !== "all") : [`${channelValue}`],
+      instance_names: [`${instanceValue}`],
+      period: `${duration}`,
+    };
+
+    
+    try {
+      setLoading(true)
+          setDisplayData(false);
+          setMessage("Loading...");
+        setAlert(true)
+      const reportResponse = await getVocReport(payload, scaleType);
+      console.log("Report Response Status:", reportResponse);
+      if (reportResponse.status === 201) {
+        setDisplayData(true);
+        setLoading(false);
+        const reportResult = reportResponse.data;
+        console.log("Report Result:", reportResult);
+        setTotalResponse(reportResult?.data.no_of_responses);
+        setNpsScore(reportResult?.data.nps);
+        const npsCount =  reportResult?.data.nps_category_distribution
+        console.log(npsCount)
+        const roundNps = {
+          promoter: parseFloat(npsCount.promoter.toFixed(2)),
+          detractor: parseFloat(npsCount.detractor.toFixed(2)),
+          passive: parseFloat(npsCount.passive.toFixed(2))
+        }
+        console.log(roundNps)
+        setNpsDistribution(roundNps);
+        console.log(npsDistribution)
+        const totalScoreString = reportResult?.data.total_score;
+        console.log(totalScoreString);
+        const maximumScore = parseInt(totalScoreString.split("/")[1], 10);
+        const score = parseInt(totalScoreString.split("/")[0], 10);
+        setTotalScore(score);
+        setMaxScore(maximumScore || 0);
+        console.log(totalScore || 0);
+        console.log(maxScore || 0);
+
+        const dailyCounts = reportResult?.data?.daily_counts || [];
+        const labels = Object.keys(dailyCounts);
+        const detractorData = labels.map((date) => dailyCounts[date].detractor);
+        const promoterData = labels.map((date) => dailyCounts[date].promoter);
+        const passiveData = labels.map((date) => dailyCounts[date].passive);
+        const npsData = labels.map((date) => dailyCounts[date].nps);
+
+        setDailyCountsData({
+          labels,
+          datasets: [
+            {
+              label: "Detractor",
+              data: detractorData,
+              borderColor: "#ff0000",
+              backgroundColor: "rgba(255, 0, 0, 0.5)",
+              fill: true,
+            },
+            {
+              label: "Promoter",
+              data: promoterData,
+              borderColor: "#008000",
+              backgroundColor: "#008000",
+              fill: true,
+            },
+            {
+              label: "Passive",
+              data: passiveData,
+              borderColor: "#EAB308",
+              backgroundColor: "#EAB308",
+              fill: true,
+            },
+          ],
+        });
+        setDayWise({
+          labels,
+          datasets: [
+            {
+              label: "NPS",
+              data: npsData,
+              borderColor: "#ff0000",
+              backgroundColor: "rgba(255, 0, 0, 0.5)",
+              fill: true,
+            },
+          ],
+        });
+  
+      } else {
+        console.log("Non-200/404 Response:", reportResponse);
+        setAlert(true);
+        setMessage("Failed to fetch NPS Report data");
+      }
+    } catch (error) {
+      console.log("Catch Error: Failed to fetch Likert report data", error?.response);
+      if (error.response.status === 400) {
+        console.log("404 Error: Report not found:", error?.response.data?.message);
+        setAlert(true);
+
+        setMessage("NO RESPONSES FOUND");
+        setDisplayData(false);
+        setTotalResponse(0);
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     if (channelValue && instanceValue && duration) {
-      fetchLikertReport();
+      setLoading(true)
+      fetchVocReport();
     }
   }, [channelValue, instanceValue, duration]);
-
-  const normalizeDatasets = (datasets) => {
-    return datasets.map((dataset) => ({
-      ...dataset,
-      data: dataset.data.map((value) => value),
-    }));
-  };
-  const optionsWithPercentage = {
-    scales: {
-      y: {
-        beginAtZero: true,
-        ticks: {
-          callback: function (value) {
-            return value + " %";
-          },
-        },
-        title: {
-          display: true,
-          text: "Percentage",
-          font: {
-            size: 15,
-            weight: "bold",
-            family: "poppins",
-          },
-          color: "#005734",
-        },
-      },
-      x: {
-        title: {
-          display: true,
-          text: "Score",
-          font: {
-            size: 15,
-            weight: "bold",
-            family: "poppins",
-          },
-          color: "#005734",
-        },
-      },
-    },
-    plugins: {
-      tooltip: {
-        callbacks: {
-          label: function (context) {
-            return context.dataset.label + ": " + context.raw + " %";
-          },
-        },
-      },
-    },
-  };
-
-  const optionsWithoutPercentage = {
-    scales: {
-      y: {
-        beginAtZero: true,
-        ticks: {
-          callback: function (value) {
-            return value;
-          },
-        },
-        title: {
-          display: true,
-          text: "Count",
-          font: {
-            size: 15,
-            weight: "bold",
-            family: "poppins",
-          },
-          color: "#005734",
-        },
-      },
-      x: {
-        title: {
-          display: true,
-          text: "Days",
-          font: {
-            size: 16,
-            weight: "bold",
-            family: "poppins",
-          },
-          color: "#005734",
-        },
-      },
-    },
-    plugins: {
-      tooltip: {
-        callbacks: {
-          label: function (context) {
-            return context.dataset.label + ": " + context.raw;
-          },
-        },
-      },
-    },
-  };
-
-  const lineChartDataTwo = overallScoreData;
 
   const handleInputChange = (value) => {
     if (value.startsWith("ins")) {
@@ -362,22 +357,33 @@ const LikertReport = () => {
   ];
 
   const totalScoreYellowPercent = totalScore;
-  const averageScoreYellowPercent = averageScore;
+  // const averageScoreYellowPercent = averageScore;
 
   return (
-    <div className="relative max-w-full min-h-screen">
-      <Navbar/>
-      <div className=" my-12 ">
+    <div className="relative max-w-full min-h-screen overflow-hidden">
+      <Navbar />
+      <div>
+        {defaultScaleOfUser == 'nps' ? (
+          <div>
+            <div className=" my-3 ">
+        <div className="flex  items-center justify-center">
+          <h1 className="font-poppins tracking-tight text-2xl mb-4 font-bold">NET PROMOTER SCORE</h1>
+        </div>
         <div className="flex flex-col items-center justify-center gap-10">
           <div className="flex flex-col justify-center gap-5 md:flex-row">
-            <SelectField handleInputChange={handleInputChange} triggerClass="w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins" placeholder="Select Channel Name" data={channelName} />
-            <SelectField handleInputChange={handleInputChange} triggerClass="w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins" placeholder="Select Instances" data={instanceName} />
+            <SelectField handleInputChange={handleInputChange} triggerClass="w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins" placeholder="Select Channel Name" data={channelData} />
+            <SelectField handleInputChange={handleInputChange} triggerClass="w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins" placeholder="Select Instances" data={instanceData} />
             <SelectField handleInputChange={handleInputChange} triggerClass="w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins" placeholder="Duration" data={Duration} />
           </div>
 
-          <h2 className="text-xl font-bold tracking-tight font-montserrat">
-            Total Response: <span className="text-xl text-green-800 font-poppins">{totalResponse}</span>
-          </h2>
+          <div className="flex gap-8">
+            <h2 className="text-xl font-bold tracking-tight font-montserrat">
+              Total Response: <span className="text-xl text-green-800 font-poppins">{totalResponse}</span>
+            </h2>
+            <h2 className="text-xl font-bold tracking-tight font-montserrat">
+              NPS: <span className="text-xl text-green-800 font-poppins">{npsScore}</span>
+            </h2>
+          </div>
         </div>
 
         {displayData === false && alert === true && (
@@ -390,23 +396,43 @@ const LikertReport = () => {
           </div>
         )}
         {displayData && (
-          <div className="flex flex-col items-center justify-between gap-10 mx-8 mt-8 text-center md:flex-row md:gap-16">
+          <div className="flex flex-col items-center justify-between gap-10 mx-8 mt-8 text-center md:flex-row md:gap-10">
             {/* First Chart */}
             <div className="flex flex-col w-screen gap-2 md:w-3/5 px-7">
               <p className="font-poppins tracking-tight text-[18px] font-medium">Total Score </p>
               <RectangleDiv scores={totalScoreYellowPercent} maximumScore={maxScore} />
               <div className="mt-8">
-                <p className="font-poppins text-[13px] font-medium">Daywise Response Insights</p>
-                <LineGraph options={optionsWithoutPercentage} data={{labels: dailyCountsData.labels, datasets: normalizedData}} />
+                <p className="font-poppins text-[13px] font-medium">Response insight by</p>
+                <LineGraph
+                  options={{
+                    scales: {
+                      y: {},
+                    },
+                  }}
+                  data={dailyCountsData}
+                />
               </div>
             </div>
             {/* Second Chart */}
             <div className="flex flex-col w-screen gap-2 md:w-3/5 px-7">
-              <p className="font-poppins tracking-tight text-[18px] font-medium">Average Score</p>
-              <RectangleDiv className="rounded-lg" scores={averageScoreYellowPercent} type="averageScore" />
+              <p className="font-poppins tracking-tight text-[18px] font-medium">NPS Distribution Score</p>
+              <RectangleDiv className="rounded-lg" npsDistribution={npsDistribution} type="averageScore" />
               <div className="mt-8">
-                <p className="font-poppins text-[13px] font-medium">Overall Score Distribution</p>
-                <LineGraph options={optionsWithPercentage} data={lineChartDataTwo} />
+                <p className="font-poppins text-[13px] font-medium">DayWise NPS</p>
+                <LineGraph
+                  data={dayWise}
+                  options={{
+                    scales: {
+                      y: {
+                        min: -100,
+                        max: 100,
+                        ticks: {
+                          stepSize: 25,
+                        },
+                      },
+                    },
+                  }}
+                />
               </div>
             </div>
           </div>
@@ -417,8 +443,15 @@ const LikertReport = () => {
           <p className="text-xl font-semibold tracking-tight text-green-800 font-poppins">Please wait, while fetching VOC your report...</p>
         </div>
       ) : null}
+          </div>
+        ): (
+          <div>
+            <LikertReport/>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
 
-export default LikertReport;
+export default NewReport;

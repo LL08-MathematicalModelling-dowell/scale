@@ -3,6 +3,10 @@ import { useNavigate, useLocation } from "react-router-dom";
 import Logo from "../../assets/VOC.png";
 import CircularProgress from "@mui/material/CircularProgress";
 import { getUserLogin, getAPIServerStatus } from "../../services/api.services";
+// import { decodeToken} from "@/utils/tokenUtils";
+// import { workspaceNamesForLikert, workspaceNamesForNPS } from "@/data/Constants";
+// import { useCurrentUserContext } from "@/contexts/CurrentUserContext";
+
 
 const Login = () => {
   const navigate = useNavigate();
@@ -22,6 +26,8 @@ const Login = () => {
     portfolio: false,
     password: false,
   });
+
+  // const {defaultScaleOfUser, setDefaultScaleOfUser} = useCurrentUserContext();
 
 
   useEffect(() => {
@@ -94,6 +100,11 @@ const Login = () => {
         const result = response.data;
         localStorage.setItem("refreshToken", result.refresh_token);
         localStorage.setItem("accessToken", result.access_token);
+        setFormData((prevData) => ({
+          ...prevData,
+          accessToken: result.access_token // Updated: store directly as `accessToken`
+        }));
+        console.log(formData)
         localStorage.setItem("workspaceName", credentials.workspace_name);
         return result;
       } else {
@@ -119,7 +130,30 @@ const Login = () => {
 
     try {
       const loginResponse = await login(credentials);
+      console.log(loginResponse)
       if (loginResponse.success) {
+
+      //   const decodedTokenForWorkspaceName = decodeToken(loginResponse.access_token);
+      //   if (workspaceNamesForNPS.some((workspaceName) => workspaceName == decodedTokenForWorkspaceName.workspace_owner_name)) {
+      //     console.log("contains");
+      //     setDefaultScaleOfUser("nps");
+      //   } else if (workspaceNamesForLikert.some((workspaceName) => workspaceName == decodedTokenForWorkspaceName.workspace_owner_name)) {
+      //     setDefaultScaleOfUser("likert");
+      //   }
+
+      //   const successToken = loginResponse.access_token;
+      //   const decodeKey = decodeToken(successToken);
+      //   console.log(decodeKey)
+      //   const accessToken = loginResponse.access_token
+        
+      //   const response = await getUserScales({
+      //     workspace_id: decodeKey.workspace_id,
+      //     portfolio: decodeKey.portfolio,
+      //     type_of_scale: defaultScaleOfUser,
+      //     accessToken,
+      // })
+
+      // console.log(response)
         navigate("/voc/reports");
       } else {
         setStatusMessage("Login failed.");
@@ -147,6 +181,8 @@ const Login = () => {
       [name]: value,
     }));
   };
+
+  
 
   const handleRegister = () => {
     const queryParams = new URLSearchParams(location.search);
@@ -226,7 +262,7 @@ const Login = () => {
             )}
           </button>
           <div className="flex gap-2">
-            <p className="text-[16px] font-poppins font-normal">Don't have an account? </p>
+            <p className="text-[16px] font-poppins font-normal">Dont have an account? </p>
             <button
               type="button"
               className="text-[16px] font-poppins font-semibold text-blue-800 underline"

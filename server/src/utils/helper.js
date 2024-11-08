@@ -100,7 +100,7 @@ const sendScaleFeedback = ({ customerName, customerEmail, description, location,
             <div style="text-align: center; margin: 20px 0; padding: 15px; background-color: #e8f5e9; border-radius: 8px;">
             <strong>Overall Rating</strong>
             <div style="font-size: 24px; letter-spacing: 4px;">
-              <span style="color: #ffd700;">${filledStars}</span><span style="color: #808080;">${unfilledStars}</span>
+              <span style="color: #ffd700;">${filledStars}</span><span style="color: #FFFFFF;">${unfilledStars}</span>
             </div>
             <div style="color: #4caf50; font-weight: bold; margin-top: 5px">${scaleResponse} out of 5</div>
           </div>

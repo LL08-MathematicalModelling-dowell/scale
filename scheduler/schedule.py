@@ -46,12 +46,18 @@ def main():
                 scale_type
             )
             
-            report_subject = f"your voice of customers report for last One day"
+            report_subject = f"DoWell Voice Of Customers report for last One day"
 
             response_data_report = fetch_and_format_scores(scale_details["response"][0]["scale_id"])
             response_location_data_report = fetch_and_format_user_location_data(scale_details["response"][0]["scale_id"], user["workspace_id"])
+            for entry in response_data_report:
+                entry['total_score'] = f"{entry['total_score']:.2f}" if entry['total_score'] != 0 else entry['total_score']
+                entry['average_score'] = f"{entry['average_score']:.2f}" if entry['average_score'] != 0 else entry['average_score']
+                entry['total_responses'] = f"{entry['total_responses']:.2f}" if entry['total_responses'] != 0 else entry['total_responses']
+
 
             scale_data_table = format_scale_data(response_data_report)
+            # print(response_data_report)
             location_data_table = format_location_data(response_location_data_report)
 
             # set_data_to_email = [
@@ -84,12 +90,6 @@ def main():
                 "One Day"
             )
 
-            # print("----------------------------")
-            # print("----------------------------")
-            # print("User Details:")
-            # print(set_data_to_email)
-            # print("----------------------------")
-            # print("----------------------------")
             print(f"Email sent to {user['email']}. Response:{email_response}")
 
 

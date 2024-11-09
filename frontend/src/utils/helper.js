@@ -105,13 +105,13 @@ export function isWithinLastDays(dateString, days) {
   return dateCreated >= cutoffDate && dateCreated <= today;
 }
 
-export function formatDate(dateString) {
-  const date = new Date(dateString);
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const year = String(date.getFullYear()).slice(-2);
-  return `${day}/${month}/${year}`;
-}
+// export function formatDate(dateString) {
+//   const date = new Date(dateString);
+//   const day = String(date.getDate()).padStart(2, "0");
+//   const month = String(date.getMonth() + 1).padStart(2, "0");
+//   const year = String(date.getFullYear()).slice(-2);
+//   return `${day}/${month}/${year}`;
+// }
 
 export function transformData(originalData, days) {
   const transformedData = {};
@@ -168,3 +168,23 @@ export function pickSevenKeys(transformedData) {
 
   return selectedKeysObject;
 }
+
+
+
+export  const formatDate = (date) => {
+  const now = new Date();
+  const createdAtDate = new Date(date);
+  const diffInDays = Math.floor((now - createdAtDate) / (1000 * 60 * 60 * 24));
+
+  if (diffInDays < 7) {
+    return `${diffInDays} day${diffInDays !== 1 ? "s" : ""} ago`;
+  } else {
+    return createdAtDate.toLocaleDateString("en-US", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
+};

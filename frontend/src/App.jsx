@@ -23,7 +23,8 @@ import Confirm from "./components/ScaleForm/Confirm";
 import {ScaleDetailsProvider} from "./contexts/scaleDetailsContext";
 import useDowellLogin from "./hooks/useDowellLogin";
 import NewReport from "./Pages/Reports/NewReport";
-import Preference from "./Pages/Preference/Preference";
+import CreatePreference from "./Pages/Preference/CreatePreference";
+import Preferences from "./Pages/Preference/Preferences";
 
 const App = () => {
   useDowellLogin();
@@ -65,7 +66,8 @@ const App = () => {
       <Route path="/voc/userdetails" element={<UserDetails />} />
       <Route path="/voc/register" element={<Registration />} />
       <Route path="/voc/reports" element={<NewReport />} />
-      <Route path="/voc/preference" element={<Preference/>} />
+      <Route path="/voc/preference" element={<Preferences/>} />
+      <Route path="/voc/create-preference" element={<CreatePreference/>} />
       {/* Route for creating or edit scale */}
       <Route path="/edit-scale" element={<EditScale />} />
       <Route path="/scale-creating" element={<CreatingScale />} />

@@ -152,6 +152,9 @@ const getllxReportPayload = async (payload) => {
 export const sendFeedbackEmail = async (payload) => {
   return await otpAxiosInstance.post("/v1/preference-services/send-email-feedback", payload);
 }
+ const getAvailablePreferences = async (workSpaceId, portFolioId ) => {
+  return await otpAxiosInstance.get(`/v1/preference-services/${workSpaceId}/${portFolioId}/voice_of_customer`);
+}
 
 const createPreferenceApi = async (payload) => {
   return await otpAxiosInstance.post("/v1/preference-services", payload);
@@ -181,5 +184,6 @@ export {getUserLogin,
   updateScaleDetails,
   getllxReportPayload,
   getVocReport,
- createPreferenceApi
+ createPreferenceApi,
+ getAvailablePreferences
   };

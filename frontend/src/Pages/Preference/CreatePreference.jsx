@@ -1,15 +1,15 @@
-// Preference.js
 
 import PreferenceSelect from "@/components/PreferenceSelect/PreferenceSelect";
-import Logo from "../../assets/VOC.png";
-import { useEffect, useState } from "react";
-import { decodeToken } from "@/utils/tokenUtils";
-import { useCurrentUserContext } from "@/contexts/CurrentUserContext";
-import { useNavigate } from "react-router-dom";
-import { workspaceNamesForLikert, workspaceNamesForNPS } from "@/data/Constants";
-import { createPreferenceApi, getUserScales } from "@/services/api.services";
+// import Logo from "../../assets/VOC.png";
+import {useEffect, useState} from "react";
+import {decodeToken} from "@/utils/tokenUtils";
+import {useCurrentUserContext} from "@/contexts/CurrentUserContext";
+import {useNavigate} from "react-router-dom";
+import {workspaceNamesForLikert, workspaceNamesForNPS} from "@/data/Constants";
+import {createPreferenceApi, getUserScales} from "@/services/api.services";
+import Navbar from "@/components/Navbar/Navbar";
 
-const Preference = () => {
+const CreatePreference = () => {
   const [alert, setAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertColor, setAlertColor] = useState("green");
@@ -25,14 +25,14 @@ const Preference = () => {
   });
 
   const scaleTypes = [
-    { label: "NPS Scale", value: "nps" },
-    { label: "Likert Scale", value: "likert" },
+    {label: "NPS Scale", value: "nps"},
+    {label: "Likert Scale", value: "likert"},
   ];
   const DataTypes = [
-    { label: "Real Data", value: "Real_Data" },
-    { label: "Learning Data", value: "Learning_Data" },
-    { label: "Testing Data", value: "Testing_Data" },
-    { label: "Archived Data", value: "Archived_Data" },
+    {label: "Real Data", value: "Real_Data"},
+    {label: "Learning Data", value: "Learning_Data"},
+    {label: "Testing Data", value: "Testing_Data"},
+    {label: "Archived Data", value: "Archived_Data"},
   ];
   const Ratting = [
     {
@@ -49,7 +49,7 @@ const Preference = () => {
     },
   ];
 
-  const { defaultScaleOfUser, setDefaultScaleOfUser } = useCurrentUserContext();
+  const {defaultScaleOfUser, setDefaultScaleOfUser} = useCurrentUserContext();
 
   const navigate = useNavigate();
   const accessToken = localStorage.getItem("accessToken");
@@ -84,6 +84,7 @@ const Preference = () => {
           setScaleId(scale_id);
         } catch (error) {
           showAlert("Error fetching user scales", "red");
+          return error
         }
       } else {
         setScaleId(scale_id);
@@ -107,7 +108,7 @@ const Preference = () => {
     setAlert(true);
 
     setTimeout(() => {
-      setAlert(false); // Hide the alert after 3 seconds
+      setAlert(false);
     }, 3000);
   };
 
@@ -119,19 +120,19 @@ const Preference = () => {
     scaleTypePreference: defaultScaleOfUser,
     scaleDesignPreference: [
       {
-       scaleType: formData.scaleType,
-        scaleId:scaleId,
-        design: "default"
-      }
+        scaleType: formData.scaleType,
+        scaleId: scaleId,
+        design: "default",
+      },
     ],
     notificationDuration: "biweekly",
     dataType: formData.dataType,
     productType: "voice_of_customer",
     brandName: formData.brandName,
     productName: formData.productName,
-    questionToDisplay: formData.questionToDisplay
-  }
-  console.log(payload)
+    questionToDisplay: formData.questionToDisplay,
+  };
+  console.log(payload);
 
   const createPreference = async () => {
     try {
@@ -156,26 +157,23 @@ const Preference = () => {
   };
 
   const handleInputChange = (event, value, name) => {
-    setFormData({ ...formData, [name]: value });
+    setFormData({...formData, [name]: value});
   };
 
   return (
     <div className="min-h-screen max-w-full">
-      <div className="px-10 py-8 border-b-2 border-gray-300 relative">
+      {/* <div className="px-10 py-8 border-b-2 border-gray-300 relative">
         <div className="flex gap-5 items-center">
           <img src={Logo} alt="" className="w-24" />
           <h2 className="font-bold text-2xl font-poppins tracking-tight">Settings</h2>
         </div>
-      </div>
+      </div> */}
+      <Navbar/>
       <div className="mt-8 px-10 w-full flex flex-col gap-5">
         <h1 className="text-2xl font-bold font-poppins tracking-tight">Set Preferences</h1>
 
         {/* Alert */}
-        {alert && (
-          <div className={`absolute top-44 right-6 ml-32 md:top-50 md:right-8 bg-${alertColor}-600 text-white text-sm font-poppins tracking-tight px-2 py-3  md:px-4 md:py-4 rounded-md`}>
-            {alertMessage}
-          </div>
-        )}
+        {alert && <div className={`absolute top-44 right-6 ml-32 md:top-50 md:right-8 bg-${alertColor}-600 text-white text-sm font-poppins tracking-tight px-2 py-3  md:px-4 md:py-4 rounded-md`}>{alertMessage}</div>}
 
         {/* Scale Type Selection */}
         <div className="flex flex-col gap-2">
@@ -227,4 +225,4 @@ const Preference = () => {
   );
 };
 
-export default Preference;
+export default CreatePreference;

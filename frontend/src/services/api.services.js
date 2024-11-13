@@ -20,6 +20,10 @@ const getUserLogin = async (credentials) => {
   return await servicesAxiosInstance.post("/v1/voc/user-management/?type=authenticate_user", credentials);
 };
 
+const getUserCredentialsByPin = async (pin) => {
+  return await servicesAxiosInstance.post(`/v1/voc/user-management/?type=login_using_pin&pin=${pin}`);
+}
+
 const scaleResponse = async (user, scaleType, channel, instance, workspace_id, username, scale_id, index) => {
   return await servicesAxiosInstance.get(`/v1/create-response/?user=${user}&scale_type=${scaleType}&channel=${channel}&instance=${instance}&workspace_id=${workspace_id}&username=${username}&scale_id=${scale_id}&item=${index}`);
 };
@@ -57,6 +61,8 @@ const getUserScales = async ({workspace_id, portfolio, type_of_scale, accessToke
     }
   );
 };
+
+
 const getUserLLXScales = async ({workspace_id, portfolio, type_of_scale, accessToken}) => {
   return await servicesAxiosInstance.post(
     "/v1/llx/scale-management/?type=scale_details",
@@ -189,5 +195,6 @@ export {getUserLogin,
   getVocReport,
  createPreferenceApi,
  getAvailablePreferences,
- updatePreferences
+ updatePreferences,
+ getUserCredentialsByPin
   };

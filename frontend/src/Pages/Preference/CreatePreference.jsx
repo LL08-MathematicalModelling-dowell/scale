@@ -82,21 +82,24 @@ const CreatePreference = () => {
             accessToken,
           });
           scale_id = response?.data?.response[0]?.scale_id;
+          console.log(scale_id)
           setScaleId(scale_id);
         } catch (error) {
           showAlert("Error fetching user scales", "red");
           return error
         }
       } else {
-        setScaleId(scale_id);
+        setScaleId(scale_id); 
       }
     };
 
     if (defaultScaleOfUser) fetchScaleId();
+    console.log(scaleId)
   }, [defaultScaleOfUser]);
 
   useEffect(() => {
     const accessToken = localStorage.getItem("accessToken");
+    console.log(scaleId)
     if (accessToken) {
       const decodeAccessToken = decodeToken(accessToken);
       setAccessKey(decodeAccessToken);

@@ -11,7 +11,7 @@ import { decodeToken } from "@/utils/tokenUtils";
 
 export default function Scales() {
   const [submitted, setSubmitted] = useState(-1);
-  const hasLocationDataBeenSaved = useRef(false); // Ref to track if location data is already saved
+  const hasLocationDataBeenSaved = useRef(false); 
   const { defaultScaleOfUser, setDefaultScaleOfUser } = useCurrentUserContext();
   const [scaleId, setScaleId] = useState("");
   const [alert, setAlert] = useState(false);

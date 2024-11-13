@@ -119,10 +119,8 @@ const NewReport = () => {
   
 
   useEffect(() => {
-
     const fetchPayload = async () => {  
       let scale_id = localStorage.getItem("scale_id");
-  
       if (!scale_id) {
         try {
           const decodedToken = decodeToken(accessToken);
@@ -132,8 +130,6 @@ const NewReport = () => {
             type_of_scale: defaultScaleOfUser,
             accessToken,
           });
-
-  
           scale_id = response?.data?.response[0]?.scale_id;
           setScaleId(scale_id);
         } catch (error) {
@@ -148,7 +144,7 @@ const NewReport = () => {
       const decodedToken = decodeToken(accessToken);
       const payload = {
         workspace_id: decodedToken.workspace_id,
-        scale_id: scale_id, // Use local `scale_id`
+        scale_id: scale_id, 
       };
       console.log(payload);
   

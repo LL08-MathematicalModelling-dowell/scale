@@ -5,7 +5,6 @@ import { getAvailablePreferences, getUserScales } from "@/services/api.services"
 import { decodeToken } from "@/utils/tokenUtils";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { BsPersonWorkspace } from "react-icons/bs";
 import { IoCopy, IoScale } from "react-icons/io5";
 import { Separator } from "@/components/ui/separator";
 import { MdAccessTimeFilled, MdProductionQuantityLimits, MdWork } from "react-icons/md";

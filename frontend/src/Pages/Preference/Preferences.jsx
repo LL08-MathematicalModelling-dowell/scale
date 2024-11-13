@@ -1,19 +1,20 @@
 import Navbar from "@/components/Navbar/Navbar";
-import {useCurrentUserContext} from "@/contexts/CurrentUserContext";
-import {workspaceNamesForLikert, workspaceNamesForNPS} from "@/data/Constants";
-import {getAvailablePreferences, getUserScales} from "@/services/api.services";
-import {decodeToken} from "@/utils/tokenUtils";
-import {useEffect, useState} from "react";
-import {useNavigate} from "react-router-dom";
-import {BsPersonWorkspace} from "react-icons/bs";
-import {IoCopy, IoScale} from "react-icons/io5";
-import {Separator} from "@/components/ui/separator";
-import {MdAccessTimeFilled, MdProductionQuantityLimits, MdWork} from "react-icons/md";
-import {FaCircleQuestion} from "react-icons/fa6";
-import {CircularProgress} from "@mui/material";
+import { useCurrentUserContext } from "@/contexts/CurrentUserContext";
+import { workspaceNamesForLikert, workspaceNamesForNPS } from "@/data/Constants";
+import { getAvailablePreferences, getUserScales } from "@/services/api.services";
+import { decodeToken } from "@/utils/tokenUtils";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { BsPersonWorkspace } from "react-icons/bs";
+import { IoCopy, IoScale } from "react-icons/io5";
+import { Separator } from "@/components/ui/separator";
+import { MdAccessTimeFilled, MdProductionQuantityLimits, MdWork } from "react-icons/md";
+import { FaCircleQuestion } from "react-icons/fa6";
+import { CircularProgress } from "@mui/material";
+import { FaDatabase } from "react-icons/fa";
 
 const Preferences = () => {
-  const {defaultScaleOfUser, setDefaultScaleOfUser} = useCurrentUserContext();
+  const { defaultScaleOfUser, setDefaultScaleOfUser } = useCurrentUserContext();
   const [scaleId, setScaleId] = useState("");
   const [alert, setAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
@@ -61,9 +62,10 @@ const Preferences = () => {
           });
           scale_id = response?.data?.response[0]?.scale_id;
           setScaleId(scale_id);
+          return scaleId
         } catch (error) {
           showAlert("Error fetching user scales", "red");
-          return error;
+          console.log(error);
         }
       } else {
         setScaleId(scale_id);
@@ -88,22 +90,29 @@ const Preferences = () => {
           const response = await getAvailablePreferences(accessKey.workspace_id, accessKey.portfolio_username);
           if (response.status === 200) {
             setPreferenceData(response.data.response);
+            console.log(response.data.response)
             showAlert("User preferences fetched successfully", "green");
           } else {
-            showAlert("No preference data found", "yellow");
-            navigate("/voc/create-preference");
+            showAlert("No preference data found", "yellow")
+
           }
         } catch (error) {
           showAlert("Error fetching user preferences", "red");
           console.log(error);
+          navigate("/voc/create-preference");
+        } finally {
+          setLoading(false);
         }
+      } else {
+        setLoading(false);
+        showAlert("Access key not found") 
       }
-      setLoading(false);
     };
 
-    fetchUserPreferences();
+    if (accessKey.workspace_id && accessKey.portfolio_username) {
+      fetchUserPreferences();
+    }
   }, [accessKey]);
-
 
   const formatDate = (date) => {
     const now = new Date();
@@ -123,18 +132,17 @@ const Preferences = () => {
     }
   };
 
-
-
   const handleCopy = (text) => {
-      navigator.clipboard.writeText(text).then(
-        () => showAlert("Copied to clipboard", "green"),
-        () => showAlert("Failed to copy to clipboard", "red")
-      )
-  }
+    navigator.clipboard.writeText(text).then(
+      () => showAlert("Copied to clipboard", "green"),
+      () => showAlert("Failed to copy to clipboard", "red")
+    );
+  };
+
   return (
     <div className="max-w-full min-h-screen">
       <Navbar />
-      <div className="flex flex-col px-4 py-5  relative">
+      <div className="flex flex-col px-4 py-5 relative">
         {/* Alert */}
         {alert && (
           <div className={`absolute top-4 right-8 bg-${alertColor}-600 text-white px-4 py-2 rounded-lg`}>
@@ -143,7 +151,7 @@ const Preferences = () => {
         )}
 
         {/* Card */}
-        <h1 className="text-3xl font-bold font-poppins tracking-tight text-gray-800">My Preferences</h1>
+        <h1 className="text-3xl font-bold font-poppins tracking-tight text-gray-800">Settings</h1>
         {loading ? (
           <div className="flex justify-center items-center flex-col py-12">
             <CircularProgress />
@@ -154,13 +162,7 @@ const Preferences = () => {
           <div className="flex flex-col w-[450px] h-[440px] mt-5 px-3 py-4 border border-b-gray-400 rounded-lg">
             <div className="flex flex-col gap-3 ">
               <h2 className="font-poppins font-bold text-lg tracking-tight underline">Workspace Details</h2>
-              <p className="flex gap-3 font-poppins font-semibold text-md tracking-tight items-center">
-                <BsPersonWorkspace className="size-5 text-gray-700" />
-                Workspace ID:
-                <span className="font-normal flex items-center gap-3">
-                  {preferenceData.workspaceId} <IoCopy className="size-4 cursor-pointer" onClick={() => handleCopy(preferenceData.workspaceId)} />
-                </span>
-              </p>
+    
               <p className="flex gap-3 font-poppins font-semibold text-md tracking-tight items-center">
                 <IoScale className="size-5 text-gray-700" />
                 Scale Type:{" "}
@@ -174,7 +176,7 @@ const Preferences = () => {
                 <MdWork className="size-5 text-gray-700" />
                 Brand Name:{" "}
                 <span className="font-normal flex items-center gap-3">
-                  {preferenceData.brandName} <IoCopy className="size-4 cursor-pointer" onClick={()=> handleCopy(preferenceData.brandName)} />
+                  {preferenceData.brandName} <IoCopy className="size-4 cursor-pointer" onClick={() => handleCopy(preferenceData.brandName)} />
                 </span>
               </p>
               <p className="flex gap-3 font-poppins font-semibold text-md tracking-tight items-center">
@@ -190,11 +192,18 @@ const Preferences = () => {
                 </p>
                 <span className="font-normal flex items-center gap-3 ml-7">( {preferenceData.questionToDisplay} )</span>
               </div>
+              <p className="flex gap-3 font-poppins font-semibold text-md tracking-tight items-center">
+                <FaDatabase className="size-5 text-gray-700" />
+                Data Type:{" "}
+                <span className="font-normal flex items-center gap-3">
+                  {preferenceData.dataType} <IoCopy className="size-4 cursor-pointer" onClick={() => handleCopy(preferenceData.dataType)} />
+                </span>
+              </p>
               <Separator />
               <p className="flex gap-3 font-poppins font-semibold text-md tracking-tight items-center">
                 <MdAccessTimeFilled className="size-5 text-gray-700" /> Created:
                 <span className="font-normal flex items-center gap-3">
-                  {formatDate(preferenceData.createdAt)} 
+                  {formatDate(preferenceData.createdAt)}
                 </span>
               </p>
               {preferenceData.createdAt !== preferenceData.updatedAt && (
@@ -206,8 +215,8 @@ const Preferences = () => {
                 </p>
               )}
             </div>
-            <div className="mt-8 mb-10 text-right">
-              <button className="font-poppins py-2 px-4 bg-green-800 text-white rounded-lg md:text-md text-sm">Update Preference</button>
+            <div className="mb-10 text-right">
+              <button className="font-poppins py-2 px-4 bg-green-800 text-white rounded-lg md:text-md text-sm" onClick={() => navigate('/voc/update-preference')}>Update Preference</button>
             </div>
           </div>
         )}

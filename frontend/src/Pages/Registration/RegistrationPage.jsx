@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import {useState, useEffect} from "react";
+import {useNavigate} from "react-router-dom";
 import Logo from "../../assets/VOC.png";
 import CircularProgress from "@mui/material/CircularProgress";
-import { sendOtpServices, validateOtpServices, emailServiceForUserDetails } from "../../services/api.services";
+import {sendOtpServices, validateOtpServices, emailServiceForUserDetails} from "../../services/api.services";
+import Pattern  from "../../assets/Pattern.png"
 
 const Registration = () => {
   const [email, setEmail] = useState("");
@@ -63,7 +64,7 @@ const Registration = () => {
       }
     } catch (error) {
       console.log(error);
-      
+
       setStatusMessage("Failed to send OTP. Please try again.");
       setIsSuccess(false);
     } finally {
@@ -87,7 +88,7 @@ const Registration = () => {
       }
     } catch (error) {
       console.log(error);
-      
+
       setStatusMessage("Failed to validate OTP. Please try again.");
       setIsSuccess(false);
     } finally {
@@ -100,102 +101,62 @@ const Registration = () => {
     setLoading(true);
 
     try {
-        const response = await emailServiceForUserDetails(email, userId, latitude, longitude, workspaceName);
-        if (response.data.success) {
-            setStatusMessage(response.data.message);
-            setIsSuccess(true);
-            const timeoutId = setTimeout(() => {
-                navigate("/voc");
-            }, 2000);
+      const response = await emailServiceForUserDetails(email, userId, latitude, longitude, workspaceName);
+      if (response.data.success) {
+        setStatusMessage(response.data.message);
+        setIsSuccess(true);
+        const timeoutId = setTimeout(() => {
+          navigate("/voc");
+        }, 2000);
 
-            // Clear timeout if component unmounts
-            return () => clearTimeout(timeoutId);
-        } else {
-            setStatusMessage(response.data.message);
-            setIsSuccess(false);
-        }
-    } catch (error) {
-        console.error(error);
-        const errorMessage = error.response?.data?.message;
-        setStatusMessage(errorMessage);
+        // Clear timeout if component unmounts
+        return () => clearTimeout(timeoutId);
+      } else {
+        setStatusMessage(response.data.message);
         setIsSuccess(false);
+      }
+    } catch (error) {
+      console.error(error);
+      const errorMessage = error.response?.data?.message;
+      setStatusMessage(errorMessage);
+      setIsSuccess(false);
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
-};
-
+  };
 
   const handleHome = () => navigate("/voc");
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4">
-      <img src={Logo} className="w-48 h-auto mb-8" alt="VOC Logo" />
-      <form
-        className="w-full max-w-sm flex flex-col gap-4 items-center"
-        onSubmit={
-          otpValidated
-            ? handleSendEmail // If OTP is validated, send email
-            : otpSent
-            ? handleValidateOtp // If OTP is sent, validate OTP
-            : handleSendOtp // Initial state, send OTP
-        }
-      >
-        <input
-          type="text"
-          name="userId"
-          placeholder="Enter your User ID"
-          className="bg-white border border-gray-300 w-full p-2.5 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500"
-          required
-          value={userId}
-          onChange={handleUserIdChange}
-        />
-        <input
-          type="email"
-          name="email"
-          placeholder="Enter your email"
-          className="bg-white border border-gray-300 w-full p-2.5 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500"
-          required
-          value={email}
-          onChange={handleEmailChange}
-        />
+    <div className="min-h-screen max-w-full flex">
+      {/* Left */}
+      <div className="w-1/2 bg-white  flex justify-center items-center"   style={{
+          backgroundImage: `url(${Pattern})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}>
 
-        {otpSent && !otpValidated && (
-          <input
-            type="text"
-            name="otp"
-            placeholder="Enter the OTP"
-            className="bg-white border border-gray-300 w-full p-2.5 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500"
-            required
-            value={otp}
-            onChange={handleOtpChange}
-          />
-        )}
+      </div>
+
+
+      {/* right */}
+      <div className="w-1/2  flex flex-col justify-center items-center">
+      <img src={Logo} className="w-48 h-auto mb-8" alt="VOC Logo" />
+      <form className="w-full max-w-sm flex flex-col gap-4 items-center" onSubmit={otpValidated ? handleSendEmail : otpSent ? handleValidateOtp : handleSendOtp}>
+        <input type="text" name="userId" placeholder="Enter your User ID" className="bg-white border border-gray-300 w-full p-2.5 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500" required value={userId} onChange={handleUserIdChange} />
+        <input type="email" name="email" placeholder="Enter your email" className="bg-white border border-gray-300 w-full p-2.5 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500" required value={email} onChange={handleEmailChange} />
+
+        {otpSent && !otpValidated && <input type="text" name="otp" placeholder="Enter the OTP" className="bg-white border border-gray-300 w-full p-2.5 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500" required value={otp} onChange={handleOtpChange} />}
 
         <div className="w-full flex gap-4">
-          <button
-            type="button"
-            className="w-full py-2 text-sm font-semibold rounded-md bg-gray-300 hover:bg-gray-400 text-gray-800 transition-colors duration-300"
-            onClick={handleHome}
-          >
+          <button type="button" className="w-full py-2 text-sm font-semibold rounded-md bg-gray-300 hover:bg-gray-400 text-gray-800 transition-colors duration-300" onClick={handleHome}>
             Cancel
           </button>
-          <button
-            type="submit"
-            className={`w-full py-2 text-sm font-semibold rounded-md transition-colors duration-300 ${
-              loading
-                ? "bg-blue-300 cursor-not-allowed text-gray-700"
-                : "bg-blue-600 hover:bg-blue-700 text-white"
-            }`}
-            disabled={loading}
-          >
+          <button type="submit" className={`w-full py-2 text-sm font-semibold rounded-md transition-colors duration-300 ${loading ? "bg-blue-300 cursor-not-allowed text-gray-700" : "bg-blue-600 hover:bg-blue-700 text-white"}`} disabled={loading}>
             {loading ? (
               <div className="flex items-center justify-center gap-2">
                 <CircularProgress color="inherit" size={20} />
-                {otpValidated
-                  ? "Sending Email..."
-                  : otpSent
-                  ? "Verifying OTP..."
-                  : "Sending OTP..."}
+                {otpValidated ? "Sending Email..." : otpSent ? "Verifying OTP..." : "Sending OTP..."}
               </div>
             ) : otpValidated ? (
               "Submit"
@@ -207,16 +168,9 @@ const Registration = () => {
           </button>
         </div>
 
-        {statusMessage && (
-          <p
-            className={`mt-2 text-center font-semibold ${
-              isSuccess ? "text-green-600" : "text-red-600"
-            }`}
-          >
-            {statusMessage}
-          </p>
-        )}
+        {statusMessage && <p className={`mt-2 text-center font-semibold ${isSuccess ? "text-green-600" : "text-red-600"}`}>{statusMessage}</p>}
       </form>
+      </div>
     </div>
   );
 };

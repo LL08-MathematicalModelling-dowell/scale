@@ -3,6 +3,7 @@ import PayloadValidationServices from "../services/validation.services.js";
 import Preference from "../models/preference.schema.js";
 import { preferenceSchema,updatePreferenceSchema, emailFeedbackSchema } from "../utils/payloadSchema.js";
 import { sendEmailToOwner } from "../config/producer.config.js"
+import { getLocationGoogle } from "../services/googleLocation.services.js";
 
 
 const createPreference = asyncHandler(async (req, res) => {
@@ -184,11 +185,15 @@ const sendFeedbackEmail = asyncHandler(async (req, res) => {
         });
     }
 
+    const locationData = await getLocationGoogle(latitude, longitude)
+    console.log(locationData.data);
+    
+
     const data = {
         workspaceId,
         customerName,
         customerEmail,
-        location,
+        location: locationData.data,
         latitude,
         longitude,
         scaleResponse,

@@ -112,7 +112,14 @@ const LikertScale = () => {
                 console.log("Email sent successfully.");
                 
                 const currentDate = new Date();
-                const formattedDate = `${currentDate.toLocaleDateString()} ${currentDate.toLocaleTimeString()}`;
+
+                const year = currentDate.getFullYear();
+                const month = currentDate.toLocaleString('default', { month: 'long' });
+                const day = currentDate.getDate().toString().padStart(2, '0');
+                const hours = currentDate.getHours().toString().padStart(2, '0');
+                const minutes = currentDate.getMinutes().toString().padStart(2, '0');
+
+                const formattedDate = `${year}-${month} ${day} ${hours}:${minutes}`;
 
                 const payload = {
                     workspaceId: workspace_id, 

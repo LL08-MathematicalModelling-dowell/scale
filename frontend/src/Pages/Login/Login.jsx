@@ -228,7 +228,7 @@ const Login = () => {
   return (
     <div className="max-h-screen flex flex-col relative">
       <div className="flex flex-col gap-1 justify-center items-center mt-10">
-        <div className="fixed right-8 top-5">{healthStatus && <div className={`w-6 h-6 rounded-full ${healthStatus === "healthy" ? "bg-green-500 animate-pulse" : "bg-red-500 animate-pulse"}`} title={`Server status: ${healthStatus}`} />}</div>
+        <div className="fixed right-8 top-5">{healthStatus && <div className={`w-6 h-6 rounded-full ${healthStatus === "healthy" ? "bg-blue-500 animate-pulse" : "bg-red-500 animate-pulse"}`} title={`Server status: ${healthStatus}`} />}</div>
         <img src={Logo} width={300} height={300} alt="Dowell Logo" />
         <form className="md:w-[320px] min-w-64 flex flex-col gap-4 items-center" onSubmit={handleSubmit}>
           {isOpen ? null : (
@@ -237,7 +237,7 @@ const Login = () => {
                 type="text"
                 name="workspace_name"
                 placeholder="Enter Product ID"
-                className="cursor-pointer bg-white border border-gray-300 flex font-poppins tracking-tight items-center justify-between font-medium p-2.5 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 w-full"
+                className="cursor-pointer bg-white border border-gray-300 flex font-poppins tracking-tight items-center justify-between font-medium p-2.5 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full"
                 required
                 value={formData.workspace_name}
                 onChange={handleChange}
@@ -247,7 +247,7 @@ const Login = () => {
                 type="text"
                 name="portfolio"
                 placeholder="Enter User ID"
-                className="cursor-pointer bg-white border font-poppins tracking-tight border-gray-300 flex items-center justify-between font-medium p-2.5 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 w-full"
+                className="cursor-pointer bg-white border font-poppins tracking-tight border-gray-300 flex items-center justify-between font-medium p-2.5 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full"
                 required
                 value={formData.portfolio}
                 onChange={handleChange}
@@ -257,14 +257,14 @@ const Login = () => {
                 type="password"
                 name="password"
                 placeholder="Enter password"
-                className="cursor-pointer bg-white border font-poppins tracking-tight border-gray-300 flex items-center justify-between font-medium p-2.5 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 w-full"
+                className="cursor-pointer bg-white border font-poppins tracking-tight border-gray-300 flex items-center justify-between font-medium p-2.5 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full"
                 required
                 value={formData.password}
                 onChange={handleChange}
                 readOnly={isReadOnly.password}
               />
       <div className="flex justify-center items-center">
-      <button  type="submit" className={`w-40 py-2 text-sm font-semibold rounded-md transition-colors duration-300 ${loading ? "bg-green-300 cursor-not-allowed text-gray-700" : "bg-green-600 hover:bg-green-700 text-white"}`} disabled={loading}>
+      <button  type="submit" className={`w-40 py-2 text-sm font-semibold rounded-md transition-colors duration-300 ${loading ? "bg-blue-300 cursor-not-allowed text-gray-700" : "bg-blue-600 hover:bg-blue-700 text-white"}`} disabled={loading}>
             {loading ? (
               <div className="flex items-center justify-center gap-2">
                 <CircularProgress color="inherit" size={20} />
@@ -287,13 +287,13 @@ const Login = () => {
           {/* Pin login */}
           <div className="flex flex-col gap-4 w-full  ">
             <div className="flex gap-2 items-center justify-center ">
-              <a onClick={handleChecked} className="font-poppins cursor-pointer text-[16px] font-bold tracking-tight text-center underline text-green-700">Login Using Account Pin</a>
+              <a onClick={handleChecked} className="font-poppins cursor-pointer text-[16px] font-bold tracking-tight text-center underline text-blue-700">Login Using Account Pin</a>
             </div>
           {isOpen && (
             <div className="flex gap-2 flex-col items-center justify-center">
-                <input type="text" name="pin" placeholder="Enter pin" className="cursor-pointer bg-white border border-gray-300 p-2.5 font-poppins text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 w-full" value={formData.pin} onChange={handleChange} />
+                <input type="text" name="pin" placeholder="Enter pin" className="cursor-pointer bg-white border border-gray-300 p-2.5 font-poppins text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full" value={formData.pin} onChange={handleChange} />
           
-                <button onClick={() => setLoginType("PIN")} type="submit" className={`w-40 py-2 text-sm font-semibold rounded-md transition-colors duration-300 ${loading ? "bg-green-300 cursor-not-allowed text-gray-700" : "bg-green-600 hover:bg-green-700 text-white"}`} disabled={loading}>
+                <button onClick={() => setLoginType("PIN")} type="submit" className={`w-40 py-2 text-sm font-semibold rounded-md transition-colors duration-300 ${loading ? "bg-blue-300 cursor-not-allowed text-gray-700" : "bg-blue-600 hover:bg-blue-700 text-white"}`} disabled={loading}>
             {loading ? (
               <div className="flex items-center justify-center gap-2">
                 <CircularProgress color="inherit" size={20} />
@@ -309,7 +309,7 @@ const Login = () => {
 
           <div className="flex gap-2">
             <p className="text-[16px] font-poppins font-normal">Don't have an account?</p>
-            <button type="button" className="text-[16px] font-poppins font-semibold text-green-800 underline" onClick={handleRegister}>
+            <button type="button" className="text-[16px] font-poppins font-semibold text-blue-800 underline" onClick={handleRegister}>
               Register
             </button>
           </div>

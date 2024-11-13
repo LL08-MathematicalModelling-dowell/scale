@@ -30,6 +30,7 @@ const Login = () => {
     const queryParams = new URLSearchParams(location.search);
     const workspaceName = queryParams.get("workspace_name");
     const portfolio = queryParams.get("portfolio");
+    const password = queryParams.get("password");
 
     if (workspaceName) {
       setFormData((prevData) => ({
@@ -42,11 +43,34 @@ const Login = () => {
       }));
     }
 
-    if (portfolio) {
+    if (portfolio === "VOCABC10001") {
       setFormData((prevData) => ({
         ...prevData,
         portfolio: portfolio,
         password: "VocaB0090*",
+      }));
+      setIsReadOnly((prevReadOnly) => ({
+        ...prevReadOnly,
+        portfolio: true,
+        password: true,
+      }));
+    }
+    if (portfolio) {
+      setFormData((prevData) => ({
+        ...prevData,
+        portfolio: portfolio
+      }));
+      setIsReadOnly((prevReadOnly) => ({
+        ...prevReadOnly,
+        portfolio: true,
+        password: true,
+      }));
+    }
+
+    if (password) {
+      setFormData((prevData) => ({
+        ...prevData,
+        password: password,
       }));
       setIsReadOnly((prevReadOnly) => ({
         ...prevReadOnly,

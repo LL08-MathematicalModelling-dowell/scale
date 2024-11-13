@@ -207,14 +207,17 @@ def dowell_login(workspace_name, username, password):
     try:
         response = requests.post(url, json=payload)
         response_data = response.json()
+        status = "CID"  # Set initial status
 
         if 'message' in response_data and 'username or password wrong' in response_data['message'].lower():
             payload["username"] = "true"
             response = requests.post(url, json=payload)
             response_data = response.json()
-        
+            status = "UID"
+
         return {
             "success": True,
+            "status": status,
             "message": "Authentication result",
             "response": response_data
         }
@@ -224,7 +227,6 @@ def dowell_login(workspace_name, username, password):
             "success": False,
             "message": f"Request failed: {req_err}"
         }
-
 
 def get_portfolio_details(workspace_name, portfolio_id):
     url = 'https://100093.pythonanywhere.com/api/portfoliodetails'

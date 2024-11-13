@@ -228,7 +228,7 @@ const Login = () => {
   return (
     <div className="max-h-screen flex flex-col relative">
       <div className="flex flex-col gap-1 justify-center items-center mt-10">
-        <div className="fixed right-8 top-5">{healthStatus && <div className={`w-6 h-6 rounded-full ${healthStatus === "healthy" ? "bg-blue-500 animate-pulse" : "bg-red-500 animate-pulse"}`} title={`Server status: ${healthStatus}`} />}</div>
+        <div className="fixed right-8 top-5">{healthStatus && <div className={`w-6 h-6 rounded-full ${healthStatus === "healthy" ? "bg-green-500 animate-pulse" : "bg-red-500 animate-pulse"}`} title={`Server status: ${healthStatus}`} />}</div>
         <img src={Logo} width={300} height={300} alt="Dowell Logo" />
         <form className="md:w-[320px] min-w-64 flex flex-col gap-4 items-center" onSubmit={handleSubmit}>
           {isOpen ? null : (

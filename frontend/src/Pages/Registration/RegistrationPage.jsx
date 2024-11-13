@@ -4,6 +4,9 @@ import Logo from "../../assets/VOC.png";
 import CircularProgress from "@mui/material/CircularProgress";
 import {sendOtpServices, validateOtpServices, emailServiceForUserDetails} from "../../services/api.services";
 import Pattern from "../../assets/Pattern.png";
+import { Carousel } from 'react-responsive-carousel';
+import "react-responsive-carousel/lib/styles/carousel.min.css";
+import step1 from '../../assets/Step-1.svg'
 
 const Registration = () => {
   const [email, setEmail] = useState("");
@@ -139,6 +142,18 @@ const Registration = () => {
         }}
       >
         {/* Carousel */}
+        <Carousel
+         showThumbs={false}
+         infiniteLoop={true}
+         autoPlay={true}
+         interval={3000}
+         stopOnHover={false}
+         showStatus={false}
+        >
+          <img src={step1} alt="" />
+          <img src={step1} alt="" />
+          <img src={step1} alt="" />
+        </Carousel>
       </div>
 
       {/* right */}

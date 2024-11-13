@@ -175,14 +175,12 @@ const Login = () => {
             latitude,
             longitude,
           };
-          console.log(credentials)
         } else {
           throw new Error("Failed to retrieve credentials with pin.");
         }
       }
 
       const loginResponse = await login(credentials);
-      console.log(loginResponse);
       if (loginResponse.success) {
         navigate("/voc/reports");
       } else {

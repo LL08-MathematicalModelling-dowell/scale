@@ -168,3 +168,22 @@ export function pickSevenKeys(transformedData) {
 
   return selectedKeysObject;
 }
+
+
+
+// export  const formatDate = (date) => {
+//   const now = new Date();
+//   const createdAtDate = new Date(date);
+//   const diffInDays = Math.floor((now - createdAtDate) / (1000 * 60 * 60 * 24));
+
+//   if (diffInDays < 7) {
+//     return `${diffInDays} day${diffInDays !== 1 ? "s" : ""} ago`;
+//   } else {
+//     return createdAtDate.toLocaleDateString("en-US", {
+//       day: "2-digit",
+//       month: "short",
+//       year: "numeric",
+//       hour: "2-digit",
+//       minute: "2-digit",
+//     });
+

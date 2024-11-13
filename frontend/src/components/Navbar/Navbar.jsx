@@ -99,17 +99,7 @@ const Navbar = () => {
                   Scale Details
                 </NavLink>
               </li>
-              <li>
-              <NavLink
-                to="/voc/preference"
-                className={({ isActive }) =>
-                  isActive ? "font-bold text-deepblue" : ""
-                }
-              >
-                Preferences
-              </NavLink>
-            </li>
-            </ul>
+                        </ul>
           </div>
 
           {/* Desktop Navbar */}
@@ -145,16 +135,7 @@ const Navbar = () => {
                 Scale Details
               </NavLink>
             </li>
-            <li>
-              <NavLink
-                to="/voc/preference"
-                className={({ isActive }) =>
-                  isActive ? "font-bold text-deepblue" : ""
-                }
-              >
-                Preferences
-              </NavLink>
-            </li>
+          
           </ul>
         </div>
 
@@ -171,7 +152,7 @@ const Navbar = () => {
                     <li className="flex items-center py-2 border-b">
                       <Cog6ToothIcon className="size-4" />
                       <a
-                        href="#"
+                        href="/voc/preference"
                         className="block px-4 py-2 text-sm font-semibold text-black hover:text-green-800"
                       >
                         Settings

@@ -20,6 +20,10 @@ const getUserLogin = async (credentials) => {
   return await servicesAxiosInstance.post("/v1/voc/user-management/?type=authenticate_user", credentials);
 };
 
+const getUserCredentialsByPin = async (pin) => {
+  return await servicesAxiosInstance.post(`/v1/voc/user-management/?type=login_using_pin&pin=${pin}`);
+}
+
 const scaleResponse = async (user, scaleType, channel, instance, workspace_id, username, scale_id, index) => {
   return await servicesAxiosInstance.get(`/v1/create-response/?user=${user}&scale_type=${scaleType}&channel=${channel}&instance=${instance}&workspace_id=${workspace_id}&username=${username}&scale_id=${scale_id}&item=${index}`);
 };
@@ -57,6 +61,8 @@ const getUserScales = async ({workspace_id, portfolio, type_of_scale, accessToke
     }
   );
 };
+
+
 const getUserLLXScales = async ({workspace_id, portfolio, type_of_scale, accessToken}) => {
   return await servicesAxiosInstance.post(
     "/v1/llx/scale-management/?type=scale_details",
@@ -152,6 +158,12 @@ const getllxReportPayload = async (payload) => {
 export const sendFeedbackEmail = async (payload) => {
   return await otpAxiosInstance.post("/v1/preference-services/send-email-feedback", payload);
 }
+ const getAvailablePreferences = async (workSpaceId, portFolioId ) => {
+  return await otpAxiosInstance.get(`/v1/preference-services/${workSpaceId}/${portFolioId}/voice_of_customer`);
+}
+ const updatePreferences = async (workSpaceId, portFolioId,payload ) => {
+  return await otpAxiosInstance.put(`/v1/preference-services/${workSpaceId}/${portFolioId}/voice_of_customer`, payload);
+}
 
 const createPreferenceApi = async (payload) => {
   return await otpAxiosInstance.post("/v1/preference-services", payload);
@@ -181,5 +193,8 @@ export {getUserLogin,
   updateScaleDetails,
   getllxReportPayload,
   getVocReport,
- createPreferenceApi
+ createPreferenceApi,
+ getAvailablePreferences,
+ updatePreferences,
+ getUserCredentialsByPin
   };

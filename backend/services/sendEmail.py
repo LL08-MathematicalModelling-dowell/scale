@@ -1,6 +1,6 @@
 import requests
 
-def send_email(toname, toemail, customer_id, product_id, user_id, password, login_link,direct_login_link):
+def send_email(toname, toemail, customer_id, product_id, user_id, password,pin, login_link,direct_login_link):
     url = "https://100085.pythonanywhere.com/api/email/"
     email_content = f"""
     <!DOCTYPE html>
@@ -48,6 +48,11 @@ def send_email(toname, toemail, customer_id, product_id, user_id, password, logi
             <tr>
                 <td style="font-size: 16px; color: #333333; padding-bottom: 10px;">
                     <strong>Password:</strong> {password}
+                </td>
+            </tr>
+            <tr>
+                <td style="font-size: 16px; color: #333333; padding-bottom: 10px;">
+                    <strong>Login Pin:</strong> {pin}
                 </td>
             </tr>
             <tr>

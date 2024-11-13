@@ -94,13 +94,13 @@ const sendScaleFeedback = ({ customerName, customerEmail, description, location,
             <img src="https://dowellfileuploader.uxlivinglab.online/hr/logo-2-min-min.png" alt="DoWell UX Living Lab Logo" style="max-width: 100px;" />
           </div>
           <div style="padding: 30px;">
-            <h2 style="color: #2e7d32; margin: 0 0 20px 0; font-size: 24px; text-align: center;">Voice of Customer</h2>
+            <h2 style="color: #2e7d32; margin: 0 0 20px 0; font-size: 24px; text-align: center;">Voice of Customers</h2>
             <h3 style="color: #2e7d32; margin: 0 0 20px 0; font-size: 20px; text-align: center;">Feedback</h3>
 
             <div style="text-align: center; margin: 20px 0; padding: 15px; background-color: #e8f5e9; border-radius: 8px;">
             <strong>Overall Rating</strong>
             <div style="font-size: 24px; letter-spacing: 4px;">
-              <span style="color: #ffd700;">${filledStars}</span><span style="color: #808080;">${unfilledStars}</span>
+              <span style="color: #ffd700;">${filledStars}</span><span style="color: #FFFFFF;">${unfilledStars}</span>
             </div>
             <div style="color: #4caf50; font-weight: bold; margin-top: 5px">${scaleResponse} out of 5</div>
           </div>

@@ -110,12 +110,14 @@ def send_email(toname, toemail, subject, date, button_link, qrcode_link, scale_d
             padding: 20px;
             border-radius: 10px;
             margin: 20px 0;
+            text-align: center;
         }}
         .info-grid {{
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 15px;
             margin-bottom: 20px;
+            text-align: center;
         }}
         .info-item {{
             background-color: #f8f9fa;
@@ -234,8 +236,7 @@ def send_email(toname, toemail, subject, date, button_link, qrcode_link, scale_d
                 />
             </div>
             <div class="content">
-                <p>{toname},</p>
-                
+            
                 <div class="info-grid">
                     <div class="info-item">
                         <div class="info-label">User ID:</div>
@@ -281,7 +282,7 @@ def send_email(toname, toemail, subject, date, button_link, qrcode_link, scale_d
             
             <div class="footer">
                 <p>This email was sent to <a href="mailto:{toemail}">{toemail}</a>. If you didn't expect this, please mail to <a href="mailto:mail@dowellresearch.com">mail@dowellresearch.com</a></p>
-                <p>&copy; @uxlivinglab. All rights reserved.</p>
+                <p>&copy;uxlivinglab. All rights reserved.</p>
             </div>
         </div>
     </body>

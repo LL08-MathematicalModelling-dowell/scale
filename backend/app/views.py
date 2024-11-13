@@ -14,6 +14,7 @@ from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime, timezone
 from services.sendEmail import *
 from services.scaleServices import scaleServicesClass
+import random
 
 jwt_utils = JWTUtils()
 scales = scaleServicesClass()
@@ -43,6 +44,8 @@ class UserManagement(APIView):
             return self.authenticate_user(request)
         elif type == 'send_customer_email':
             return self.send_customer_email(request)
+        elif type == 'login_using_pin':
+            return self.login_using_pin(request)
         else:
             return self.handle_error(request)
     
@@ -116,13 +119,21 @@ class UserManagement(APIView):
                 "success": False,
                 "message": client_admin_login_response.get("message", "Authentication failed")
             }, status=status.HTTP_401_UNAUTHORIZED)
+        status = client_admin_login_response["status"]
 
         data = client_admin_login_response.get("response", {})
-        user_info = {
-            "workspace_name": workspace_name,
-            "portfolio": portfolio
-        }
+        if status == "CID":
+            user_info = {
+                "workspace_name": workspace_name,
+                "portfolio": portfolio
+            }
+        if status == "UID":
+            user_info = {
+                "workspace_name": workspace_name,
+                "portfolio": data.get("portfolio_info", {}).get("portfolio_name", portfolio)
+            }
 
+        # return Response(user_info)
         existing_user_response = json.loads(datacube_data_retrieval(api_key, "voc", "voc_user_management", user_info, 10000, 0, False))
         existing_user = existing_user_response.get('data', [])
 
@@ -309,16 +320,19 @@ class UserManagement(APIView):
                 "portfolio_username": user_id,
                 "workspace_name": workspace_name
             },
-            0,
+            1,
             0,
             False
         ))
+
+        # return Response(user_email_response)
 
         if not user_email_response["data"]:
             return Response({
                 "success": False,
                 "message": "Please enter valid user ID"
             }, status=status.HTTP_404_NOT_FOUND)
+        
 
         if user_email_response["data"][0]["email"] == "":
             response = get_portfolio_details(workspace_name, user_id)
@@ -352,6 +366,71 @@ class UserManagement(APIView):
             user_id = user_id
             password = portfolio_details["portfolio_info"]["password"]
 
+            pin = None
+
+            check_pin = json.loads(datacube_data_retrieval(
+                api_key,
+                "voc",
+                "scale_pin_auth",
+                {
+                    "user_id": user_id,
+                    "customer_id":customer_id,
+                    "product_id": product_id,
+                    "password":password
+                },
+                1,
+                0,
+                False
+            ))
+
+            if not check_pin["success"]:
+                return Response({
+                    "success": False,
+                    "message": "Failed to fetch the pin"
+                })
+            if len(check_pin["data"]) == 0:
+                print("here is no pin")
+
+                pins = json.loads(datacube_data_retrieval(
+                    api_key,
+                    "voc",
+                    "scale_pin_auth",
+                    {},
+                    0,
+                    0,
+                    False
+                ))
+
+                # Retrieve all current pins to ensure uniqueness
+                all_existing_pins = set(entry["pin"] for entry in pins.get("data", []) if "pin" in entry)
+                
+                # Generate a unique 4-digit PIN
+                while True:
+                    pin = f"{random.randint(1000, 9999)}"
+                    if pin not in all_existing_pins:
+                        break  # Exit loop if PIN is unique
+
+                insert_pin_response = json.loads(datacube_data_insertion(
+                    api_key,
+                    "voc",
+                    "scale_pin_auth",
+                    {
+                        "user_id": user_id,
+                        "customer_id": customer_id,
+                        "product_id": product_id,
+                        "password": password,
+                        "pin": pin
+                    },
+                ))
+                if not insert_pin_response["success"]:
+                    return Response({
+                        "success": False,
+                        "message": "Failed to insert pin"
+                    }, status=status.HTTP_400_BAD_REQUEST)
+            if check_pin["data"]:
+                print("here is a pin")
+                pin = check_pin["data"][0]["pin"]   
+
             if latitude and longitude:
                 try:
                     save_location_data(
@@ -371,8 +450,10 @@ class UserManagement(APIView):
                 customer_id=customer_id,
                 product_id=product_id,    
                 user_id=user_id,
-                password=password,        
-                login_link="https://www.scales.uxlivinglab.online/voc/"
+                password=password,   
+                pin= pin,     
+                login_link="https://dowellresearch.sg/customer-login/",
+                direct_login_link= f"https://www.scales.uxlivinglab.online/voc/?workspace_name={product_id}&portfolio={customer_id}&password={password}"
             ))
 
             if not response_send_email["success"]:
@@ -407,6 +488,71 @@ class UserManagement(APIView):
             user_id = user_id
             password = portfolio_details["portfolio_info"]["password"]
 
+            pin = None
+
+            check_pin = json.loads(datacube_data_retrieval(
+                api_key,
+                "voc",
+                "scale_pin_auth",
+                {
+                    "user_id": user_id,
+                    "customer_id":customer_id,
+                    "product_id": product_id,
+                    "password":password
+                },
+                1,
+                0,
+                False
+            ))
+
+            if not check_pin["success"]:
+                return Response({
+                    "success": False,
+                    "message": "Failed to fetch the pin"
+                })
+            if len(check_pin["data"]) == 0:
+                print("here is no pin")
+
+                pins = json.loads(datacube_data_retrieval(
+                    api_key,
+                    "voc",
+                    "scale_pin_auth",
+                    {},
+                    0,
+                    0,
+                    False
+                ))
+
+                # Retrieve all current pins to ensure uniqueness
+                all_existing_pins = set(entry["pin"] for entry in pins.get("data", []) if "pin" in entry)
+                
+                # Generate a unique 4-digit PIN
+                while True:
+                    pin = f"{random.randint(1000, 9999)}"
+                    if pin not in all_existing_pins:
+                        break 
+
+                insert_pin_response = json.loads(datacube_data_insertion(
+                    api_key,
+                    "voc",
+                    "scale_pin_auth",
+                    {
+                        "user_id": user_id,
+                        "customer_id": customer_id,
+                        "product_id": product_id,
+                        "password": password,
+                        "pin": pin
+                    },
+                ))
+                if not insert_pin_response["success"]:
+                    return Response({
+                        "success": False,
+                        "message": "Failed to insert pin"
+                    }, status=status.HTTP_400_BAD_REQUEST)
+            if check_pin["data"]:
+                print("here is a pin")
+                pin = check_pin["data"][0]["pin"]   
+
             if latitude and longitude:
                 try:
                     save_location_data(
@@ -426,8 +572,10 @@ class UserManagement(APIView):
                 customer_id=customer_id,
                 product_id=product_id,    
                 user_id=user_id,
-                password=password,        
-                login_link="https://www.scales.uxlivinglab.online/voc/"
+                password=password,  
+                pin=pin,      
+                login_link="https://dowellresearch.sg/customer-login/",
+                direct_login_link= f"https://www.scales.uxlivinglab.online/voc/?workspace_name={product_id}&portfolio={customer_id}&password={password}"
             ))
 
             if not response_send_email["success"]:
@@ -441,8 +589,39 @@ class UserManagement(APIView):
                 "message": "Email sent successfully"
             }, status=status.HTTP_200_OK)
         
+    def login_using_pin(self,request):
+        pin = request.GET.get("pin")
 
+        if not pin:
+            return Response({
+                "success": False,
+                "message": "Pin is required"
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        get_pin = json.loads(datacube_data_retrieval(
+            api_key,
+            "voc",
+            "scale_pin_auth",
+            {
+                "pin": pin
+            },
+            1,
+            0,
+            False
+        ))
 
+        if not get_pin["success"]:
+            return Response({
+                "success": False,
+                "message": "Invalid pin or wrong pin"
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({
+            "success": True,
+            "message": "Pin verified successfully",
+            "response": get_pin["data"]
+        })
+    
     def handle_error(self, request): 
         return Response({
             "success": False,

@@ -18,7 +18,11 @@ const Registration = () => {
   const navigate = useNavigate();
 
   const queryParams = new URLSearchParams(location.search);
-  const workspaceName = queryParams.get("workspace_name");
+  let workspaceName = queryParams.get("workspace_name");
+
+  if (!workspaceName) {
+    workspaceName = "VOCABC";
+  }
 
   useEffect(() => {
     // Get user's current location

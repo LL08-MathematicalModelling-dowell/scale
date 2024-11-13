@@ -116,13 +116,21 @@ class UserManagement(APIView):
                 "success": False,
                 "message": client_admin_login_response.get("message", "Authentication failed")
             }, status=status.HTTP_401_UNAUTHORIZED)
+        status = client_admin_login_response["status"]
 
         data = client_admin_login_response.get("response", {})
-        user_info = {
-            "workspace_name": workspace_name,
-            "portfolio": portfolio
-        }
+        if status == "CID":
+            user_info = {
+                "workspace_name": workspace_name,
+                "portfolio": portfolio
+            }
+        if status == "UID":
+            user_info = {
+                "workspace_name": workspace_name,
+                "portfolio": data.get("portfolio_info", {}).get("portfolio_name", portfolio)
+            }
 
+        # return Response(user_info)
         existing_user_response = json.loads(datacube_data_retrieval(api_key, "voc", "voc_user_management", user_info, 10000, 0, False))
         existing_user = existing_user_response.get('data', [])
 
@@ -309,16 +317,19 @@ class UserManagement(APIView):
                 "portfolio_username": user_id,
                 "workspace_name": workspace_name
             },
-            0,
+            1,
             0,
             False
         ))
+
+        # return Response(user_email_response)
 
         if not user_email_response["data"]:
             return Response({
                 "success": False,
                 "message": "Please enter valid user ID"
             }, status=status.HTTP_404_NOT_FOUND)
+        
 
         if user_email_response["data"][0]["email"] == "":
             response = get_portfolio_details(workspace_name, user_id)
@@ -372,7 +383,8 @@ class UserManagement(APIView):
                 product_id=product_id,    
                 user_id=user_id,
                 password=password,        
-                login_link="https://www.scales.uxlivinglab.online/voc/"
+                login_link="https://dowellresearch.sg/customer-login/",
+                direct_login_link= f"https://www.scales.uxlivinglab.online/voc/?workspace_name={product_id}&portfolio={customer_id}&password={password}"
             ))
 
             if not response_send_email["success"]:
@@ -427,7 +439,8 @@ class UserManagement(APIView):
                 product_id=product_id,    
                 user_id=user_id,
                 password=password,        
-                login_link="https://www.scales.uxlivinglab.online/voc/"
+                login_link="https://dowellresearch.sg/customer-login/",
+                direct_login_link= f"https://www.scales.uxlivinglab.online/voc/?workspace_name={product_id}&portfolio={customer_id}&password={password}"
             ))
 
             if not response_send_email["success"]:

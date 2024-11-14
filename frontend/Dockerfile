@@ -8,7 +8,7 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # Install dependencies using npm ci for lockfile consistency
-RUN npm install
+RUN npm ci
 
 # Install Vite globally
 RUN npm install -g vite

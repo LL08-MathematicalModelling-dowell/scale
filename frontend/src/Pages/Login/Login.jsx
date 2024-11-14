@@ -1,9 +1,14 @@
-import {Separator} from "@/components/ui/separator";
+/* eslint-disable react/no-unescaped-entities */
+import { Separator } from "@/components/ui/separator";
 import CircularProgress from "@mui/material/CircularProgress";
-import {useEffect, useState} from "react";
-import {useLocation, useNavigate} from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import Logo from "../../assets/VOC.png";
-import {getAPIServerStatus, getUserCredentialsByPin, getUserLogin} from "../../services/api.services";
+import {
+  getAPIServerStatus,
+  getUserCredentialsByPin,
+  getUserLogin,
+} from "../../services/api.services";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -12,7 +17,7 @@ const Login = () => {
   const [healthStatus, setHealthStatus] = useState(null);
   const [latitude, setLatitude] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
-  const [loginType, setLoginType] = useState("")
+  const [loginType, setLoginType] = useState("");
   const [longitude, setLongitude] = useState(null);
   const [formData, setFormData] = useState({
     workspace_name: "",
@@ -131,14 +136,18 @@ const Login = () => {
         if (error.response.status === 500) {
           setStatusMessage("Server error. Please try again later.");
         } else if (error.response.status === 400) {
-          setStatusMessage("Invalid credentials. Please check your login details.");
+          setStatusMessage(
+            "Invalid credentials. Please check your login details."
+          );
         } else {
           setStatusMessage("An error occurred. Please try again.");
         }
       } else if (error.request) {
         // Request was made but no response was received
         console.error("Login error - No response received:", error.request);
-        setStatusMessage("Network error. Please check your internet connection.");
+        setStatusMessage(
+          "Network error. Please check your internet connection."
+        );
       } else {
         // Something else caused an error
         console.error("Login error:", error.message);
@@ -190,7 +199,9 @@ const Login = () => {
       }
     } catch (error) {
       if (error.message.includes("<!DOCTYPE")) {
-        setStatusMessage("Received HTML instead of JSON. Possible server issue.");
+        setStatusMessage(
+          "Received HTML instead of JSON. Possible server issue."
+        );
         console.error("Received HTML instead of JSON. Possible server issue.");
       } else {
         setStatusMessage("Error during login.");
@@ -202,7 +213,7 @@ const Login = () => {
   };
 
   const handleChange = (event) => {
-    const {name, value} = event.target;
+    const { name, value } = event.target;
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
@@ -211,7 +222,9 @@ const Login = () => {
 
   const handleChecked = () => {
     setIsOpen(true);
-
+  };
+  const handleUnChecked = () => {
+    setIsOpen(false);
   };
 
   const handleRegister = () => {
@@ -228,9 +241,23 @@ const Login = () => {
   return (
     <div className="max-h-screen flex flex-col relative">
       <div className="flex flex-col gap-1 justify-center items-center mt-10">
-        <div className="fixed right-8 top-5">{healthStatus && <div className={`w-6 h-6 rounded-full ${healthStatus === "healthy" ? "bg-green-500 animate-pulse" : "bg-red-500 animate-pulse"}`} title={`Server status: ${healthStatus}`} />}</div>
+        <div className="fixed right-8 top-5">
+          {healthStatus && (
+            <div
+              className={`w-6 h-6 rounded-full ${
+                healthStatus === "healthy"
+                  ? "bg-green-500 animate-pulse"
+                  : "bg-red-500 animate-pulse"
+              }`}
+              title={`Server status: ${healthStatus}`}
+            />
+          )}
+        </div>
         <img src={Logo} width={300} height={300} alt="Dowell Logo" />
-        <form className="md:w-[320px] min-w-64 flex flex-col gap-4 items-center" onSubmit={handleSubmit}>
+        <form
+          className="md:w-[320px] min-w-64 flex flex-col gap-4 items-center"
+          onSubmit={handleSubmit}
+        >
           {isOpen ? null : (
             <div className="w-full gap-4 flex flex-col">
               <input
@@ -263,57 +290,107 @@ const Login = () => {
                 onChange={handleChange}
                 readOnly={isReadOnly.password}
               />
-      <div className="flex justify-center items-center">
-      <button  type="submit" className={`w-40 py-2 text-sm font-semibold rounded-md transition-colors duration-300 ${loading ? "bg-blue-300 cursor-not-allowed text-gray-700" : "bg-blue-600 hover:bg-blue-700 text-white"}`} disabled={loading}>
-            {loading ? (
-              <div className="flex items-center justify-center gap-2">
-                <CircularProgress color="inherit" size={20} />
-                Loading...
+              <div className="flex justify-center items-center">
+                <button
+                  type="submit"
+                  className={`w-40 py-2 text-sm font-semibold rounded-md transition-colors duration-300 ${
+                    loading
+                      ? "bg-blue-300 cursor-not-allowed text-gray-700"
+                      : "bg-blue-600 hover:bg-blue-700 text-white"
+                  }`}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <CircularProgress color="inherit" size={20} />
+                      Loading...
+                    </div>
+                  ) : (
+                    "Login"
+                  )}
+                </button>
               </div>
-            ) : (
-              "Login"
-            )}
-          </button>
-      </div>
-
+              <div className="flex gap-2 items-center justify-center">
+                <p className="text-[16px] font-poppins font-normal">
+                  Or Login with Pin ?
+                </p>
+                <button
+                  type="button"
+                  className="text-[16px] font-poppins font-semibold text-blue-800 underline cursor-pointer"
+                  onClick={handleChecked}
+                >
+                  Click Here
+                </button>
             </div>
-            
+            </div>
           )}
-
-   
 
           <Separator />
 
           {/* Pin login */}
-          <div className="flex flex-col gap-4 w-full  ">
-            <div className="flex gap-2 items-center justify-center ">
-              <a onClick={handleChecked} className="font-poppins cursor-pointer text-[16px] font-bold tracking-tight text-center underline text-blue-700">Login Using Account Pin</a>
-            </div>
-          {isOpen && (
-            <div className="flex gap-2 flex-col items-center justify-center">
-                <input type="text" name="pin" placeholder="Enter pin" className="cursor-pointer bg-white border border-gray-300 p-2.5 font-poppins text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full" value={formData.pin} onChange={handleChange} />
-          
-                <button onClick={() => setLoginType("PIN")} type="submit" className={`w-40 py-2 text-sm font-semibold rounded-md transition-colors duration-300 ${loading ? "bg-blue-300 cursor-not-allowed text-gray-700" : "bg-blue-600 hover:bg-blue-700 text-white"}`} disabled={loading}>
-            {loading ? (
-              <div className="flex items-center justify-center gap-2">
-                <CircularProgress color="inherit" size={20} />
-                Loading...
+          <div className="flex flex-col gap-4 w-full  ">      
+            {isOpen && (
+              <div className="flex gap-6 flex-col items-center justify-center">
+                <h2 className="text-[16px] font-poppins font-normal">Login with PIN</h2>
+                <input
+                  type="text"
+                  name="pin"
+                  placeholder="Enter pin"
+                  className="cursor-pointer bg-white border border-gray-300 p-2.5 font-poppins text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full"
+                  value={formData.pin}
+                  onChange={handleChange}
+                />
+                <button
+                  onClick={() => setLoginType("PIN")}
+                  type="submit"
+                  className={`w-40 py-2 text-sm font-semibold rounded-md transition-colors duration-300 ${
+                    loading
+                      ? "bg-blue-300 cursor-not-allowed text-gray-700"
+                      : "bg-blue-600 hover:bg-blue-700 text-white"
+                  }`}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <CircularProgress color="inherit" size={20} />
+                      Loading...
+                    </div>
+                  ) : (
+                    "Login"
+                  )}
+                </button>{" "}
+                <div className="flex gap-2">
+                  <p className="text-[16px] font-poppins font-normal">
+                    Or Login with Credentials ?
+                  </p>
+                  <button
+                    type="button"
+                    className="text-[16px] font-poppins font-semibold text-blue-800 underline cursor-pointer"
+                    onClick={handleUnChecked}
+                  >
+                    Click Here
+                  </button>
+                </div>
+                <Separator />
               </div>
-            ) : (
-              "Login"
             )}
-          </button>           </div>
-
-          )}
           </div>
 
           <div className="flex gap-2">
-            <p className="text-[16px] font-poppins font-normal">Don't have an account?</p>
-            <button type="button" className="text-[16px] font-poppins font-semibold text-blue-800 underline" onClick={handleRegister}>
+            <p className="text-[16px] font-poppins font-normal">
+              Don't have an account?
+            </p>
+            <button
+              type="button"
+              className="text-[16px] font-poppins font-semibold text-blue-800 underline"
+              onClick={handleRegister}
+            >
               Register
             </button>
           </div>
-          {statusMessage && <p className="mt-2 text-center text-red-600">{statusMessage}</p>}
+          {statusMessage && (
+            <p className="mt-2 text-center text-red-600">{statusMessage}</p>
+          )}
         </form>
       </div>
     </div>

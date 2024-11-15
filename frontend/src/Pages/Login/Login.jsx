@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unescaped-entities */
-import { Separator } from "@/components/ui/separator";
+// import { Separator } from "@/components/ui/separator";
 import CircularProgress from "@mui/material/CircularProgress";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -16,14 +16,14 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [healthStatus, setHealthStatus] = useState(null);
   const [latitude, setLatitude] = useState(null);
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
   const [loginType, setLoginType] = useState("");
   const [longitude, setLongitude] = useState(null);
   const [formData, setFormData] = useState({
     workspace_name: "",
     portfolio: "",
     password: "",
-    pin: "",
+    pin: ["", "", "", ""],
   });
   const [statusMessage, setStatusMessage] = useState("");
   const [isReadOnly, setIsReadOnly] = useState({
@@ -39,6 +39,7 @@ const Login = () => {
     const password = queryParams.get("password");
 
     if (workspaceName) {
+      setIsOpen(false)
       setFormData((prevData) => ({
         ...prevData,
         workspace_name: workspaceName,
@@ -117,6 +118,8 @@ const Login = () => {
     }
   };
 
+  const getPinAsString = () => formData.pin.join("");
+
   const login = async (credentials) => {
     try {
       const response = await getUserLogin(credentials);
@@ -170,8 +173,8 @@ const Login = () => {
 
     try {
       if (loginType === "PIN") {
-        const pin = formData.pin;
-        const pinResponse = await getUserCredentialsByPin(pin);
+        const completePin = getPinAsString();
+        const pinResponse = await getUserCredentialsByPin(completePin);
 
         // Assign the credentials from the API response
         if (pinResponse.status === 200) {
@@ -227,6 +230,74 @@ const Login = () => {
     setIsOpen(false);
   };
 
+  // here
+  const handlePinChange = (e, index) => {
+    const value = e.target.value;
+    const keyPressed = e.nativeEvent.inputType; // Detect the type of input action
+    const newPinArray = [...formData.pin];
+
+    console.log(keyPressed);
+
+    // Handle backspace
+    if (keyPressed === "deleteContentBackward") {
+      newPinArray[index] = ""; // Clear the current pin slot
+      setFormData((prev) => ({
+        ...prev,
+        pin: newPinArray,
+      }));
+
+      // If it's not the first input, move focus to the previous input
+      if (index > 0) {
+        document.getElementById(`pin-${index - 1}`).focus();
+      }
+      return;
+    }
+
+    // Only allow numeric input (0-9)
+    if (!/^\d*$/.test(value)) return;
+
+    newPinArray[index] = value;
+
+    // Update formData with the new pin value
+    setFormData((prev) => ({
+      ...prev,
+      pin: newPinArray,
+    }));
+
+    // If a valid digit is entered, move focus to the next input unless it's the last pin input
+    if (value && index < 3) {
+      document.getElementById(`pin-${index + 1}`).focus();
+    }
+  };
+
+  const handlePaste = (e) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData
+      .getData("text")
+      .replace(/\D/g, "")
+      .slice(0, 4);
+
+    const newPinArray = [...formData.pin];
+    for (let i = 0; i < pastedData.length; i++) {
+      if (i < 4) {
+        newPinArray[i] = pastedData[i];
+      }
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      pin: newPinArray,
+    }));
+
+    // Focus the next empty input or the last input
+    const nextEmptyIndex = newPinArray.findIndex((val) => !val);
+    if (nextEmptyIndex !== -1 && nextEmptyIndex < 4) {
+      document.getElementById(`pin-${nextEmptyIndex}`).focus();
+    } else {
+      document.getElementById("pin-3").focus();
+    }
+  };
+
   const handleRegister = () => {
     const queryParams = new URLSearchParams(location.search);
     const workspaceName = queryParams.get("workspace_name");
@@ -253,7 +324,7 @@ const Login = () => {
             />
           )}
         </div>
-        <img src={Logo} width={300} height={300} alt="Dowell Logo" />
+        <img src={Logo} width={250} height={250} alt="Dowell Logo" />
         <form
           className="md:w-[320px] min-w-64 flex flex-col gap-4 items-center"
           onSubmit={handleSubmit}
@@ -321,25 +392,45 @@ const Login = () => {
                 >
                   Click Here
                 </button>
-            </div>
+              </div>
             </div>
           )}
 
-          <Separator />
-
           {/* Pin login */}
-          <div className="flex flex-col gap-4 w-full  ">      
+          <div className="flex flex-col gap-4 w-full  ">
             {isOpen && (
               <div className="flex gap-6 flex-col items-center justify-center">
-                <h2 className="text-[16px] font-poppins font-normal">Login with PIN</h2>
-                <input
+                <h2 className="text-[16px] font-poppins font-normal">
+                  Login with PIN
+                </h2>
+                {/* <input
                   type="text"
                   name="pin"
-                  placeholder="Enter pin"
+                  placeholder="Enter the pin you have received via email"
                   className="cursor-pointer bg-white border border-gray-300 p-2.5 font-poppins text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full"
                   value={formData.pin}
                   onChange={handleChange}
-                />
+                /> */}
+                <div className="flex flex-col items-center">
+                  <div className="flex gap-2">
+                    {formData.pin.map((value, index) => (
+                      <input
+                        key={index}
+                        required
+                        id={`pin-${index}`}
+                        type="text"
+                        maxLength="1"
+                        value={value}
+                        onChange={(e) => handlePinChange(e, index)}
+                        onPaste={handlePaste}
+                        className="cursor-pointer bg-white border border-gray-300 p-2.5 font-poppins text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 text-center w-12"
+                      />
+                    ))}
+                  </div>
+                  <span className="mt-2 text-gray-600 text-xs">
+                    Please enter the 4-digit PIN sent to your email.
+                  </span>
+                </div>
                 <button
                   onClick={() => setLoginType("PIN")}
                   type="submit"
@@ -371,7 +462,6 @@ const Login = () => {
                     Click Here
                   </button>
                 </div>
-                <Separator />
               </div>
             )}
           </div>
@@ -388,6 +478,12 @@ const Login = () => {
               Register
             </button>
           </div>
+          <button 
+            className="bg-[#27C65E] text-white w-32 py-1 rounded-lg transition-colors"
+            onClick={() => window.open("https://dowellresearch.sg/customer-login/", "_blank")}
+          >
+            Help
+          </button>
           {statusMessage && (
             <p className="mt-2 text-center text-red-600">{statusMessage}</p>
           )}

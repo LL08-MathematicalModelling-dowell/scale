@@ -39,7 +39,7 @@ const Login = () => {
     const password = queryParams.get("password");
 
     if (workspaceName) {
-      setIsOpen(false)
+      setIsOpen(false);
       setFormData((prevData) => ({
         ...prevData,
         workspace_name: workspaceName,
@@ -361,7 +361,16 @@ const Login = () => {
                 onChange={handleChange}
                 readOnly={isReadOnly.password}
               />
-              <div className="flex justify-center items-center">
+              <div className="flex justify-center items-center gap-2">
+              <button
+                    type="button"
+                    className="w-40 py-2 text-sm font-semibold rounded-md bg-gray-300 hover:bg-gray-400 text-gray-800 transition-colors duration-300"
+                    onClick={() =>
+                      window.open("https://dowellresearch.sg/", "_blank")
+                    }
+                  >
+                    Cancel
+                  </button>
                 <button
                   type="submit"
                   className={`w-40 py-2 text-sm font-semibold rounded-md transition-colors duration-300 ${
@@ -383,7 +392,7 @@ const Login = () => {
               </div>
               <div className="flex gap-2 items-center justify-center">
                 <p className="text-[16px] font-poppins font-normal">
-                  Or Login with Pin ?
+                  Login with Pin ?
                 </p>
                 <button
                   type="button"
@@ -428,31 +437,42 @@ const Login = () => {
                     ))}
                   </div>
                   <span className="mt-2 text-gray-600 text-xs">
-                    Please enter the 4-digit PIN sent to your email.
+                    Please enter the 4 digit PIN received in your email.
                   </span>
                 </div>
-                <button
-                  onClick={() => setLoginType("PIN")}
-                  type="submit"
-                  className={`w-40 py-2 text-sm font-semibold rounded-md transition-colors duration-300 ${
-                    loading
-                      ? "bg-blue-300 cursor-not-allowed text-gray-700"
-                      : "bg-blue-600 hover:bg-blue-700 text-white"
-                  }`}
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <div className="flex items-center justify-center gap-2">
-                      <CircularProgress color="inherit" size={20} />
-                      Loading...
-                    </div>
-                  ) : (
-                    "Login"
-                  )}
-                </button>{" "}
+                <div className="flex justify-center items-center gap-2">
+                  <button
+                    type="button"
+                    className="w-40 py-2 text-sm font-semibold rounded-md bg-gray-300 hover:bg-gray-400 text-gray-800 transition-colors duration-300"
+                    onClick={() =>
+                      window.open("https://dowellresearch.sg/", "_blank")
+                    }
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => setLoginType("PIN")}
+                    type="submit"
+                    className={`w-40 py-2 text-sm font-semibold rounded-md transition-colors duration-300 ${
+                      loading
+                        ? "bg-blue-300 cursor-not-allowed text-gray-700"
+                        : "bg-blue-600 hover:bg-blue-700 text-white"
+                    }`}
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <div className="flex items-center justify-center gap-2">
+                        <CircularProgress color="inherit" size={20} />
+                        Loading...
+                      </div>
+                    ) : (
+                      "Login"
+                    )}
+                  </button>{" "}
+                </div>
                 <div className="flex gap-2">
                   <p className="text-[16px] font-poppins font-normal">
-                    Or Login with Credentials ?
+                    Login with Credentials ?
                   </p>
                   <button
                     type="button"
@@ -478,9 +498,11 @@ const Login = () => {
               Register
             </button>
           </div>
-          <button 
+          <button
             className="bg-[#27C65E] text-white w-32 py-1 rounded-lg transition-colors"
-            onClick={() => window.open("https://dowellresearch.sg/customer-login/", "_blank")}
+            onClick={() =>
+              window.open("https://dowellresearch.sg/customer-login/", "_blank")
+            }
           >
             Help
           </button>

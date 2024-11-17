@@ -1,20 +1,32 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import PropTypes from "prop-types";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-const SelectField = ({ triggerClass, placeholder, data, handleInputChange }) => {
-  const [selectedValue, setSelectedValue] = useState(""); // Start with no value selected
+const SelectField = ({ triggerClass, placeholder, data, handleInputChange, defaultValue }) => {
+  const [selectedValue, setSelectedValue] = useState(defaultValue || ""); // Initialize with defaultValue if provided
 
   const handleSelectChange = (value) => {
-    setSelectedValue(value);  // Update the selected value
-    handleInputChange(value);  // Pass the selected value to the parent handler
+    setSelectedValue(value); // Update the selected value
+    handleInputChange(value); // Notify parent of the change
   };
+
+  useEffect(() => {
+    if (defaultValue) {
+      setSelectedValue(defaultValue); // Update state if defaultValue changes
+    }
+  }, [defaultValue]);
 
   return (
     <div>
       <Select value={selectedValue} onValueChange={handleSelectChange}>
         <SelectTrigger className={triggerClass}>
-          <SelectValue placeholder={selectedValue ? data.find(item => item.value === selectedValue)?.label : placeholder || data[0]?.label} />
+          <SelectValue
+            placeholder={
+              selectedValue
+                ? data.find((item) => item.value === selectedValue)?.label
+                : placeholder || data[0]?.label
+            }
+          />
         </SelectTrigger>
         <SelectContent>
           {data.map((item, index) => (
@@ -33,11 +45,12 @@ SelectField.propTypes = {
   placeholder: PropTypes.string.isRequired,
   data: PropTypes.arrayOf(
     PropTypes.shape({
-      value: PropTypes.any,
-      label: PropTypes.string,
+      value: PropTypes.any.isRequired,
+      label: PropTypes.string.isRequired,
     })
   ).isRequired,
   handleInputChange: PropTypes.func.isRequired,
+  defaultValue: PropTypes.string, // Optional prop for setting the default value
 };
 
 export default SelectField;

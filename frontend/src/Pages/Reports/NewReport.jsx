@@ -78,9 +78,10 @@ const NewReport = () => {
     labels: [],
     datasets: [],
   });
+  const [channelValue, setChannelValue] = useState("channel_1"); // Default channel
+  const [instanceValue, setInstanceValue] = useState("instance_5");
+  const [defaultDuration, setDefaultDuration] = useState("seven_days"); // Default instance
   const [duration, setDuration] = useState(null);
-  const [instanceValue, setInstanceValue] = useState(null);
-  const [channelValue, setChannelValue] = useState(null);
   const [instanceLoading, setInstanceLoading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [maxScore, setMaxScore] = useState(0);
@@ -171,11 +172,16 @@ const NewReport = () => {
             }))
           );
           setChannelData(getChannels);
-  
+          setChannelValue(getChannels[0]?.value || "");
+          console.log(channelValue)
+
           const allInstances = getChannels
             .flatMap((channel) => channel.instances)
             .filter((instance, index, self) => index === self.findIndex((i) => i.value === instance.value));
           setInstanceData(allInstances);
+          setInstanceValue(allInstances[4]?.value || "");
+          console.log(instanceValue)
+
         } else {
           setAlert(true);
           setMessage("Failed to fetch the Likert Scale Report");
@@ -218,7 +224,7 @@ const NewReport = () => {
     }
     console.log(scale_id);
 
-    const payload = {
+    let payload = {
       scale_id: scaleId,
       channel_names: channelValue === "all" ? channelName.map((ch) => ch.value).filter((val) => val !== "all") : [`${channelValue}`],
       instance_names: [`${instanceValue}`],
@@ -332,6 +338,18 @@ const NewReport = () => {
     }
   }, [channelValue, instanceValue, duration]);
 
+  // useEffect(()=> {
+  //    payload = {
+  //       scale_id: scaleId,
+  //       channel_names: [`${channelValue}`],
+  //       instance_names: [`${instanceValue}`],
+  //       period: `${defaultDuration}`,
+  //     };
+
+  //     fetchVocReport(payload, scaleType);
+  
+  // })
+
   const handleInputChange = (value) => {
     if (value.startsWith("ins")) {
       setInstanceValue(value);
@@ -367,9 +385,9 @@ const NewReport = () => {
         </div>
         <div className="flex flex-col items-center justify-center gap-10">
           <div className="flex flex-col justify-center gap-5 md:flex-row">
-            <SelectField handleInputChange={handleInputChange} triggerClass="w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins" placeholder="Select Channel Name" data={channelData} />
-            <SelectField handleInputChange={handleInputChange} triggerClass="w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins" placeholder="Select Instances" data={instanceData} />
-            <SelectField handleInputChange={handleInputChange} triggerClass="w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins" placeholder="Duration" data={Duration} />
+            <SelectField handleInputChange={handleInputChange} triggerClass="w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins" placeholder="Select Channel Name" data={channelData} defaultValue= {channelValue}/>
+            <SelectField handleInputChange={handleInputChange} triggerClass="w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins" placeholder="Select Instances" data={instanceData} defaultValue={instanceValue} />
+            <SelectField handleInputChange={handleInputChange} triggerClass="w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins" placeholder="Duration" data={Duration} defaultValue={defaultDuration} />
           </div>
 
           <div className="flex gap-8">

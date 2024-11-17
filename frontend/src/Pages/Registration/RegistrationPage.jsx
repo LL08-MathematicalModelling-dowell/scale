@@ -585,8 +585,8 @@ const Registration = () => {
         <input
           type="text"
           name="userId"
-          placeholder="Enter your User ID"
-          className="bg-white border border-gray-300 w-full p-2.5 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500"
+          placeholder="Enter the code shown below your QR code in the sticker/product"
+          className="bg-white border border-gray-300 w-full p-2.5 text-sm font-poppins tracking-tight rounded-lg focus:ring-blue-500 focus:border-blue-500"
           required
           value={userId}
           onChange={handleUserIdChange}
@@ -595,7 +595,7 @@ const Registration = () => {
           type="email"
           name="email"
           placeholder="Enter your email"
-          className="bg-white border border-gray-300 w-full p-2.5 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500"
+          className="bg-white border border-gray-300 w-full p-2.5 font-poppins tracking-tight text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500"
           required
           value={email}
           onChange={handleEmailChange}
@@ -613,17 +613,9 @@ const Registration = () => {
           />
         )}
 
-        <div className="w-full flex gap-4">
-          <button
-            type="button"
-            className="w-full py-2 text-sm font-semibold rounded-md bg-gray-300 hover:bg-gray-400 text-gray-800 transition-colors duration-300"
-            onClick={handleHome}
-          >
-            Cancel
-          </button>
-          <button
+<button
             type="submit"
-            className={`w-full py-2 text-sm font-semibold rounded-md transition-colors duration-300 ${
+            className={`w-full py-3 text-sm font-semibold  px-2 font-poppins tracking-tight rounded-md transition-colors duration-300 ${
               loading
                 ? "bg-blue-300 cursor-not-allowed text-gray-700"
                 : "bg-blue-600 hover:bg-blue-700 text-white"
@@ -640,20 +632,30 @@ const Registration = () => {
                   : "Sending OTP..."}
               </div>
             ) : otpValidated ? (
-              "Submit"
+              "Submit then check your mail for credentials"
             ) : otpSent ? (
               "Verify OTP"
             ) : (
               "Send OTP"
             )}
           </button>
-        </div>
-        <button 
-            className="bg-[#27C65E] text-white w-32 py-1 rounded-lg transition-colors"
+
+        <div className="w-full flex gap-4">
+          <button
+            type="button"
+            className="w-full py-2 text-sm font-semibold rounded-md bg-gray-300 hover:bg-gray-400 text-gray-800 transition-colors duration-300"
+            onClick={handleHome}
+          >
+            Cancel
+          </button>
+              <button 
+            className="bg-[#27C65E] w-full text-white  py-2 rounded-lg transition-colors font-poppins tracking-tight font-semibold"
             onClick={() => window.open("https://dowellresearch.sg/customer-login/", "_blank")}
           >
             Help
           </button>
+        </div>
+    
 
         {statusMessage && (
           <p
@@ -664,6 +666,12 @@ const Registration = () => {
             {statusMessage}
           </p>
         )}
+
+        {/* {otpSent && (
+          <p className="mt-2 text-center font-poppins font-semibold tracking-tight text-gray-600">
+            Please check your email for the OTP. If you haven't received it, please check your spam folder.
+          </p>
+        )} */}
       </form>
     </div>
   );

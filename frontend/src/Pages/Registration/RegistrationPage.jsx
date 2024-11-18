@@ -268,7 +268,7 @@
 //       }
 //     } catch (error) {
 //       console.log(error);
-      
+
 //       setStatusMessage("Failed to send OTP. Please try again.");
 //       setIsSuccess(false);
 //     } finally {
@@ -292,7 +292,7 @@
 //       }
 //     } catch (error) {
 //       console.log(error);
-      
+
 //       setStatusMessage("Failed to validate OTP. Please try again.");
 //       setIsSuccess(false);
 //     } finally {
@@ -328,7 +328,6 @@
 //         setLoading(false);
 //     }
 // };
-
 
 //   const handleHome = () => navigate("/voc");
 
@@ -444,7 +443,11 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Logo from "../../assets/VOC.png";
 import CircularProgress from "@mui/material/CircularProgress";
-import { sendOtpServices, validateOtpServices, emailServiceForUserDetails } from "../../services/api.services";
+import {
+  sendOtpServices,
+  validateOtpServices,
+  emailServiceForUserDetails,
+} from "../../services/api.services";
 
 const Registration = () => {
   const [email, setEmail] = useState("");
@@ -476,7 +479,9 @@ const Registration = () => {
         },
         (error) => {
           console.log("Error getting location:", error);
-          setStatusMessage("Failed to get location. Please ensure location services are enabled.");
+          setStatusMessage(
+            "Failed to get location. Please ensure location services are enabled."
+          );
           setIsSuccess(false);
         }
       );
@@ -500,12 +505,14 @@ const Registration = () => {
         setIsSuccess(true);
         setOtpSent(true);
       } else {
-        setStatusMessage(response.data.message || "Failed to send OTP. Please try again.");
+        setStatusMessage(
+          response.data.message || "Failed to send OTP. Please try again."
+        );
         setIsSuccess(false);
       }
     } catch (error) {
       console.log(error);
-      
+
       setStatusMessage("Failed to send OTP. Please try again.");
       setIsSuccess(false);
     } finally {
@@ -524,12 +531,14 @@ const Registration = () => {
         setIsSuccess(true);
         setOtpValidated(true);
       } else {
-        setStatusMessage(response.data.message || "Failed to validate OTP. Please try again.");
+        setStatusMessage(
+          response.data.message || "Failed to validate OTP. Please try again."
+        );
         setIsSuccess(false);
       }
     } catch (error) {
       console.log(error);
-      
+
       setStatusMessage("Failed to validate OTP. Please try again.");
       setIsSuccess(false);
     } finally {
@@ -542,30 +551,35 @@ const Registration = () => {
     setLoading(true);
 
     try {
-        const response = await emailServiceForUserDetails(email, userId, latitude, longitude, workspaceName);
-        if (response.data.success) {
-            setStatusMessage(response.data.message);
-            setIsSuccess(true);
-            const timeoutId = setTimeout(() => {
-                navigate("/voc");
-            }, 2000);
+      const response = await emailServiceForUserDetails(
+        email,
+        userId,
+        latitude,
+        longitude,
+        workspaceName
+      );
+      if (response.data.success) {
+        setStatusMessage(response.data.message);
+        setIsSuccess(true);
+        const timeoutId = setTimeout(() => {
+          navigate("/voc");
+        }, 2000);
 
-            // Clear timeout if component unmounts
-            return () => clearTimeout(timeoutId);
-        } else {
-            setStatusMessage(response.data.message);
-            setIsSuccess(false);
-        }
-    } catch (error) {
-        console.error(error);
-        const errorMessage = error.response?.data?.message;
-        setStatusMessage(errorMessage);
+        // Clear timeout if component unmounts
+        return () => clearTimeout(timeoutId);
+      } else {
+        setStatusMessage(response.data.message);
         setIsSuccess(false);
+      }
+    } catch (error) {
+      console.error(error);
+      const errorMessage = error.response?.data?.message;
+      setStatusMessage(errorMessage);
+      setIsSuccess(false);
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
-};
-
+  };
 
   const handleHome = () => navigate("/voc");
 
@@ -613,32 +627,32 @@ const Registration = () => {
           />
         )}
 
-<button
-            type="submit"
-            className={`w-full py-3 text-sm font-semibold  px-2 font-poppins tracking-tight rounded-md transition-colors duration-300 ${
-              loading
-                ? "bg-blue-300 cursor-not-allowed text-gray-700"
-                : "bg-blue-600 hover:bg-blue-700 text-white"
-            }`}
-            disabled={loading}
-          >
-            {loading ? (
-              <div className="flex items-center justify-center gap-2">
-                <CircularProgress color="inherit" size={20} />
-                {otpValidated
-                  ? "Sending Email..."
-                  : otpSent
-                  ? "Verifying OTP..."
-                  : "Sending OTP..."}
-              </div>
-            ) : otpValidated ? (
-              "Submit then check your mail for credentials"
-            ) : otpSent ? (
-              "Verify OTP"
-            ) : (
-              "Send OTP"
-            )}
-          </button>
+        <button
+          type="submit"
+          className={`w-full py-3 text-sm font-semibold  px-2 font-poppins tracking-tight rounded-md transition-colors duration-300 ${
+            loading
+              ? "bg-blue-300 cursor-not-allowed text-gray-700"
+              : "bg-blue-600 hover:bg-blue-700 text-white"
+          }`}
+          disabled={loading}
+        >
+          {loading ? (
+            <div className="flex items-center justify-center gap-2">
+              <CircularProgress color="inherit" size={20} />
+              {otpValidated
+                ? "Sending Email..."
+                : otpSent
+                ? "Verifying OTP..."
+                : "Sending OTP..."}
+            </div>
+          ) : otpValidated ? (
+            "Submit then check your mail for credentials"
+          ) : otpSent ? (
+            "Verify OTP"
+          ) : (
+            "Send OTP"
+          )}
+        </button>
 
         <div className="w-full flex gap-4">
           <button
@@ -648,14 +662,15 @@ const Registration = () => {
           >
             Cancel
           </button>
-              <button 
+          <button
             className="bg-[#27C65E] w-full text-white  py-2 rounded-lg transition-colors font-poppins tracking-tight font-semibold"
-            onClick={() => window.open("https://dowellresearch.sg/customer-login/", "_blank")}
+            onClick={() =>
+              window.open("https://dowellresearch.sg/customer-login/", "_blank")
+            }
           >
             Help
           </button>
         </div>
-    
 
         {statusMessage && (
           <p

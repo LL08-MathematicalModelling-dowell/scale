@@ -1,25 +1,23 @@
-import { useEffect, useRef, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import {useState, useEffect, useRef} from "react";
+import {useLocation, useNavigate} from "react-router-dom";
 // import npsScale from "../../assets/nps-scale.png";
-import { decodeToken } from "@/utils/tokenUtils";
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
-import npsImage from "../../assets/npsImageNew.svg";
-import { getAvailablePreferences, saveLocationData, scaleResponse } from "../../services/api.services";
+import npsImage from "../../assets/npsImageNew.svg"
+import {getAvailablePreferences, getUserScales, saveLocationData, scaleResponse} from "../../services/api.services";
 import LikertScale from "../LikertScale/LikertScale";
+import { Dialog, DialogActions, DialogContent, DialogTitle, Button } from '@mui/material';
+import { useCurrentUserContext } from "@/contexts/CurrentUserContext";
+import { workspaceNamesForLikert, workspaceNamesForNPS } from "@/data/Constants";
+import { decodeToken } from "@/utils/tokenUtils";
 
-export default function Scales() {
+const  LikertScales = () => {
   const [submitted, setSubmitted] = useState(-1);
-  const hasLocationDataBeenSaved = useRef(false); 
-  // const { defaultScaleOfUser, setDefaultScaleOfUser } = useCurrentUserContext();
-  // const [scaleId, setScaleId] = useState("");
-  const [alert, setAlert] = useState(false);
-  const [alertMessage, setAlertMessage] = useState("");
-  const [alertColor, setAlertColor] = useState("green");
-  const [accessKey, setAccessKey] = useState({});
-  const [loading, setLoading] = useState(false);
-  const [preferenceData, setPreferenceData] = useState([]);
-  const navigate = useNavigate();
-  const accessToken = localStorage.getItem("accessToken");
+  const [loadingSubmit, setLoadingSubmit] = useState(false);
+  const [feedback, setFeedback] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [openModal, setOpenModal] = useState(false);
+  const hasLocationDataBeenSaved = useRef(false);
+
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const workspace_id = searchParams.get("workspace_id");
@@ -28,17 +26,19 @@ export default function Scales() {
   const channel = searchParams.get("channel");
   const instance = searchParams.get("instance_name");
   const scaleType = searchParams.get("scale_type");
-  console.log("scale type ", scaleType);
-  const [openModal, setOpenModal] = useState(false);
+  const [latitude, setLatitude] = useState("");
+  const [longitude, setLongitude] = useState("");
 
-  const allParamsPresent = workspace_id && username && scale_id && channel && instance;
-
-  const buttons = Array.from({length: 11}, (_, i) => i);
+  const allParamsPresent =
+    workspace_id && username && scale_id && channel && instance;
 
   useEffect(() => {
     if (!hasLocationDataBeenSaved.current && navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(async (position) => {
-        const {latitude, longitude} = position.coords;
+        const { latitude, longitude } = position.coords;
+
+        setLongitude(longitude);
+        setLatitude(latitude);
 
         const locationData = {
           latitude,
@@ -50,7 +50,7 @@ export default function Scales() {
 
         try {
           await saveLocationData(locationData);
-          hasLocationDataBeenSaved.current = true; // Mark as saved
+          hasLocationDataBeenSaved.current = true;
           console.log("locationData saved", locationData);
         } catch (error) {
           console.error("Failed to save location data", error);
@@ -155,44 +155,131 @@ export default function Scales() {
     if (!allParamsPresent) {
       return;
     }
-    // const url = `https://100035.pythonanywhere.com/addons/create-response/v3/?user=True&scale_type=${scaleType}&channel=${channel}&instance=${instance}&workspace_id=${workspace_id}&username=${username}&scale_id=${scale_id}&item=${scaleType == "nps" ? index : index + 1}`;
 
-    // window.location.href = url;
-      try {
-        const response = await scaleResponse(
-            false,
-            scaleType,
-            channel,
-            instance,
-            workspace_id,
-            username,
-            scale_id,
-            index
-        );
-        console.log('API Response:', response.data);
-        setOpenModal(true);
+    try {
+      const response = await scaleResponse(
+        false,
+        scaleType,
+        channel,
+        instance,
+        workspace_id,
+        username,
+        scale_id,
+        submitted
+      );
+      console.log("API Response:", response.data);
     } catch (error) {
-        console.error('Failed to fetch scale response:', error);
-        alert("Unable to submit your response. Please try again.");
+      console.error("Failed to fetch scale response:", error);
+      alert("Unable to submit your response. Please try again.");
     }
-  }
+  };
+
+  const handleCancel = () => {
+    setFeedback("");
+    setName("");
+    setEmail("");
+  };
+
+  const handleSubmit = async () => {
+    if (email && !/\S+@\S+\.\S+/.test(email)) {
+      alert("Please enter a valid email address.");
+      return;
+    }
+
+    setLoadingSubmit(true);
+    try {
+      if (submitted !== -1) {
+        await sendEmail({
+          message: feedback,
+          email,
+          scale_name: scaleType,
+          score: submitted,
+          channel,
+          instance,
+          username: name || username,
+        });
+        console.log("Email sent successfully.");
+
+        const currentDate = new Date();
+
+        const year = currentDate.getFullYear();
+        const month = currentDate.toLocaleString("default", { month: "long" });
+        const day = currentDate.getDate().toString().padStart(2, "0");
+        const hours = currentDate.getHours().toString().padStart(2, "0");
+        const minutes = currentDate.getMinutes().toString().padStart(2, "0");
+
+        const formattedDate = `${year}-${month} ${day} ${hours}:${minutes}`;
+
+        const payload = {
+          workspaceId: workspace_id,
+          customerName: name || "Anonymous User",
+          customerEmail: email || "Anonymous Email",
+          location: "",
+          latitude,
+          longitude,
+          scaleResponse: submitted,
+          description: feedback,
+          type: getInstanceDisplayName(window.location.href),
+          formattedDate: formattedDate,
+        };
+
+        await sendFeedbackEmail(payload);
+        console.log("feedback sent successfully.");
+
+        setOpenModal(true);
+      }
+    } catch (error) {
+      console.error("Error sending email:", error);
+      alert("Unable to send the email. Please try again.");
+    } finally {
+      setLoadingSubmit(false);
+    }
+  };
 
   const handleClose = () => {
     setOpenModal(false);
-    window.location.href = "https://dowellresearch.sg/"; 
-};
+    window.location.href = "https://dowellresearch.sg/";
+  };
 
+  const getInstanceDisplayName = (url) => {
+    const urlObj = new URL(url);
+    const params = new URLSearchParams(urlObj.search);
+    const instanceDisplayName = params.get("instance_display_name");
+    return decodeURIComponent(instanceDisplayName);
+  };
 
-
-  if (!allParamsPresent) {
-    return (
-      <div className="h-full w-screen flex flex-col justify-center items-center p-4 bg-gray-50">
-        <div className="flex flex-col items-center bg-red-100 p-8 rounded-lg shadow-lg">
-          <svg xmlns="http://www.w3.org/2000/svg" className="w-14 h-14 text-red-600 mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 8v4M12 16h.01M21.9 10.18a10 10 0 1 1-1.8-1.8M12 2a10 10 0 0 1 0 20 10 10 0 0 1 0-20z"></path>
-          </svg>
-          <p className="text-2xl font-bold text-red-700">Unauthorized Access</p>
-          <p className="text-lg text-red-600 mt-2 text-center">You do not have the necessary permissions to view this page.</p>
+  return (
+    <div className="flex items-center justify-center min-h-screen p-4 overflow-x-hidden">
+      <div className="flex flex-col items-center w-full max-w-full p-4 rounded-lg bg-card md:max-w-lg">
+        <h2 className="text-xl md:text-3xl font-bold text-[#FD4704] mb-4 text-center">
+          Are you satisfied with our service?
+        </h2>
+        <div className="flex items-center mt-4 space-x-2 justify-evenly sm:space-x-4">
+          {[voc1, voc2, voc3, voc4, voc5].map((emoji, index) => (
+            <div className="relative" key={index}>
+              <img
+                src={emoji}
+                onClick={() => setSubmitted(index + 1)}
+                className={`cursor-pointer 
+                                        ${
+                                          submitted === index + 1
+                                            ? `border-2 ${
+                                                submitted == 1
+                                                  ? "border-red-500"
+                                                  : submitted == 2
+                                                  ? "border-orange-500"
+                                                  : submitted == 3
+                                                  ? "border-yellow-400"
+                                                  : submitted == 4
+                                                  ? "border-[#acd91a]"
+                                                  : "border-green-700"
+                                              } rounded`
+                                            : ""
+                                        }`}
+                alt={`emoji-${index + 1}`}
+              />
+            </div>
+          ))}
         </div>
       </div>
     );
@@ -207,61 +294,62 @@ export default function Scales() {
       <div className="flex flex-col justify-center items-center p-2 mt-10 sm:mt-0 gap-4">
         <img src={npsImage} alt="NPS Scale" className="w-[250px] sm:w-[350px]" />
         {/* Default Question */}
-        <p className="font-bold text-red-500 sm:text-[25px] text-[18px] text-center">{preferenceData. questionToDisplay}</p>
+        <p className="font-bold text-red-500 sm:text-[25px] text-[18px] text-center">{preferenceData.questionType}</p>
         <p className="sm:text-[18px] text-[14px] text-center">Tell us what you think using the scale below!</p>
       </div>
       </div>
 
-      <div className="flex justify-center items-center gap-1 md:gap-3 mt-12 sm:m-5">
-        <style>
-          {`
-            @keyframes spin {
-              to {
-                transform: rotate(360deg);
-              }
-            }
-            
-            .loader {
-              display: inline-block;
-              width: 20px;
-              height: 20px;
-              border: 3px solid rgba(255, 255, 255, 0.3);
-              border-radius: 50%;
-              border-top-color: #fff;
-              animation: spin 1s linear infinite;
-            }
-          `}
-        </style>
-        {buttons.map((button, index) => (
-          <button
-            key={index}
-            className={`sm:px-5 sm:p-2 p-[2px] px-[8px] rounded-full font-bold text-[14px] md:text-[20px]
-              hover:bg-blue-600 transition-colors ${submitted === index ? "bg-blue-600 text-white flex justify-center items-center" : "bg-[#ffa3a3]"}`}
-            onClick={() => handleClick(index)}
-            disabled={submitted !== -1}
-          >
-            {submitted === index ? <div className="loader"></div> : button}
-          </button>
-        ))}
+        <div className="flex items-center justify-between w-full mb-4">
+          <hr className="flex-grow border-t border-gray-300" />
+          <span className="text-sm text-[#5f5f5f]">Powered by</span>
+          <hr className="flex-grow border-t border-gray-300" />
+        </div>
+
+        <div className="flex flex-row items-center justify-between w-full">
+          <img
+            src={voc}
+            className="h-[60px] w-[60px] md:h-[80px] md:w-[80px]"
+          />
+          <footer className="text-sm text-center text-muted-foreground">
+            <strong className="text-[#5f5f5f] text-lg md:text-xl">
+              DoWell Voice of Customers
+            </strong>
+            <p className="text-[#8d6364] text-xs md:text-sm">
+              Innovating from people’s minds
+            </p>
+            <a
+              href="mailto:dowell@dowellresearch.sg"
+              className="text-[#5f5f5f] text-xs md:text-sm"
+            >
+              dowell@dowellresearch.sg
+            </a>
+          </footer>
+          <a href="https://l.ead.me/meetuxlivinglab" target="blank">
+            <img
+              src={helpMe}
+              className="h-[60px] w-[60px] md:h-[80px] md:w-[80px] cursor-pointer"
+            />
+          </a>
+        </div>
+
+        <p className="text-xs text-red-400">
+          {getInstanceDisplayName(window.location.href)}
+        </p>
       </div>
-      {/* {scaleType === "likert" && (<div className="flex w-full items-center justify-center my-8">
-        <p>{'1- Won\'t Recommend'}</p>
-        <p className="ml-4 sm:ml-28">{'5- Highly Recommend'}</p>
-      </div>)} */}
-      <p className="w-full absolute bottom-0 mt-4 flex justify-center items-center text-[12px] sm:text-[14px]">Powered by uxlivinglab</p>
+
       <Dialog open={openModal} onClose={handleClose}>
-                <DialogTitle>Thank You!</DialogTitle>
-                <DialogContent>
-                    <p>Thank you for your response.</p>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleClose} color="primary">
-                        Close
-                    </Button>
-                </DialogActions>
-            </Dialog>
+        <DialogTitle>Thank You!</DialogTitle>
+        <DialogContent>
+          <p>Thank you for your response.</p>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
-  ) : (
-    <LikertScale />
   );
-}
+};
+
+export default LikertScale;

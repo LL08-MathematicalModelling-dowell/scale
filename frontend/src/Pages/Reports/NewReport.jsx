@@ -64,12 +64,8 @@ RectangleDiv.propTypes = {
 };
 
 const NewReport = () => {
-  // const [normalizedData, setNormalizedData] = useState([]);
-  // const [channelName, setChannelName] = useState([]);
-  // const [instanceName, setInstanceName] = useState([]);
+
   const [totalScore, setTotalScore] = useState(0);
-  // const [averageScore, setAverageScore] = useState(0);
-  // const [reportData, setReportData] = useState([]);
   const [displayData, setDisplayData] = useState(true);
   const [alert, setAlert] = useState(false);
   const [message, setMessage] = useState(" ");
@@ -80,7 +76,7 @@ const NewReport = () => {
   });
   const [channelValue, setChannelValue] = useState("channel_1"); // Default channel
   const [instanceValue, setInstanceValue] = useState("instance_5");
-  const [defaultDuration, setDefaultDuration] = useState("seven_days"); // Default instance
+  const [defaultDuration, setDefaultDuration] = useState("ninety_days"); // Default instance
   const [duration, setDuration] = useState(null);
   const [instanceLoading, setInstanceLoading] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -132,7 +128,10 @@ const NewReport = () => {
             accessToken,
           });
           scale_id = response?.data?.response[0]?.scale_id;
+          // const scale_type = response?.data?.response[0]?.scale_type;
+
           setScaleId(scale_id);
+          setScaleType()
         } catch (error) {
           console.error("Error fetching user scales:", error);
           setLoading(false); 
@@ -150,17 +149,22 @@ const NewReport = () => {
       console.log(payload);
   
       try {
-        setLoading(true); 
-        setAlert()
+        setLoading(true); // Start loading
+        setMessage("Loading...");
+        setAlert(true);
+        
         const responseList = await getllxReportPayload(payload);
         console.log(responseList);
         
         if (responseList.status === 201) {
           const responseData = responseList.data;
-       const reportScaleType = responseData.data.scale_details[0].scale_type
-                 console.log(responseData)
-                 console.log(reportScaleType)
-           setScaleType(reportScaleType);
+          const reportScaleType = responseData.data.scale_details[0].scale_type;
+          console.log(responseData, reportScaleType);
+  
+          const scale_type = responseData.data.scale_details[0].scale_type
+          console.log(scale_type)
+          setScaleType(scale_type)
+          // Process Channel Data
           const getChannels = responseData.data.scale_details.flatMap((scale) =>
             scale.channel_instance_details.map((channel) => ({
               label: channel.channel_display_name,
@@ -173,25 +177,22 @@ const NewReport = () => {
           );
           setChannelData(getChannels);
           setChannelValue(getChannels[0]?.value || "");
-          console.log(channelValue)
-
+  
           const allInstances = getChannels
             .flatMap((channel) => channel.instances)
             .filter((instance, index, self) => index === self.findIndex((i) => i.value === instance.value));
           setInstanceData(allInstances);
           setInstanceValue(allInstances[4]?.value || "");
-          console.log(instanceValue)
-
         } else {
           setAlert(true);
           setMessage("Failed to fetch the Likert Scale Report");
         }
       } catch (error) {
-        console.log("Error while fetching payload:", error);
+        console.error("Error while fetching payload:", error);
         setAlert(true);
         setMessage("An error occurred while fetching data.");
       } finally {
-        setLoading(false); // Ensure loading is set to false after all operations
+        setLoading(false); // Stop loading after completion or error
       }
     };
   

@@ -1,19 +1,17 @@
-import {useState, useEffect, useRef} from "react";
-import {useLocation, useNavigate} from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 // import npsScale from "../../assets/nps-scale.png";
-import npsImage from "../../assets/npsImageNew.svg"
-import {getAvailablePreferences, getUserScales, saveLocationData, scaleResponse} from "../../services/api.services";
-import LikertScale from "../LikertScale/LikertScale";
-import { Dialog, DialogActions, DialogContent, DialogTitle, Button } from '@mui/material';
-import { useCurrentUserContext } from "@/contexts/CurrentUserContext";
-import { workspaceNamesForLikert, workspaceNamesForNPS } from "@/data/Constants";
 import { decodeToken } from "@/utils/tokenUtils";
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
+import npsImage from "../../assets/npsImageNew.svg";
+import { getAvailablePreferences, saveLocationData, scaleResponse } from "../../services/api.services";
+import LikertScale from "../LikertScale/LikertScale";
 
 export default function Scales() {
   const [submitted, setSubmitted] = useState(-1);
   const hasLocationDataBeenSaved = useRef(false); 
-  const { defaultScaleOfUser, setDefaultScaleOfUser } = useCurrentUserContext();
-  const [scaleId, setScaleId] = useState("");
+  // const { defaultScaleOfUser, setDefaultScaleOfUser } = useCurrentUserContext();
+  // const [scaleId, setScaleId] = useState("");
   const [alert, setAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertColor, setAlertColor] = useState("green");
@@ -22,7 +20,6 @@ export default function Scales() {
   const [preferenceData, setPreferenceData] = useState([]);
   const navigate = useNavigate();
   const accessToken = localStorage.getItem("accessToken");
-  const refreshToken = localStorage.getItem("refreshToken");
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const workspace_id = searchParams.get("workspace_id");
@@ -73,45 +70,45 @@ export default function Scales() {
     }, 3000);
   };
 
-  useEffect(() => {
-    if (!accessToken || !refreshToken) {
-      navigate("/voc");
-    } else {
-      const decodedTokenForWorkspaceName = decodeToken(accessToken);
-      if (workspaceNamesForNPS.includes(decodedTokenForWorkspaceName.workspace_owner_name)) {
-        setDefaultScaleOfUser("nps");
-      } else if (workspaceNamesForLikert.includes(decodedTokenForWorkspaceName.workspace_owner_name)) {
-        setDefaultScaleOfUser("likert");
-      }
-    }
-  }, [accessToken, refreshToken, navigate, setDefaultScaleOfUser]);
+  // useEffect(() => {
+  //   if (!accessToken || !refreshToken) {
+  //     navigate("/voc");
+  //   } else {
+  //     const decodedTokenForWorkspaceName = decodeToken(accessToken);
+  //     if (workspaceNamesForNPS.includes(decodedTokenForWorkspaceName.workspace_owner_name)) {
+  //       setDefaultScaleOfUser("nps");
+  //     } else if (workspaceNamesForLikert.includes(decodedTokenForWorkspaceName.workspace_owner_name)) {
+  //       setDefaultScaleOfUser("likert");
+  //     }
+  //   }
+  // }, [accessToken, refreshToken, navigate, setDefaultScaleOfUser]);
 
-  useEffect(() => {
-    const fetchScaleId = async () => {
-      let scale_id = localStorage.getItem("scale_id");
-      if (!scale_id && defaultScaleOfUser) {
-        try {
-          const decodedToken = decodeToken(accessToken);
-          const response = await getUserScales({
-            workspace_id: decodedToken.workspace_id,
-            portfolio: decodedToken.portfolio,
-            type_of_scale: defaultScaleOfUser,
-            accessToken,
-          });
-          scale_id = response?.data?.response[0]?.scale_id;
-          setScaleId(scale_id);
-          return scaleId
-        } catch (error) {
-          showAlert("Error fetching user scales", "red");
-          console.log(error);
-        }
-      } else {
-        setScaleId(scale_id);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchScaleId = async () => {
+  //     let scale_id = localStorage.getItem("scale_id");
+  //     if (!scale_id && defaultScaleOfUser) {
+  //       try {
+  //         const decodedToken = decodeToken(accessToken);
+  //         const response = await getUserScales({
+  //           workspace_id: decodedToken.workspace_id,
+  //           portfolio: decodedToken.portfolio,
+  //           type_of_scale: defaultScaleOfUser,
+  //           accessToken,
+  //         });
+  //         scale_id = response?.data?.response[0]?.scale_id;
+  //         setScaleId(scale_id);
+  //         return scaleId
+  //       } catch (error) {
+  //         showAlert("Error fetching user scales", "red");
+  //         console.log(error);
+  //       }
+  //     } else {
+  //       setScaleId(scale_id);
+  //     }
+  //   };
 
-    if (defaultScaleOfUser) fetchScaleId();
-  }, [defaultScaleOfUser, accessToken]);
+  //   if (defaultScaleOfUser) fetchScaleId();
+  // }, [defaultScaleOfUser, accessToken]);
 
   useEffect(() => {
     if (accessToken) {
@@ -210,7 +207,7 @@ export default function Scales() {
       <div className="flex flex-col justify-center items-center p-2 mt-10 sm:mt-0 gap-4">
         <img src={npsImage} alt="NPS Scale" className="w-[250px] sm:w-[350px]" />
         {/* Default Question */}
-        <p className="font-bold text-red-500 sm:text-[25px] text-[18px] text-center">{preferenceData.questionType}</p>
+        <p className="font-bold text-red-500 sm:text-[25px] text-[18px] text-center">{preferenceData. questionToDisplay}</p>
         <p className="sm:text-[18px] text-[14px] text-center">Tell us what you think using the scale below!</p>
       </div>
       </div>

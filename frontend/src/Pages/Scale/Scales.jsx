@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-// import npsScale from "../../assets/nps-scale.png";
 import { decodeToken } from "@/utils/tokenUtils";
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
 import npsImage from "../../assets/npsImageNew.svg";
@@ -10,7 +9,6 @@ import LikertScale from "../LikertScale/LikertScale";
 export default function Scales() {
   const [submitted, setSubmitted] = useState(-1);
   const hasLocationDataBeenSaved = useRef(false); 
-  // const { defaultScaleOfUser, setDefaultScaleOfUser } = useCurrentUserContext();
   const [scaleId, setScaleId] = useState("");
   const [alert, setAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
@@ -70,46 +68,6 @@ export default function Scales() {
     }, 3000);
   };
 
-  // useEffect(() => {
-  //   if (!accessToken || !refreshToken) {
-  //     navigate("/voc");
-  //   } else {
-  //     const decodedTokenForWorkspaceName = decodeToken(accessToken);
-  //     if (workspaceNamesForNPS.includes(decodedTokenForWorkspaceName.workspace_owner_name)) {
-  //       setDefaultScaleOfUser("nps");
-  //     } else if (workspaceNamesForLikert.includes(decodedTokenForWorkspaceName.workspace_owner_name)) {
-  //       setDefaultScaleOfUser("likert");
-  //     }
-  //   }
-  // }, [accessToken, refreshToken, navigate, setDefaultScaleOfUser]);
-
-  // useEffect(() => {
-  //   const fetchScaleId = async () => {
-  //     let scale_id = localStorage.getItem("scale_id");
-  //     if (!scale_id && defaultScaleOfUser) {
-  //       try {
-  //         const decodedToken = decodeToken(accessToken);
-  //         const response = await getUserScales({
-  //           workspace_id: decodedToken.workspace_id,
-  //           portfolio: decodedToken.portfolio,
-  //           type_of_scale: defaultScaleOfUser,
-  //           accessToken,
-  //         });
-  //         scale_id = response?.data?.response[0]?.scale_id;
-  //         setScaleId(scale_id);
-  //         return scaleId
-  //       } catch (error) {
-  //         showAlert("Error fetching user scales", "red");
-  //         console.log(error);
-  //       }
-  //     } else {
-  //       setScaleId(scale_id);
-  //     }
-  //   };
-
-  //   if (defaultScaleOfUser) fetchScaleId();
-  // }, [defaultScaleOfUser, accessToken]);
-
   useEffect(() => {
     if (accessToken) {
       const decodedToken = decodeToken(accessToken);
@@ -155,9 +113,6 @@ export default function Scales() {
     if (!allParamsPresent) {
       return;
     }
-    // const url = `https://100035.pythonanywhere.com/addons/create-response/v3/?user=True&scale_type=${scaleType}&channel=${channel}&instance=${instance}&workspace_id=${workspace_id}&username=${username}&scale_id=${scale_id}&item=${scaleType == "nps" ? index : index + 1}`;
-
-    // window.location.href = url;
       try {
         const response = await scaleResponse(
             false,

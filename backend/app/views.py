@@ -470,7 +470,7 @@ class UserManagement(APIView):
         if user_email_response["data"][0]["email"]!= email:
             return Response({
                 "success": False,
-                "message": "This account is already registered with any other email"
+                "message": "This account is registered with another user. If you want to claim this account contact us at dowell@dowellresearch.sg"
             }, status=status.HTTP_400_BAD_REQUEST)
         
         if user_email_response["data"][0]["email"] == email:

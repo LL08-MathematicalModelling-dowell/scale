@@ -501,7 +501,7 @@ const Login = () => {
           <button
             className="bg-[#27C65E] text-white w-32 py-1 rounded-lg transition-colors"
             onClick={() =>
-              window.open("https://dowellresearch.sg/customer-login/", "_blank")
+              window.open("https://youtube.com/shorts/CjNZ8-wnyxQ?feature=share", "_blank")
             }
           >
             Help

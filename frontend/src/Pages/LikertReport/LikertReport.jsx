@@ -88,7 +88,7 @@ const LikertReport = () => {
         );
         setInstanceName(instances);
         setChannelName(channels);
-       // Set default values for initial fetch
+
        setChannelValue(channels[0]?.value || "channel_1");
        setInstanceValue(instances[0]?.value || "instance_5");
       } else {
@@ -101,7 +101,7 @@ const LikertReport = () => {
       setAlert(true);
       setMessage("An error occurred while fetching channel instances.");
     } finally {
-      setInstanceLoading(false); // End loading
+      setInstanceLoading(false); 
     }
   };
 
@@ -200,14 +200,13 @@ const LikertReport = () => {
   };
 
   useEffect(() => {
-    // Initial fetch for channel instances and Likert report
     fetchLikertChannelInstances();
     fetchLikertReport();
-  }, []);  // Empty dependency array ensures this runs once on page load
+  }, []);  
 
   useEffect(() => {
     if (hasFetchedInitialReport) {
-      fetchLikertReport(); // Fetch report only if user selects a new value after initial fetch
+      fetchLikertReport(); 
     }
   }, [channelValue, instanceValue, duration,]);
 

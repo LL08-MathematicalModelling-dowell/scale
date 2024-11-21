@@ -934,7 +934,7 @@ const Registration = () => {
           <button
             className="bg-[#27C65E] w-full text-white  py-2 rounded-lg transition-colors font-poppins tracking-tight font-semibold"
             onClick={() =>
-              window.open("https://dowellresearch.sg/customer-login/", "_blank")
+              window.open("https://youtu.be/T464Ag3Otzo", "_blank")
             }
           >
             Help

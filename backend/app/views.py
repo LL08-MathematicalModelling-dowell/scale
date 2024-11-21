@@ -452,7 +452,7 @@ class UserManagement(APIView):
                 user_id=user_id,
                 password=password,   
                 pin= pin,     
-                login_link="https://dowellresearch.sg/customer-login/",
+                login_link="https://youtube.com/shorts/FmqMJJf7ei0?feature=share",
                 direct_login_link= f"https://www.scales.uxlivinglab.online/voc/?workspace_name={product_id}&portfolio={customer_id}&password={password}"
             ))
 
@@ -470,7 +470,7 @@ class UserManagement(APIView):
         if user_email_response["data"][0]["email"]!= email:
             return Response({
                 "success": False,
-                "message": "This account is already registered with any other email"
+                "message": "This account is registered with another user. If you want to claim this account contact us at dowell@dowellresearch.sg"
             }, status=status.HTTP_400_BAD_REQUEST)
         
         if user_email_response["data"][0]["email"] == email:
@@ -574,7 +574,7 @@ class UserManagement(APIView):
                 user_id=user_id,
                 password=password,  
                 pin=pin,      
-                login_link="https://dowellresearch.sg/customer-login/",
+                login_link="https://youtube.com/shorts/FmqMJJf7ei0?feature=share",
                 direct_login_link= f"https://www.scales.uxlivinglab.online/voc/?workspace_name={product_id}&portfolio={customer_id}&password={password}"
             ))
 

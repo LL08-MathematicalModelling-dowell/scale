@@ -136,8 +136,7 @@ const NewReport = () => {
         setLoading(true);
         setMessage("Loading...");
         setAlert(true);
-  
-        // Retrieve scale_id
+
         const scale_id = await getOrSetScaleId({ accessToken, defaultScaleOfUser });
         if (!scale_id) {
           throw new Error("Scale ID is missing or invalid.");
@@ -154,7 +153,6 @@ const NewReport = () => {
           scale_id,
         };
   
-        // Fetch report payload
         const responseList = await getllxReportPayload(payload);
         if (responseList.status !== 201 || !responseList.data) {
           throw new Error("Failed to fetch payload. Response status not 201.");
@@ -162,12 +160,12 @@ const NewReport = () => {
   
         const responseData = responseList.data;
   
-        // Extract scale type
+
         const scaleType = responseData?.data?.scale_details?.[0]?.scale_type || "nps";
         setScaleType(scaleType);
         localStorage.setItem("scale_type", scaleType);
   
-        // Extract channel and instance data
+
         const channels = responseData.data.scale_details.flatMap((scale) =>
           scale.channel_instance_details.map((channel) => ({
             label: channel.channel_display_name,
@@ -200,7 +198,7 @@ const NewReport = () => {
   }, [accessToken, refreshToken, defaultScaleOfUser]);
   
 
-  // Fetch VOC Report When user made selection
+
   const fetchVocReport = async (payload, scaleType) => {
     try {
       setLoading(true);
@@ -317,7 +315,7 @@ const NewReport = () => {
       } catch (error) {
         console.error("Error fetching initial report:", error);
         setAlert(true);
-        setMessage("An error occurred while fetching the initial report.");
+        setMessage("Please wait, while fetching the initial report.");
         setDisplayData(false)
       } finally {
         setLoading(false);
@@ -365,10 +363,10 @@ const NewReport = () => {
                 <h1 className="font-poppins tracking-tight text-2xl mb-4 font-bold">NET PROMOTER SCORE</h1>
               </div>
               <div className="flex flex-col items-center justify-center gap-10">
-                <div className="flex flex-col justify-center gap-5 md:flex-row">
-                  <SelectField handleInputChange={handleInputChange} triggerClass="w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins" placeholder="Select Channel Name" data={channelData} defaultValue={channelValue} />
-                  <SelectField handleInputChange={handleInputChange} triggerClass="w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins" placeholder="Select Instances" data={instanceData} defaultValue={instanceValue} />
-                  <SelectField handleInputChange={handleInputChange} triggerClass="w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins" placeholder="Duration" data={Duration} defaultValue={defaultDuration} />
+                <div className="flex flex-col justify-center gap-5 md:flex-row md:max-lg:w-full">
+                  <SelectField handleInputChange={handleInputChange} triggerClass="w-80 h-10 md:max-lg:w-full outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins" placeholder="Select Channel Name" data={channelData} defaultValue={channelValue} />
+                  <SelectField handleInputChange={handleInputChange} triggerClass="w-80 h-10 md:max-lg:w-full outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins" placeholder="Select Instances" data={instanceData} defaultValue={instanceValue} />
+                  <SelectField handleInputChange={handleInputChange} triggerClass="w-80 h-10 md:max-lg:w-full outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins" placeholder="Duration" data={Duration} defaultValue={defaultDuration} />
                 </div>
 
                 <div className="flex gap-8">
@@ -391,9 +389,9 @@ const NewReport = () => {
                 </div>
               )}
               {displayData && (
-                <div className="flex flex-col items-center justify-between gap-10 mx-8 mt-8 text-center md:flex-row md:gap-10">
+                <div className="flex flex-col items-center justify-between gap-10 mx-8 mt-8 text-center md:flex-row md:gap-10 md:max-xl:flex-col">
                   {/* First Chart */}
-                  <div className="flex flex-col w-screen gap-2 md:w-3/5 px-7">
+                  <div className="flex flex-col w-screen gap-2 md:w-3/5 px-7 md:max-lg:w-full">
                     <p className="font-poppins tracking-tight text-[18px] font-medium">Total Score </p>
                     <RectangleDiv scores={totalScoreYellowPercent} maximumScore={maxScore} />
                     <div className="mt-8">
@@ -409,7 +407,7 @@ const NewReport = () => {
                     </div>
                   </div>
                   {/* Second Chart */}
-                  <div className="flex flex-col w-screen gap-2 md:w-3/5 px-7">
+                  <div className="flex flex-col w-screen gap-2 md:w-3/5 px-7 md:max-lg:w-full">
                     <p className="font-poppins tracking-tight text-[18px] font-medium">NPS Distribution Score</p>
                     <RectangleDiv className="rounded-lg" npsDistribution={npsDistribution} type="averageScore" />
                     <div className="mt-8">

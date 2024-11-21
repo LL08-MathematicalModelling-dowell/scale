@@ -38,6 +38,7 @@ RectangleDiv.propTypes = {
 };
 
 const LikertReport = () => {
+
   const [normalizedData, setNormalizedData] = useState([]);
   const [channelName, setChannelName] = useState([]);
   const [instanceName, setInstanceName] = useState([]);
@@ -49,12 +50,15 @@ const LikertReport = () => {
   const [message, setMessage] = useState(" ");
   const [totalResponse, setTotalResponse] = useState(0);
   const [dailyCountsData, setDailyCountsData] = useState([]);
-  const [duration, setDuration] = useState(null);
-  const [instanceValue, setInstanceValue] = useState(null);
-  const [channelValue, setChannelValue] = useState(null);
+  const [channelValue, setChannelValue] = useState("channel_1");
+  const [instanceValue, setInstanceValue] = useState("instance_5");
+  const [duration, setDuration] = useState("ninety_days");
   const [instanceLoading, setInstanceLoading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [maxScore, setMaxScore] = useState(0);
+  const [hasFetchedInitialReport, setHasFetchedInitialReport] = useState(false);
+  const [scaleId, setScaleId] = useState("")
+
   const [overallScoreData, setOverallScoreData] = useState({
     labels: [],
     datasets: [],
@@ -67,11 +71,14 @@ const LikertReport = () => {
       const channelDetailsResponse = await getLikertChannelsInstances(scale_id);
       if (channelDetailsResponse.status === 200) {
         const data = channelDetailsResponse.data;
+        console.log(data)
         const channels = data?.scale_data?.channel_instance_details.map((item) => ({
           label: item.channel_display_name,
           value: item.channel_name,
         }));
-        setChannelName(channels);
+
+         setScaleId(data?.scale_data?.scale_id)
+         console.log(scaleId)
 
         const instances = data?.scale_data?.channel_instance_details.flatMap((item) =>
           item.instances_details.map((instance) => ({
@@ -80,6 +87,10 @@ const LikertReport = () => {
           }))
         );
         setInstanceName(instances);
+        setChannelName(channels);
+       // Set default values for initial fetch
+       setChannelValue(channels[0]?.value || "channel_1");
+       setInstanceValue(instances[0]?.value || "instance_5");
       } else {
         console.log("Channel API call was not successful:", channelDetailsResponse);
         setAlert(true);
@@ -94,18 +105,20 @@ const LikertReport = () => {
     }
   };
 
-  useEffect(() => {
-    fetchLikertChannelInstances();
-  }, []);
 
-  const payload = {
-    scale_id: "66c9d21e9090b1529d108a63",
-    channel_names: [`${channelValue}`],
-    instance_names: [`${instanceValue}`],
-    period: `${duration}`,
-  };
+
 
   const fetchLikertReport = async () => {
+    if (!channelValue || !instanceValue || !duration) return;
+
+    const payload = {
+      scale_id: "66c9d21e9090b1529d108a63",
+      channel_names: [`${channelValue}`],
+      instance_names: [`${instanceValue}`],
+      period: `${duration}`,
+    };
+
+    
     setLoading(true);
     setDisplayData(false);
     setMessage("Loading...");
@@ -166,6 +179,7 @@ const LikertReport = () => {
           },
         ];
         setOverallScoreData({labels: overallLabels, datasets: overallDataset});
+        setHasFetchedInitialReport(true);
       } else {
         console.log("Non-200/404 Response:", reportResponse);
         setAlert(true);
@@ -186,10 +200,16 @@ const LikertReport = () => {
   };
 
   useEffect(() => {
-    if (channelValue && instanceValue && duration) {
-      fetchLikertReport();
+    // Initial fetch for channel instances and Likert report
+    fetchLikertChannelInstances();
+    fetchLikertReport();
+  }, []);  // Empty dependency array ensures this runs once on page load
+
+  useEffect(() => {
+    if (hasFetchedInitialReport) {
+      fetchLikertReport(); // Fetch report only if user selects a new value after initial fetch
     }
-  }, [channelValue, instanceValue, duration]);
+  }, [channelValue, instanceValue, duration,]);
 
   const normalizeDatasets = (datasets) => {
     return datasets.map((dataset) => ({
@@ -296,10 +316,9 @@ const LikertReport = () => {
     }
 
     if (value.endsWith("days")) {
-      setDuration(value);
+      setDuration(value || "ninety_days");
     }
-  };
-
+  }
   const Duration = [
     {label: "7 days", value: "seven_days"},
     {label: "15 days", value: "fifteen_days"},
@@ -315,9 +334,9 @@ const LikertReport = () => {
       <div className="mx-8 my-12 ">
         <div className="flex flex-col items-center justify-center gap-10">
           <div className="flex flex-col justify-center gap-5 md:flex-row">
-            <SelectField handleInputChange={handleInputChange} triggerClass="w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins" placeholder="Select Channel Name" data={channelName} />
-            <SelectField handleInputChange={handleInputChange} triggerClass="w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins" placeholder="Select Instances" data={instanceName} />
-            <SelectField handleInputChange={handleInputChange} triggerClass="w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins" placeholder="Duration" data={Duration} />
+            <SelectField handleInputChange={handleInputChange} triggerClass="w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins" placeholder="Select Channel Name" data={channelName} defaultValue={channelValue} />
+            <SelectField handleInputChange={handleInputChange} triggerClass="w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins" placeholder="Select Instances" data={instanceName} defaultValue={instanceValue} />
+            <SelectField handleInputChange={handleInputChange} triggerClass="w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins" placeholder="Duration" data={Duration} defaultValue={duration} />
           </div>
 
           <h2 className="text-xl font-bold tracking-tight font-montserrat">

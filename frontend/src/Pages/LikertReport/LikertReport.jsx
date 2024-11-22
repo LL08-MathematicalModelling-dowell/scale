@@ -2,10 +2,14 @@
 import LineGraph from "@/components/Graph/LineGraph";
 import Navbar from "@/components/Navbar/Navbar";
 import SelectField from "@/components/SelectField/SelectField";
-import {getLikertChannelsInstances, getLikertReport} from "@/services/api.services";
+import { useCurrentUserContext } from "@/contexts/CurrentUserContext";
+import { workspaceNamesForLikert, workspaceNamesForNPS } from "@/data/Constants";
+import {getLikertChannelsInstances, getLikertReport, getUserScales} from "@/services/api.services";
+import { decodeToken } from "@/utils/tokenUtils";
 import {CircularProgress} from "@mui/material";
 import PropTypes from "prop-types";
 import {useEffect, useState} from "react";
+import { useNavigate } from "react-router-dom";
 
 const RectangleDiv = ({className = "", scores, type, maximumScore}) => {
   const constrainedYellowPercent = scores;
@@ -58,14 +62,85 @@ const LikertReport = () => {
   const [maxScore, setMaxScore] = useState(0);
   const [hasFetchedInitialReport, setHasFetchedInitialReport] = useState(false);
   const [scaleId, setScaleId] = useState("")
+  const {defaultScaleOfUser, setDefaultScaleOfUser} = useCurrentUserContext();
+  // const [scaleId, setScaleId] = useState("");
+  // const [alert, setAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertColor, setAlertColor] = useState("green");
+  // const [accessKey, setAccessKey] = useState({});
 
   const [overallScoreData, setOverallScoreData] = useState({
     labels: [],
     datasets: [],
   });
 
+
+  const navigate = useNavigate();
+  const accessToken = localStorage.getItem("accessToken");
+  const refreshToken = localStorage.getItem("refreshToken");
+
+  const showAlert = (message, color) => {
+    setAlertMessage(message);
+    setAlertColor(color);
+    setAlert(true);
+    setTimeout(() => {
+      setAlert(false);
+    }, 3000);
+  };
+
+  useEffect(() => {
+    if (!accessToken || !refreshToken) {
+      navigate("/voc");
+    } else {
+      const decodedTokenForWorkspaceName = decodeToken(accessToken);
+      if (workspaceNamesForNPS.includes(decodedTokenForWorkspaceName.workspace_owner_name)) {
+        setDefaultScaleOfUser("nps");
+      } else if (workspaceNamesForLikert.includes(decodedTokenForWorkspaceName.workspace_owner_name)) {
+        setDefaultScaleOfUser("likert");
+      }
+    }
+  }, [accessToken, refreshToken, navigate, setDefaultScaleOfUser]);
+
+
+  useEffect(() => {
+    const fetchScaleId = async () => {
+      let scale_id = localStorage.getItem("scale_id");
+      if (!scale_id && defaultScaleOfUser) {
+        try {
+          const decodedToken = decodeToken(accessToken);
+          const response = await getUserScales({
+            workspace_id: decodedToken.workspace_id,
+            portfolio: decodedToken.portfolio,
+            type_of_scale: defaultScaleOfUser,
+            accessToken,
+          });
+          scale_id = response?.data?.response[0]?.scale_id;
+          console.log(scale_id)
+          setScaleId(scale_id);
+          return scaleId;
+        } catch (error) {
+          showAlert("Error fetching user scales", "red");
+          console.log(error);
+        }
+      } else {
+        setScaleId(scale_id);
+      }
+    };
+
+    if (defaultScaleOfUser) fetchScaleId();
+  }, [defaultScaleOfUser, accessToken]);
+
+
+
+  useEffect(() => {
+    if (scaleId) {
+      fetchLikertChannelInstances();
+      fetchLikertReport();
+    }
+  }, [scaleId]);
+
   const fetchLikertChannelInstances = async () => {
-    const scale_id = "66c9d21e9090b1529d108a63";
+  const  scale_id = scaleId
     setInstanceLoading(true);
     try {
       const channelDetailsResponse = await getLikertChannelsInstances(scale_id);
@@ -108,11 +183,12 @@ const LikertReport = () => {
 
 
 
+
   const fetchLikertReport = async () => {
     if (!channelValue || !instanceValue || !duration) return;
 
     const payload = {
-      scale_id: "66c9d21e9090b1529d108a63",
+      scale_id: scaleId,
       channel_names: [`${channelValue}`],
       instance_names: [`${instanceValue}`],
       period: `${duration}`,
@@ -199,10 +275,10 @@ const LikertReport = () => {
     }
   };
 
-  useEffect(() => {
-    fetchLikertChannelInstances();
-    fetchLikertReport();
-  }, []);  
+  // useEffect(() => {
+  //   fetchLikertChannelInstances();
+  //   fetchLikertReport();
+  // }, []);  
 
   useEffect(() => {
     if (hasFetchedInitialReport) {

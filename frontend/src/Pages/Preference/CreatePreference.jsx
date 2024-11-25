@@ -6,7 +6,10 @@ import {useNavigate} from "react-router-dom";
 import {workspaceNamesForLikert, workspaceNamesForNPS} from "@/data/Constants";
 
 import Navbar from "@/components/Navbar/Navbar";
-import { createPreferenceApi, getAvailablePreferences, getUserScales, updatePreferences } from "@/services/api.services";
+import {createPreferenceApi, getAvailablePreferences, getUserScales, updatePreferences} from "@/services/api.services";
+import SelectField from "@/components/SelectField/SelectField";
+import {FaInfoCircle} from "react-icons/fa";
+import CustomTooltip from "@/components/Tooltip/CustomTooltip";
 
 const CreatePreference = () => {
   const [alert, setAlert] = useState(false);
@@ -82,24 +85,24 @@ const CreatePreference = () => {
             accessToken,
           });
           scale_id = response?.data?.response[0]?.scale_id;
-          console.log(scale_id)
+          console.log(scale_id);
           setScaleId(scale_id);
         } catch (error) {
           showAlert("Error fetching user scales", "red");
-          return error
+          return error;
         }
       } else {
-        setScaleId(scale_id); 
+        setScaleId(scale_id);
       }
     };
 
     if (defaultScaleOfUser) fetchScaleId();
-    console.log(scaleId)
+    console.log(scaleId);
   }, [defaultScaleOfUser]);
 
   useEffect(() => {
     const accessToken = localStorage.getItem("accessToken");
-    console.log(scaleId)
+    console.log(scaleId);
     if (accessToken) {
       const decodeAccessToken = decodeToken(accessToken);
       setAccessKey(decodeAccessToken);
@@ -143,7 +146,7 @@ const CreatePreference = () => {
         }
       } else {
         setLoading(false);
-        showAlert("Access key not found") 
+        showAlert("Access key not found");
       }
     };
 
@@ -228,26 +231,32 @@ const CreatePreference = () => {
     setFormData({...formData, [name]: value});
   };
 
+  const Duration = [
+    {label: "Last 7 days", value: "seven_days"},
+    {label: "Last 15 days", value: "fifteen_days"},
+    {label: "Last 30 days", value: "thirty_days"},
+    {label: "Last 90 days", value: "ninety_days"},
+  ];
+
   return (
     <div className="min-h-screen max-w-full">
       <Navbar />
-      <div className="mt-8 px-10 w-full flex flex-col gap-5">
-        <h1 className="text-2xl font-bold font-poppins tracking-tight">Set Preferences</h1>
-
+      <h1 className="text-2xl font-bold font-poppins tracking-tight md:px-10 px-2 ">Set Preferences</h1>
+      <div className="mt-8 md:px-10 px-2  flex flex-col gap-5 w-full md:items-center">
         {alert && <div className={`absolute top-44 right-6 ml-32 md:top-50 md:right-8 bg-${alertColor}-600 text-white text-sm font-poppins tracking-tight px-2 py-3  md:px-4 md:py-4 rounded-md`}>{alertMessage}</div>}
 
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 ">
           <label htmlFor="scaleType" className="font-poppins tracking-tighter">
             Choose a scale Type
           </label>
-          <PreferenceSelect name="scaleType" data={scaleTypes} triggerClass="w-[300px] font-poppins tracking-tight" placeholder="Select scale type" type="select" handleInputChange={handleInputChange} value={formData.scaleType} />
+          <PreferenceSelect name="scaleType" data={scaleTypes} triggerClass="md:w-[620px] w-[320px]  font-poppins tracking-tight" placeholder="Select scale type" type="select" handleInputChange={handleInputChange} value={formData.scaleType} />
         </div>
 
         <div className="flex flex-col gap-2">
           <label htmlFor="dataType" className="font-poppins tracking-tighter">
             Choose a data Type
           </label>
-          <PreferenceSelect name="dataType" data={DataTypes} triggerClass="w-[300px] font-poppins tracking-tight" placeholder="Select data type" type="select" handleInputChange={handleInputChange} value={formData.dataType} />
+          <PreferenceSelect name="dataType" data={DataTypes} triggerClass="md:w-[620px] w-[320px] font-poppins tracking-tight" placeholder="Select data type" type="select" handleInputChange={handleInputChange} value={formData.dataType} />
         </div>
 
         <div className="flex gap-5 flex-col md:flex-row">
@@ -266,13 +275,41 @@ const CreatePreference = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="questionToDisplay" className="font-poppins tracking-tighter">
+          <label htmlFor="questionToDisplay" className="md:text-md  font-poppins tracking-tighter">
             Choose the type of question you want
           </label>
-          <PreferenceSelect name="questionToDisplay" data={Ratting} customClass="md:w-[610px] font-poppins tracking-tight" placeholder="On a scale of 0 -10, how would you rate our product/service?" type="rating" handleInputChange={handleInputChange} value={formData.questionToDisplay} />
+          <PreferenceSelect name="questionToDisplay" data={Ratting} customClass="md:w-[610px] w-[300px] font-poppins tracking-tight"  placeholder="On a scale of 0 -10, how would you rate our product/service?" type="rating" handleInputChange={handleInputChange} value={formData.questionToDisplay} />
         </div>
 
-        <div className="flex justify-center">
+        <div className="flex flex-col gap-2 items-center w-full">
+          <p className="font-poppins text-md tracking-tight">
+            This is how the <span className="font-semibold text-dowellDeepGreen">Question</span> will be:
+          </p>
+          <p className="font-poppins md:text-lg text-sm font-bold tracking-tight  ">{formData.questionToDisplay}</p>
+        </div>
+
+        <div className="flex  gap-2 flex-col ">
+          <div className="flex items-center gap-2">
+            <label htmlFor="" className="font-poppins tracking-tight font-semibold">
+              Set time period for report
+            </label>
+            <CustomTooltip text="This is the time period for the report to be sent to your email.">
+              <FaInfoCircle className="text-green-800" />
+            </CustomTooltip>
+          </div>
+          <PreferenceSelect triggerClass="md:w-[620px] w-[320px] font-poppins tracking-tight" data={Duration} placeholder="Select time period" />
+        </div>
+
+        <div className="">
+          <p className="tracking-tight font-poppins text-sm text-gray-600 flex gap-1 items-center justify-center">
+            Receive new updates via email{" "}
+            <a onClick={() => null} className=" cursor-pointer font-bold tracking-tight text-md text-green-900 underline">
+              Subscribe
+            </a>
+          </p>
+        </div>
+
+        <div className="flex justify-center my-10">
           {preferenceData && !isEditing ? (
             <button onClick={handleEdit} className="w-28 h-10 font-poppins tracking-tight text-sm font-medium text-white bg-dowellLiteGreen rounded-md hover:bg-dowellGreen">
               Edit

@@ -1,20 +1,14 @@
 import Navbar from "@/components/Navbar/Navbar";
-import {useCurrentUserContext} from "@/contexts/CurrentUserContext";
-import {workspaceNamesForLikert, workspaceNamesForNPS} from "@/data/Constants";
-import {getAvailablePreferences, getUserScales} from "@/services/api.services";
-import {decodeToken} from "@/utils/tokenUtils";
-import {useEffect, useState} from "react";
-import {useNavigate} from "react-router-dom";
-import {IoCopy, IoScale} from "react-icons/io5";
-import {Separator} from "@/components/ui/separator";
-import {MdAccessTimeFilled, MdProductionQuantityLimits, MdWork} from "react-icons/md";
-import {FaCircleQuestion} from "react-icons/fa6";
-import {CircularProgress} from "@mui/material";
-import {FaDatabase} from "react-icons/fa";
-import {BsToggleOn, BsToggleOff} from "react-icons/bs";
-import SelectField from "@/components/SelectField/SelectField";
-import CustomTooltip from "@/components/Tooltip/CustomTooltip";
-import {FaInfoCircle} from "react-icons/fa";
+import { Separator } from "@/components/ui/separator";
+import { useCurrentUserContext } from "@/contexts/CurrentUserContext";
+import { workspaceNamesForLikert, workspaceNamesForNPS } from "@/data/Constants";
+import { getAvailablePreferences, getUserScales } from "@/services/api.services";
+import { decodeToken } from "@/utils/tokenUtils";
+import { CircularProgress } from "@mui/material";
+import { useEffect, useState } from "react";
+import { IoCopy } from "react-icons/io5";
+import { MdAccessTimeFilled } from "react-icons/md";
+import { useNavigate } from "react-router-dom";
 
 const Preferences = () => {
   const {defaultScaleOfUser, setDefaultScaleOfUser} = useCurrentUserContext();
@@ -143,22 +137,22 @@ const Preferences = () => {
     );
   };
 
-  const handleSubscriptionToggle = () => {
-    setIsSubscribed((prevState) => !prevState);
-    showAlert(isSubscribed ? "Unsubscribed from emails" : "Subscribed to emails", "green");
-  };
+  // const handleSubscriptionToggle = () => {
+  //   setIsSubscribed((prevState) => !prevState);
+  //   showAlert(isSubscribed ? "Unsubscribed from emails" : "Subscribed to emails", "green");
+  // };
 
-  // Handle email input change
-  const handleEmailChange = (e) => {
-    setEmail(e.target.value);
-  };
+  // // Handle email input change
+  // const handleEmailChange = (e) => {
+  //   setEmail(e.target.value);
+  // };
 
-  const Duration = [
-    {label: "Last 7 days", value: "seven_days"},
-    {label: "Last 15 days", value: "fifteen_days"},
-    {label: "Last 30 days", value: "thirty_days"},
-    {label: "Last 90 days", value: "ninety_days"},
-  ];
+  // const Duration = [
+  //   {label: "Last 7 days", value: "seven_days"},
+  //   {label: "Last 15 days", value: "fifteen_days"},
+  //   {label: "Last 30 days", value: "thirty_days"},
+  //   {label: "Last 90 days", value: "ninety_days"},
+  // ];
 
   return (
     <div className="max-w-full min-h-screen">
@@ -166,7 +160,7 @@ const Preferences = () => {
       <div className="flex flex-col px-4 py-5 relative">
         {/* Card */}
         <h1 className="text-3xl font-bold font-poppins tracking-tight text-gray-800">Settings</h1>
-        <div className="flex gap-3 w-full">
+        <div className="flex gap-9 w-full">
           {loading ? (
             <div className="flex justify-center items-center flex-col py-12">
               <CircularProgress />
@@ -179,7 +173,7 @@ const Preferences = () => {
                 <h2 className="font-poppins font-bold text-lg tracking-tight underline">Workspace Details</h2>
 
                 <p className="flex gap-3 font-poppins font-semibold text-md tracking-tight items-center">
-                  <IoScale className="size-5 text-gray-700" />
+
                   Scale Type:{" "}
                   <span className="font-normal flex items-center gap-3">
                     {preferenceData.scaleTypePreference} <IoCopy className="size-4 cursor-pointer" onClick={() => handleCopy(preferenceData.scaleTypePreference)} />
@@ -188,14 +182,14 @@ const Preferences = () => {
                 <Separator />
                 <h2 className="font-poppins font-bold text-lg tracking-tight underline">Preference Details</h2>
                 <p className="flex gap-3 font-poppins font-semibold text-md tracking-tight items-center">
-                  <MdWork className="size-5 text-gray-700" />
+
                   Brand Name:{" "}
                   <span className="font-normal flex items-center gap-3">
                     {preferenceData.brandName} <IoCopy className="size-4 cursor-pointer" onClick={() => handleCopy(preferenceData.brandName)} />
                   </span>
                 </p>
                 <p className="flex gap-3 font-poppins font-semibold text-md tracking-tight items-center">
-                  <MdProductionQuantityLimits className="size-5 text-gray-700" />
+
                   Product Name:{" "}
                   <span className="font-normal flex items-center gap-3">
                     {preferenceData.productName} <IoCopy className="size-4 cursor-pointer" onClick={() => handleCopy(preferenceData.productName)} />
@@ -203,12 +197,12 @@ const Preferences = () => {
                 </p>
                 <div className="flex flex-col gap-1">
                   <p className="flex gap-3 font-poppins font-semibold text-md tracking-tight items-center">
-                    <FaCircleQuestion className="size-5 text-gray-700" /> Question Displayed:
+    Question Displayed:
                   </p>
                   <span className="font-normal flex items-center gap-3 ml-7">( {preferenceData.questionToDisplay} )</span>
                 </div>
                 <p className="flex gap-3 font-poppins font-semibold text-md tracking-tight items-center">
-                  <FaDatabase className="size-5 text-gray-700" />
+
                   Data Type:{" "}
                   <span className="font-normal flex items-center gap-3">
                     {preferenceData.dataType} <IoCopy className="size-4 cursor-pointer" onClick={() => handleCopy(preferenceData.dataType)} />
@@ -226,6 +220,10 @@ const Preferences = () => {
                   </p>
                 )}
               </div>
+
+              <div className="mt-2">
+                <p className="flex gap-3 font-poppins font-semibold text-md tracking-tight items-center"><MdAccessTimeFilled className="size-5 text-gray-700" /> Time period for report: </p>
+              </div>
               <div className="mb-10 text-right py-5">
                 <button className="font-poppins py-2 px-4 bg-green-800 text-white rounded-lg md:text-md text-sm" onClick={() => navigate("/voc/update-preference")}>
                   Update Preference
@@ -234,8 +232,10 @@ const Preferences = () => {
             </div>
           )}
 
-          <div className=" px-3 mb-10 w-full">
-            {/* New Email Subscription Section */}
+                      {/* New Email Subscription Section */}
+
+          {/* <div className=" px-3 mb-10 w-full">
+
             <h2 className="font-poppins font-bold text-lg tracking-tight underline">Email Subscription</h2>
             <div className="flex items-center gap-3 mt-2">
               <span className="font-poppins font-semibold text-md tracking-tight">{isSubscribed ? "Subscribed" : "Unsubscribed"}</span>
@@ -261,7 +261,7 @@ const Preferences = () => {
             <button className="mt-3 px-4 py-2 bg-green-800 text-sm text-white rounded-lg font-poppins" onClick={() => showAlert(`Email ${isSubscribed ? "subscribed" : "unsubscribed"}: ${email}`, "green")}>
                 Submit
               </button>
-          </div>
+          </div> */}
           
         </div>
       </div>

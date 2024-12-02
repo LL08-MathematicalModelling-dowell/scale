@@ -3,11 +3,12 @@ import CustomTooltip from "@/components/Tooltip/CustomTooltip";
 import { useState } from "react";
 import { FaInfoCircle } from "react-icons/fa";
 
-const ReportConfiguration = () => {
+const ReportConfiguration = ({formData, handleInputChange}) => {
   const [emailReportsEnabled, setEmailReportsEnabled] = useState(false);
 
   const handleToggle = () => {
     setEmailReportsEnabled(!emailReportsEnabled);
+    console.log(emailReportsEnabled);
   };
 
   const Duration = [
@@ -35,7 +36,7 @@ const ReportConfiguration = () => {
               <FaInfoCircle className="text-green-800" />
             </CustomTooltip>
           </div>
-          <PreferenceSelect triggerClass="md:w-[420px] w-[320px] font-poppins tracking-tight" data={Duration} placeholder="Select time period" />
+          <PreferenceSelect triggerClass="md:w-[420px] w-[320px] font-poppins tracking-tight" data={Duration} placeholder="Select time period"  handleInputChange={handleInputChange}/>
         </div>
 
         {/* Email Toggle Section */}

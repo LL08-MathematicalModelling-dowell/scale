@@ -196,6 +196,25 @@ const NewReport = () => {
   
     if (accessToken && refreshToken) fetchPayload();
   }, [accessToken, refreshToken, defaultScaleOfUser]);
+
+
+  // Fetch Location
+
+  useEffect(() => {
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(function(position) {
+      var latitude = position.coords.latitude;
+      var longitude = position.coords.longitude;
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    
+
+      console.log("Latitude: " + latitude + ", Longitude: " + longitude);
+      console.log("Timezone: " + timezone);
+    }, function(error) {
+      console.log(error)
+    })
+  }
+  }, [])
   
 
 

@@ -126,7 +126,7 @@ const PreferenceStepper = () => {
         }
       } else {
         setLoading(false);
-        showAlert("Access key not found");
+        showAlert("Access key not found", "blue");
       }
     };
 
@@ -165,6 +165,9 @@ const PreferenceStepper = () => {
       if (response.success === "true") {
         showAlert("Preference created successfully", "green");
         setPreferenceData(response.data);
+        setTimeout(() => {
+          navigate("/voc/preferences");
+        }, [1000])
 
       }
       setLoading(false);
@@ -195,6 +198,7 @@ const PreferenceStepper = () => {
   };
 
   const handleSubmit = async (e) => {
+    console.log(formData)
     e.preventDefault();
     if (preferenceData) {
       updatePreference();
@@ -251,7 +255,7 @@ const PreferenceStepper = () => {
   };
   return (
     <>
-      <div className="flex flex-col gap-9 max-w-full md:max-w-full">
+      <div className="flex flex-col gap-9 max-w-full md:max-w-full relative">
         <div className="flex justify-between">
           {steps.map((step, index) => (
             <div
@@ -267,6 +271,16 @@ const PreferenceStepper = () => {
             </div>
           ))}
         </div>
+
+
+        {/* Alert and Notification */}
+    {
+      alert && (
+        <div className={`absolute top-20 right-12 bg-${alertColor}-600 font-poppins tracking-tight text-white text-[15px] font-medium py-2 px-4 rounded-md ${alertColor}`}>
+          <p>{alertMessage}</p>
+        </div>
+      )
+    }
 
         {/* Step Content */}
         {currentStep === 1 && (

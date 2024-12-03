@@ -92,7 +92,7 @@ export default function Scales() {
         } catch (error) {
           showAlert("Error fetching user preferences", "red");
           console.log(error);
-          navigate("/voc/create-preference");
+          // navigate("/voc/create-preference");
         } finally {
           setLoading(false);
         }
@@ -153,7 +153,7 @@ export default function Scales() {
     );
   }
 
-  return scaleType == "nps" ? (
+  return scaleType === "nps" ? (
     <div className="h-full w-screen relative pb-16 pt-5">
       <div className="w-full flex flex-col justify-center items-center p-2">
         <img className="w-[100px]" src="https://dowellfileuploader.uxlivinglab.online/hr/logo-2-min-min.png" alt="Dowell Logo" />

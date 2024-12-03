@@ -11,6 +11,7 @@ const SetupPreference = () => {
               </div>
     </div>
   )
+  
 }
 
 export default SetupPreference

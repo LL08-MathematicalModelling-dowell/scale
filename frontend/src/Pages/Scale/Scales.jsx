@@ -1,14 +1,14 @@
-import { useEffect, useRef, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { decodeToken } from "@/utils/tokenUtils";
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
+import {useEffect, useRef, useState} from "react";
+import {useLocation, useNavigate} from "react-router-dom";
+import {decodeToken} from "@/utils/tokenUtils";
+import {Button, Dialog, DialogActions, DialogContent, DialogTitle} from "@mui/material";
 import npsImage from "../../assets/npsImageNew.svg";
-import { getAvailablePreferences, saveLocationData, scaleResponse } from "../../services/api.services";
+import {getAvailablePreferences, saveLocationData, scaleResponse} from "../../services/api.services";
 import LikertScale from "../LikertScale/LikertScale";
 
 export default function Scales() {
   const [submitted, setSubmitted] = useState(-1);
-  const hasLocationDataBeenSaved = useRef(false); 
+  const hasLocationDataBeenSaved = useRef(false);
   const [scaleId, setScaleId] = useState("");
   const [alert, setAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
@@ -57,8 +57,6 @@ export default function Scales() {
     }
   }, [workspace_id, scale_id]);
 
-
-  
   const showAlert = (message, color) => {
     setAlertMessage(message);
     setAlertColor(color);
@@ -83,22 +81,21 @@ export default function Scales() {
           const response = await getAvailablePreferences(accessKey.workspace_id, accessKey.portfolio_username);
           if (response.status === 200) {
             setPreferenceData(response.data.response);
-            console.log(response.data.response)
+            console.log(response.data.response);
             showAlert("User preferences fetched successfully", "green");
           } else {
-            showAlert("No preference data found", "yellow")
-
+            showAlert("No preference data found", "yellow");
           }
         } catch (error) {
           showAlert("Error fetching user preferences", "red");
           console.log(error);
-          navigate("/voc/create-preference");
+          // navigate("/voc/create-preference");
         } finally {
           setLoading(false);
         }
       } else {
         setLoading(false);
-        showAlert("Access key not found") 
+        showAlert("Access key not found");
       }
     };
 
@@ -113,31 +110,20 @@ export default function Scales() {
     if (!allParamsPresent) {
       return;
     }
-      try {
-        const response = await scaleResponse(
-            false,
-            scaleType,
-            channel,
-            instance,
-            workspace_id,
-            username,
-            scale_id,
-            index
-        );
-        console.log('API Response:', response.data);
-        setOpenModal(true);
+    try {
+      const response = await scaleResponse(false, scaleType, channel, instance, workspace_id, username, scale_id, index);
+      console.log("API Response:", response.data);
+      setOpenModal(true);
     } catch (error) {
-        console.error('Failed to fetch scale response:', error);
-        alert("Unable to submit your response. Please try again.");
+      console.error("Failed to fetch scale response:", error);
+      alert("Unable to submit your response. Please try again.");
     }
   }
 
   const handleClose = () => {
     setOpenModal(false);
-    window.location.href = "https://dowellresearch.sg/"; 
-};
-
-
+    window.location.href = "https://dowellresearch.sg/";
+  };
 
   if (!allParamsPresent) {
     return (
@@ -153,70 +139,74 @@ export default function Scales() {
     );
   }
 
-  return scaleType == "nps" ? (
-    <div className="h-full w-screen relative pb-16 pt-5">
-      <div className="w-full flex flex-col justify-center items-center p-2">
-        <img className="w-[100px]" src="https://dowellfileuploader.uxlivinglab.online/hr/logo-2-min-min.png" alt="Dowell Logo" />
-      </div>
-      <div>
-      <div className="flex flex-col justify-center items-center p-2 mt-10 sm:mt-0 gap-4">
-        <img src={npsImage} alt="NPS Scale" className="w-[250px] sm:w-[350px]" />
-        {/* Default Question */}
-        <p className="font-bold text-red-500 sm:text-[25px] text-[18px] text-center">{preferenceData. questionToDisplay}</p>
-        <p className="sm:text-[18px] text-[14px] text-center">Tell us what you think using the scale below!</p>
-      </div>
-      </div>
+  return (
+    <div>
+      {scaleType !== "nps" ? (
+        <LikertScale />
+      ) : (
+        <div className="h-full w-screen relative pb-16 pt-5">
+          <div className="w-full flex flex-col justify-center items-center p-2">
+            <img className="w-[100px]" src="https://dowellfileuploader.uxlivinglab.online/hr/logo-2-min-min.png" alt="Dowell Logo" />
+          </div>
+          <div>
+            <div className="flex flex-col justify-center items-center p-2 mt-10 sm:mt-0 gap-4">
+              <img src={npsImage} alt="NPS Scale" className="w-[250px] sm:w-[350px]" />
+              {/* Default Question */}
+              <p className="font-bold text-red-500 sm:text-[25px] text-[18px] text-center">{preferenceData.questionToDisplay}</p>
+              <p className="sm:text-[18px] text-[14px] text-center">Tell us what you think using the scale below!</p>
+            </div>
+          </div>
 
-      <div className="flex justify-center items-center gap-1 md:gap-3 mt-12 sm:m-5">
-        <style>
-          {`
-            @keyframes spin {
-              to {
-                transform: rotate(360deg);
+          <div className="flex justify-center items-center gap-1 md:gap-3 mt-12 sm:m-5">
+            <style>
+              {`
+              @keyframes spin {
+                to {
+                  transform: rotate(360deg);
+                }
               }
-            }
-            
-            .loader {
-              display: inline-block;
-              width: 20px;
-              height: 20px;
-              border: 3px solid rgba(255, 255, 255, 0.3);
-              border-radius: 50%;
-              border-top-color: #fff;
-              animation: spin 1s linear infinite;
-            }
-          `}
-        </style>
-        {buttons.map((button, index) => (
-          <button
-            key={index}
-            className={`sm:px-5 sm:p-2 p-[2px] px-[8px] rounded-full font-bold text-[14px] md:text-[20px]
-              hover:bg-blue-600 transition-colors ${submitted === index ? "bg-blue-600 text-white flex justify-center items-center" : "bg-[#ffa3a3]"}`}
-            onClick={() => handleClick(index)}
-            disabled={submitted !== -1}
-          >
-            {submitted === index ? <div className="loader"></div> : button}
-          </button>
-        ))}
-      </div>
-      {/* {scaleType === "likert" && (<div className="flex w-full items-center justify-center my-8">
-        <p>{'1- Won\'t Recommend'}</p>
-        <p className="ml-4 sm:ml-28">{'5- Highly Recommend'}</p>
-      </div>)} */}
-      <p className="w-full absolute bottom-0 mt-4 flex justify-center items-center text-[12px] sm:text-[14px]">Powered by uxlivinglab</p>
-      <Dialog open={openModal} onClose={handleClose}>
-                <DialogTitle>Thank You!</DialogTitle>
-                <DialogContent>
-                    <p>Thank you for your response.</p>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleClose} color="primary">
-                        Close
-                    </Button>
-                </DialogActions>
-            </Dialog>
+              
+              .loader {
+                display: inline-block;
+                width: 20px;
+                height: 20px;
+                border: 3px solid rgba(255, 255, 255, 0.3);
+                border-radius: 50%;
+                border-top-color: #fff;
+                animation: spin 1s linear infinite;
+              }
+            `}
+            </style>
+            {buttons.map((button, index) => (
+              <button
+                key={index}
+                className={`sm:px-5 sm:p-2 p-[2px] px-[8px] rounded-full font-bold text-[14px] md:text-[20px]
+                hover:bg-blue-600 transition-colors ${submitted === index ? "bg-blue-600 text-white flex justify-center items-center" : "bg-[#ffa3a3]"}`}
+                onClick={() => handleClick(index)}
+                disabled={submitted !== -1}
+              >
+                {submitted === index ? <div className="loader"></div> : button}
+              </button>
+            ))}
+          </div>
+          {/* {scaleType === "likert" && (<div className="flex w-full items-center justify-center my-8">
+          <p>{'1- Won\'t Recommend'}</p>
+          <p className="ml-4 sm:ml-28">{'5- Highly Recommend'}</p>
+        </div>)} */}
+          <p className="w-full absolute bottom-0 mt-4 flex justify-center items-center text-[12px] sm:text-[14px]">Powered by uxlivinglab</p>
+          <Dialog open={openModal} onClose={handleClose}>
+            <DialogTitle>Thank You!</DialogTitle>
+            <DialogContent>
+              <p>Thank you for your response.</p>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleClose} color="primary">
+                Close
+              </Button>
+            </DialogActions>
+          </Dialog>
+        </div>
+      )}
     </div>
-  ) : (
-    <LikertScale />
   );
 }

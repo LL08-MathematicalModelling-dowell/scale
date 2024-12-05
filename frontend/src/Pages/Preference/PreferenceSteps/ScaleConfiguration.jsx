@@ -55,7 +55,10 @@ const ScaleConfiguration = ({formData, handleInputChange}) => {
           </label>
           <PreferenceSelect name="questionToDisplay" data={Ratting} customClass="md:w-[610px] w-[300px] font-poppins tracking-tight"  placeholder="On a scale of 0 -10, how would you rate our product/service?" type="rating" handleInputChange={handleInputChange} value={formData.questionToDisplay} />
         </div>
-{/* Image Upload */}
+
+ {formData.scalePointer > 0 && (
+  <div>
+    {/* Image Upload */}
 <div className="flex gap-2 flex-col">
       <p className="font-poppins tracking-tight text-sm font-medium">
         Upload the images you want to add in the scale
@@ -69,6 +72,8 @@ const ScaleConfiguration = ({formData, handleInputChange}) => {
           multiple
           accept="image/*"
           onChange={handleImageUpload}
+          name="scaleImage"
+          required
         />
         <label
           htmlFor="imageUpload"
@@ -99,7 +104,7 @@ const ScaleConfiguration = ({formData, handleInputChange}) => {
             Upload Image
           </p>
           <p className="text-xs text-gray-500 font-poppins">
-            At least 2 images
+          {`  At least ${formData.scalePointer} images`}
           </p>
         </label>
       </div>
@@ -126,6 +131,8 @@ const ScaleConfiguration = ({formData, handleInputChange}) => {
       )}
     </div>
 
+  </div>
+ )}
 
       </div>
     </div>

@@ -20,7 +20,7 @@ export default function ShareScale() {
             <CustomHeader />
             <div className="w-full mx-auto p-2 bg-white rounded-lg shadow-md flex flex-col items-center">
                 <h1 className="w-full text-center text-2xl text-[#4d625a] font-bold mb-2">Share your scale</h1>
-                <p className="w-full text-center text-gray-600 mb-2 text-[#343c6a] font-semibold">You can start sharing your scale on different platforms.</p>
+                <p className="w-full text-center  mb-2 text-[#343c6a] font-semibold">You can start sharing your scale on different platforms.</p>
                 <div className='w-full mb-4'>
                     <div className="h-[38px] w-[25%] ml-[10rem] flex items-center justify-center rounded-full border border-[#005734] overflow-hidden">
                         <button className='w-[50%] flex items-center justify-center text-sm border-r h-full border-[#005734]'>Raw</button>

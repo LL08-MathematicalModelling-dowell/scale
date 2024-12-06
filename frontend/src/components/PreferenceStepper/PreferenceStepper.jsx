@@ -19,6 +19,8 @@ const PreferenceStepper = () => {
     brandName: "",
     productName: "",
     questionToDisplay: " ",
+    scalePointer: "",
+    scaleImage: []
   });
 
   const savedStep = localStorage.getItem("currentStep");
@@ -240,7 +242,7 @@ const PreferenceStepper = () => {
   const handleNext = () => {
     if (currentStep === steps.length) {
       setComplete(true);
-      console.log(formData); // This will log all the form data collected across the steps
+      console.log(formData); 
     } else {
       setCurrentStep((prev) => prev + 1);
     }

@@ -93,6 +93,7 @@ const Preferences = () => {
             showAlert("User preferences fetched successfully", "green");
           } else {
             showAlert("No preference data found", "yellow");
+            navigate('/voc/setup')
           }
         } catch (error) {
           showAlert("Error fetching user preferences", "red");

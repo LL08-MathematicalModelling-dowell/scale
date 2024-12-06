@@ -16,6 +16,22 @@ const BasicInformation = ({formData, handleInputChange}) => {
     {label: "Archived Data", value: "Archived_Data"},
   ];
 
+  const scalePointer = [
+    {
+      label: "2 Pointers",
+      value: 2
+    },
+    {
+      label: "3 Pointers",
+      value: 3
+    },
+    {
+      label: "4 Pointers",
+      value: 4
+    }
+
+  ]
+
 
 
   return (
@@ -28,7 +44,7 @@ const BasicInformation = ({formData, handleInputChange}) => {
           <label htmlFor="scaleType" className="font-poppins tracking-tighter">
             Choose a scale Type
           </label>
-          <PreferenceSelect name="scaleType" data={scaleTypes} triggerClass="md:w-[620px] w-[320px]  font-poppins tracking-tight" placeholder="Select scale type" type="select" handleInputChange={handleInputChange}   />
+          <PreferenceSelect  name="scaleType" data={scaleTypes} triggerClass="md:w-[620px] w-[320px]  font-poppins tracking-tight" placeholder="Select scale type" type="select" handleInputChange={handleInputChange}   />
         </div>
         {/* Data Type */}
         <div className="flex flex-col gap-2">
@@ -36,6 +52,14 @@ const BasicInformation = ({formData, handleInputChange}) => {
             Choose a data Type
           </label>
           <PreferenceSelect name="dataType" data={DataTypes} triggerClass="md:w-[620px] w-[320px] font-poppins tracking-tight" placeholder="Select data type" type="select" handleInputChange={handleInputChange} />
+        </div>
+
+        {/* scale Type Pointer */}
+        <div className="flex flex-col gap-2">
+          <label htmlFor="scalePointer" className="font-poppins tracking-tighter">
+            Choose a Scale Pointer
+          </label>
+          <PreferenceSelect name="scalePointer" data={scalePointer} triggerClass="md:w-[620px] w-[320px] font-poppins tracking-tight" placeholder="Select Scale Pointer" type="select" handleInputChange={handleInputChange} />
         </div>
 
         {/* Product Name and Brand Name */}

@@ -1526,7 +1526,8 @@ class ScaleCreationView(APIView):
             # "workspace_id": request.data.get("workspace_id"),
             "channel_names": request.data.get("channel_names"),
             "instance_names": request.data.get("instance_names"),
-            "period": request.data.get("period")
+            "period": request.data.get("period"),
+            "timezone": request.data.get("timezone")
         }
         
         serializer = ScaleReportSerializer(data=data)

@@ -10,7 +10,7 @@ const createPreference = asyncHandler(async (req, res) => {
     
     const {
         workspaceId, workspaceName, portfolio, userId, scaleTypePreference,
-        scaleDesignPreference, notificationDuration, dataType, productType, brandName, productName
+        scaleDesignPreference, notificationDuration, dataType, productType, brandName, productName, timezone
     } = req.body;
     
     const validationResult = PayloadValidationServices.validateData(preferenceSchema, {
@@ -24,7 +24,8 @@ const createPreference = asyncHandler(async (req, res) => {
         dataType, 
         productType, 
         brandName, 
-        productName
+        productName,
+        timezone
     });
 
     

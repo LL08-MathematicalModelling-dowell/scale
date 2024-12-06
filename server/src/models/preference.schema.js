@@ -62,6 +62,10 @@ const preferenceSchema = new mongoose.Schema({
     isActive: {
       type: Boolean,
       default: true
+    },
+    timezone: {
+      type: String,
+      required: true
     }
   }, { timestamps: true });
   

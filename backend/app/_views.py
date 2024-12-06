@@ -239,7 +239,6 @@ class ScaleCreateAPI(APIView):
             return Response(f"Unexpected error occured while fetching your data", status=status.HTTP_400_BAD_REQUEST)
         
 
-
 @api_view(['POST', 'GET', 'PUT'])
 def error_response(request, message, status):
     return Response(message, status=status)
@@ -256,6 +255,7 @@ def create_scale_response(request):
     channel_name = request.GET.get('channel')
     instance_name = request.GET.get('instance')
     data_type = request.GET.get('data_type', None)
+    timezone = request.GET.get('timezone',"Asia/Calcutta")
     header = dict(request.headers)
 
 
@@ -295,7 +295,7 @@ def create_scale_response(request):
 
         if current_response_count <= no_of_responses:
             event_id = get_event_id()
-            created_time = dowell_time("Asia/Calcutta")
+            created_time = dowell_time(timezone)
 
             learning_index_data = ""
             if scale_type == 'learning_index':
@@ -325,6 +325,7 @@ def create_scale_response(request):
                 "user_type": user_type,
                 "user_info": header,
                 "event_id": event_id,
+                "timezone":timezone,
                 "dowell_time": created_time,
                 "current_response_count": current_response_count,
                 "channel_name": channel_name,

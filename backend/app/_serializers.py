@@ -58,3 +58,4 @@ class ScaleReportSerializer(serializers.Serializer):
         ("one_year", "One Year")
     )
     period = serializers.ChoiceField(allow_blank=False, choices=period_choices)
+    timezone = serializers.CharField(allow_blank=True, required=False)

@@ -14,7 +14,7 @@ const PreferenceSelect = ({
 }) => {
   // Handle input change
   const onChange = (e, value) => {
-    handleInputChange(name, value || e.target.value); // Ensure the correct value is passed
+    handleInputChange(name, value || e.target.value);
   };
 
   return (

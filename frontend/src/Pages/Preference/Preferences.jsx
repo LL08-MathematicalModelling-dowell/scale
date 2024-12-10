@@ -19,8 +19,6 @@ const Preferences = () => {
   const [accessKey, setAccessKey] = useState({});
   const [loading, setLoading] = useState(false);
   const [preferenceData, setPreferenceData] = useState([]);
-  const [isSubscribed, setIsSubscribed] = useState(false); // New state for subscription toggle
-  const [email, setEmail] = useState(""); // New state for email input
   const navigate = useNavigate();
   const accessToken = localStorage.getItem("accessToken");
   const refreshToken = localStorage.getItem("refreshToken");
@@ -98,7 +96,6 @@ const Preferences = () => {
         } catch (error) {
           showAlert("Error fetching user preferences", "red");
           console.log(error);
-          navigate("/voc/create-preference");
         } finally {
           setLoading(false);
         }

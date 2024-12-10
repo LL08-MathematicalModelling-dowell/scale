@@ -2,10 +2,14 @@
 import LineGraph from "@/components/Graph/LineGraph";
 import Navbar from "@/components/Navbar/Navbar";
 import SelectField from "@/components/SelectField/SelectField";
-import {getLikertChannelsInstances, getLikertReport} from "@/services/api.services";
+import { useCurrentUserContext } from "@/contexts/CurrentUserContext";
+import { workspaceNamesForLikert, workspaceNamesForNPS } from "@/data/Constants";
+import {getLikertChannelsInstances, getLikertReport, getUserScales} from "@/services/api.services";
+import { decodeToken } from "@/utils/tokenUtils";
 import {CircularProgress} from "@mui/material";
 import PropTypes from "prop-types";
 import {useEffect, useState} from "react";
+import { useNavigate } from "react-router-dom";
 
 const RectangleDiv = ({className = "", scores, type, maximumScore}) => {
   const constrainedYellowPercent = scores;
@@ -38,6 +42,7 @@ RectangleDiv.propTypes = {
 };
 
 const LikertReport = () => {
+
   const [normalizedData, setNormalizedData] = useState([]);
   const [channelName, setChannelName] = useState([]);
   const [instanceName, setInstanceName] = useState([]);
@@ -49,29 +54,106 @@ const LikertReport = () => {
   const [message, setMessage] = useState(" ");
   const [totalResponse, setTotalResponse] = useState(0);
   const [dailyCountsData, setDailyCountsData] = useState([]);
-  const [duration, setDuration] = useState(null);
-  const [instanceValue, setInstanceValue] = useState(null);
-  const [channelValue, setChannelValue] = useState(null);
+  const [channelValue, setChannelValue] = useState("channel_1");
+  const [instanceValue, setInstanceValue] = useState("instance_5");
+  const [duration, setDuration] = useState("ninety_days");
   const [instanceLoading, setInstanceLoading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [maxScore, setMaxScore] = useState(0);
+  const [hasFetchedInitialReport, setHasFetchedInitialReport] = useState(false);
+  const [scaleId, setScaleId] = useState("")
+  const {defaultScaleOfUser, setDefaultScaleOfUser} = useCurrentUserContext();
+  // const [scaleId, setScaleId] = useState("");
+  // const [alert, setAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertColor, setAlertColor] = useState("green");
+  // const [accessKey, setAccessKey] = useState({});
+
   const [overallScoreData, setOverallScoreData] = useState({
     labels: [],
     datasets: [],
   });
 
+
+  const navigate = useNavigate();
+  const accessToken = localStorage.getItem("accessToken");
+  const refreshToken = localStorage.getItem("refreshToken");
+
+  const showAlert = (message, color) => {
+    setAlertMessage(message);
+    setAlertColor(color);
+    setAlert(true);
+    setTimeout(() => {
+      setAlert(false);
+    }, 3000);
+  };
+
+  useEffect(() => {
+    if (!accessToken || !refreshToken) {
+      navigate("/voc");
+    } else {
+      const decodedTokenForWorkspaceName = decodeToken(accessToken);
+      if (workspaceNamesForNPS.includes(decodedTokenForWorkspaceName.workspace_owner_name)) {
+        setDefaultScaleOfUser("nps");
+      } else if (workspaceNamesForLikert.includes(decodedTokenForWorkspaceName.workspace_owner_name)) {
+        setDefaultScaleOfUser("likert");
+      }
+    }
+  }, [accessToken, refreshToken, navigate, setDefaultScaleOfUser]);
+
+
+  useEffect(() => {
+    const fetchScaleId = async () => {
+      let scale_id = localStorage.getItem("scale_id");
+      if (!scale_id && defaultScaleOfUser) {
+        try {
+          const decodedToken = decodeToken(accessToken);
+          const response = await getUserScales({
+            workspace_id: decodedToken.workspace_id,
+            portfolio: decodedToken.portfolio,
+            type_of_scale: defaultScaleOfUser,
+            accessToken,
+          });
+          scale_id = response?.data?.response[0]?.scale_id;
+          console.log(scale_id)
+          setScaleId(scale_id);
+          return scaleId;
+        } catch (error) {
+          showAlert("Error fetching user scales", "red");
+          console.log(error);
+        }
+      } else {
+        setScaleId(scale_id);
+      }
+    };
+
+    if (defaultScaleOfUser) fetchScaleId();
+  }, [defaultScaleOfUser, accessToken]);
+
+
+
+  useEffect(() => {
+    if (scaleId) {
+      fetchLikertChannelInstances();
+      fetchLikertReport();
+    }
+  }, [scaleId]);
+
   const fetchLikertChannelInstances = async () => {
-    const scale_id = "66c9d21e9090b1529d108a63";
+  const  scale_id = scaleId
     setInstanceLoading(true);
     try {
       const channelDetailsResponse = await getLikertChannelsInstances(scale_id);
       if (channelDetailsResponse.status === 200) {
         const data = channelDetailsResponse.data;
+        console.log(data)
         const channels = data?.scale_data?.channel_instance_details.map((item) => ({
           label: item.channel_display_name,
           value: item.channel_name,
         }));
-        setChannelName(channels);
+
+         setScaleId(data?.scale_data?.scale_id)
+         console.log(scaleId)
 
         const instances = data?.scale_data?.channel_instance_details.flatMap((item) =>
           item.instances_details.map((instance) => ({
@@ -80,6 +162,10 @@ const LikertReport = () => {
           }))
         );
         setInstanceName(instances);
+        setChannelName(channels);
+
+       setChannelValue(channels[0]?.value || "channel_1");
+       setInstanceValue(instances[0]?.value || "instance_5");
       } else {
         console.log("Channel API call was not successful:", channelDetailsResponse);
         setAlert(true);
@@ -90,22 +176,25 @@ const LikertReport = () => {
       setAlert(true);
       setMessage("An error occurred while fetching channel instances.");
     } finally {
-      setInstanceLoading(false); // End loading
+      setInstanceLoading(false); 
     }
   };
 
-  useEffect(() => {
-    fetchLikertChannelInstances();
-  }, []);
 
-  const payload = {
-    scale_id: "66c9d21e9090b1529d108a63",
-    channel_names: [`${channelValue}`],
-    instance_names: [`${instanceValue}`],
-    period: `${duration}`,
-  };
+
+
 
   const fetchLikertReport = async () => {
+    if (!channelValue || !instanceValue || !duration) return;
+
+    const payload = {
+      scale_id: scaleId,
+      channel_names: [`${channelValue}`],
+      instance_names: [`${instanceValue}`],
+      period: `${duration}`,
+    };
+
+    
     setLoading(true);
     setDisplayData(false);
     setMessage("Loading...");
@@ -166,6 +255,7 @@ const LikertReport = () => {
           },
         ];
         setOverallScoreData({labels: overallLabels, datasets: overallDataset});
+        setHasFetchedInitialReport(true);
       } else {
         console.log("Non-200/404 Response:", reportResponse);
         setAlert(true);
@@ -185,11 +275,16 @@ const LikertReport = () => {
     }
   };
 
+  // useEffect(() => {
+  //   fetchLikertChannelInstances();
+  //   fetchLikertReport();
+  // }, []);  
+
   useEffect(() => {
-    if (channelValue && instanceValue && duration) {
-      fetchLikertReport();
+    if (hasFetchedInitialReport) {
+      fetchLikertReport(); 
     }
-  }, [channelValue, instanceValue, duration]);
+  }, [channelValue, instanceValue, duration,]);
 
   const normalizeDatasets = (datasets) => {
     return datasets.map((dataset) => ({
@@ -296,10 +391,9 @@ const LikertReport = () => {
     }
 
     if (value.endsWith("days")) {
-      setDuration(value);
+      setDuration(value || "ninety_days");
     }
-  };
-
+  }
   const Duration = [
     {label: "7 days", value: "seven_days"},
     {label: "15 days", value: "fifteen_days"},
@@ -315,9 +409,9 @@ const LikertReport = () => {
       <div className="mx-8 my-12 ">
         <div className="flex flex-col items-center justify-center gap-10">
           <div className="flex flex-col justify-center gap-5 md:flex-row">
-            <SelectField handleInputChange={handleInputChange} triggerClass="w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins" placeholder="Select Channel Name" data={channelName} />
-            <SelectField handleInputChange={handleInputChange} triggerClass="w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins" placeholder="Select Instances" data={instanceName} />
-            <SelectField handleInputChange={handleInputChange} triggerClass="w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins" placeholder="Duration" data={Duration} />
+            <SelectField handleInputChange={handleInputChange} triggerClass="w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins" placeholder="Select Channel Name" data={channelName} defaultValue={channelValue} />
+            <SelectField handleInputChange={handleInputChange} triggerClass="w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins" placeholder="Select Instances" data={instanceName} defaultValue={instanceValue} />
+            <SelectField handleInputChange={handleInputChange} triggerClass="w-80 h-10 outline-none focus:ring-1 focus:ring-dowellLiteGreen font-medium font-poppins" placeholder="Duration" data={Duration} defaultValue={duration} />
           </div>
 
           <h2 className="text-xl font-bold tracking-tight font-montserrat">

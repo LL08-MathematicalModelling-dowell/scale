@@ -5,10 +5,13 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Logo from "../../assets/VOC.png";
 import {
+  createPreferenceApi,
   getAPIServerStatus,
+  getAvailablePreferences,
   getUserCredentialsByPin,
   getUserLogin,
 } from "../../services/api.services";
+import { decodeToken } from "@/utils/tokenUtils";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -19,6 +22,7 @@ const Login = () => {
   const [isOpen, setIsOpen] = useState(true);
   const [loginType, setLoginType] = useState("");
   const [longitude, setLongitude] = useState(null);
+
   const [formData, setFormData] = useState({
     workspace_name: "",
     portfolio: "",
@@ -128,6 +132,7 @@ const Login = () => {
         localStorage.setItem("refreshToken", result.refresh_token);
         localStorage.setItem("accessToken", result.access_token);
         localStorage.setItem("workspaceName", credentials.workspace_name);
+        checkAvailablePreference()
         return result;
       } else {
         throw new Error(response.data.message || "Login failed");
@@ -159,6 +164,11 @@ const Login = () => {
       throw error;
     }
   };
+
+
+useEffect(()=>{
+
+})
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -309,6 +319,50 @@ const Login = () => {
     }
   };
 
+
+const checkAvailablePreference = async () => {
+   const token = localStorage.getItem("accessToken")
+   console.log(token)
+   if(token) {
+    const decodeToken2 = decodeToken(token)
+    console.log(decodeToken2)
+  try {
+        const response = await getAvailablePreferences(decodeToken2.workspace_id, decodeToken2.portfolio_username)
+        console.log(response)
+        if (response.status !== 200 || response.status === 400){
+          const payload = {
+            "workspaceId": decodeToken2.workspace_id,
+            "workspaceName": decodeToken2.workspace_owner_name,
+            "portfolio": decodeToken2.portfolio,
+            "userId": decodeToken2.portfolio_username,
+            "scaleTypePreference": "nps",
+            "scaleDesignPreference": [
+              {
+                "scaleType": "nps",
+                "scaleId": "66b867423eac0042917104ba",
+                "design": "default"
+              }
+            ],
+            "notificationDuration": "biweekly",
+            "dataType": "Real_Data",
+            "productType": "voice_of_customer",
+            "brandName": "default brand Name",
+            "productName": "default Product Name",
+            "questionToDisplay": "Default question to display"
+          }          
+          try {
+              const createResponse = await createPreferenceApi(payload)
+            console.log(createResponse)
+            console.log(payload)
+          } catch (error) {
+            console.log(error)
+          }
+        }
+  }catch(error) {
+    console.log(error)
+  }
+}
+}
   return (
     <div className="max-h-screen flex flex-col relative">
       <div className="flex flex-col gap-1 justify-center items-center mt-10">

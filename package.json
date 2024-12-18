@@ -1,8 +1,8 @@
 {
   "dependencies": {
     "lottie-react": "^2.4.0",
-    "qrcode.react": "^4.0.1",
+    "qrcode.react": "^4.2.0",
     "react-select": "^5.8.1",
-    "recharts": "^2.12.7"
+    "recharts": "^2.14.1"
   }
 }

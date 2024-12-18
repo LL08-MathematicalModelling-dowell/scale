@@ -63,6 +63,11 @@ const preferenceSchema = new mongoose.Schema({
       type: Boolean,
       default: true
     },
+    reportTimeDuration: {
+      type: String,
+      enum: ["twenty_four_hours", "seven_days", "fifteen_days", "thirty_days", "ninety_days", "one_year"],
+      default: "ninety_days"
+    },
     timezone: {
       type: String,
       required: true

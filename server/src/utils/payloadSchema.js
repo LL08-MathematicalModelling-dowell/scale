@@ -94,6 +94,8 @@ const locationSchema = z.object({
 
     notificationDuration: z.enum(["monthly", "biweekly", "quarterly", "everyday"]).default("monthly"),
     isActive: z.boolean().optional(),
+    timezone: z.string(),
+    reportTimeDuration: z.enum(["twenty_four_hours", "seven_days", "fifteen_days", "thirty_days", "ninety_days", "one_year"]).default("ninety_days")
 });
 
 

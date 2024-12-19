@@ -23,6 +23,7 @@ def main():
         
         try:
             user_with_update_email = json.loads(raw_response)
+            # print(user_with_update_email)
         except json.JSONDecodeError as e:
             print(f"Failed to decode JSON response: {e}")
             return
@@ -33,12 +34,18 @@ def main():
 
         for user in user_with_update_email['data']:
             workspace_name = user.get("workspace_name")
+
             if workspace_name == "manish_test_error_login" or workspace_name == "VOCAB":
                 scale_type = "nps"
             elif workspace_name == "VOCABC":
                 scale_type = "likert"
             else:
                 scale_type = "unknown"
+
+            preference_details = json.loads(get_preference_data(
+                user["workspace_id"],
+                user["portfolio_username"]
+                ))
 
             scale_details = get_scale_details(
                 user["workspace_id"],
@@ -74,23 +81,25 @@ def main():
             #     user["workspace_name"],
             #     "One Day"
             # ]
+            
+            if preference_details["response"].get("isActive") == True:
+                email_response = send_email(
+                    user["portfolio"],
+                    # user["email"],
+                    "khanheena4997@gmail.com", 
+                    report_subject, 
+                    datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 
+                    scale_details["response"][0]["report_link"]["report_link"], 
+                    scale_details["response"][0]["report_link"]["qrcode_image_url"],
+                    scale_data_table,
+                    location_data_table,
+                    user["portfolio_username"],
+                    user["portfolio"],
+                    user["workspace_name"],
+                    "One Day"
+                )
 
-            email_response = send_email(
-                user["portfolio"],
-                user["email"], 
-                report_subject, 
-                datetime.now().strftime("%Y-%B %-d"), 
-                scale_details["response"][0]["report_link"]["report_link"], 
-                scale_details["response"][0]["report_link"]["qrcode_image_url"],
-                scale_data_table,
-                location_data_table,
-                user["portfolio_username"],
-                user["portfolio"],
-                user["workspace_name"],
-                "One Day"
-            )
-
-            print(f"Email sent to {user['email']}. Response:{email_response}")
+                print(f"Email sent to {user['email']}. Response:{email_response}")
 
 
     except Exception as e:

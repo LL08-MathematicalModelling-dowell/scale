@@ -522,3 +522,24 @@ def fetch_and_format_user_location_data(scale_id, workspace_id):
         current_time = next_hour
 
     return results
+
+def get_preference_data(workspace_id, portfolio_username):
+    base_url = "http://localhost:5000/v1/preference-services/"
+
+    workspace_id = workspace_id
+    portfolio_username = portfolio_username
+    product_type = "voice_of_customer"
+
+    path_url = f"{base_url}/{workspace_id}/{portfolio_username}/{product_type}"
+
+    try:
+        response = requests.get(path_url)
+
+        if response.status_code == 200:
+            return response.text
+        else:
+            return f"Error: {response.status_code}"
+    except Exception as e:
+        return e
+
+

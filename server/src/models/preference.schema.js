@@ -20,7 +20,7 @@ const preferenceSchema = new mongoose.Schema({
     scaleTypePreference: {
       type: String,
       required: true,
-      enum: ["nps", "likert", "nps_lite", "stapel", "percent", "percent_sum", "llx"]
+      enum: ["nps", "likert", "nps_lite", "stapel", "percent", "percent_sum", "llx", "likert_two_point"]
     },
     scaleDesignPreference: [
       {
@@ -33,13 +33,13 @@ const preferenceSchema = new mongoose.Schema({
     brandName: {
       type: String,
       required: function () {
-        return this.scaleTypePreference === 'nps' || this.scaleTypePreference === 'likert';
+        return this.scaleTypePreference === 'nps' || this.scaleTypePreference === 'likert' || this.scaleTypePreference === 'likert_two_point';
       }
     },
     productName: {
       type: String,
       required: function () {
-        return this.scaleTypePreference === 'nps' || this.scaleTypePreference === 'likert';
+        return this.scaleTypePreference === 'nps' || this.scaleTypePreference === 'likert' || this.scaleTypePreference === 'likert_two_point';
       }
     },
     questionToDisplay: {

@@ -39,9 +39,9 @@ const locationSchema = z.object({
             if (productType === "llx_teacher") {
                 return z.enum(["llx"]).parse(val);
             }
-            return z.enum(["nps", "likert", "nps_lite", "stapel", "percent", "percent_sum"]).parse(val);
+            return z.enum(["nps", "likert", "nps_lite", "stapel", "percent", "percent_sum", "likert_two_point"]).parse(val);
         },
-        z.enum(["nps", "likert", "nps_lite", "stapel", "percent", "percent_sum", "llx"]).default("nps")
+        z.enum(["nps", "likert", "nps_lite", "stapel", "percent", "percent_sum","likert_two_point", "llx"]).default("nps")
     ),
 
     scaleDesignPreference: z.array(
@@ -71,7 +71,7 @@ const locationSchema = z.object({
             return "How would you rate your experience?";
         }
 
-        if (scaleType === "likert") {
+        if (scaleType === "likert" || scaleType === "likert_two_point") {
             return z.enum([
                 "Would you like to recommend this product to your friends/colleagues?",
                 `Would you like to recommend ${productName} to your friends/colleagues?`,
@@ -101,7 +101,7 @@ const locationSchema = z.object({
 
 const updatePreferenceSchema = z.object({
   scaleTypePreference: z.enum([
-      "nps", "likert", "nps_lite", "stapel", "percent", "percent_sum", "llx"
+      "nps", "likert", "nps_lite", "stapel", "percent", "percent_sum", "llx","likert_two_point"
   ]).optional(),
   
   scaleDesignPreference: z.array(z.object({
@@ -123,7 +123,7 @@ const updatePreferenceSchema = z.object({
       const productName = data.productName || 'this product';
       const brandName = data.brandName || 'this brand';
 
-      if (data.scaleTypePreference === "likert") {
+      if (data.scaleTypePreference === "likert" || data.scaleTypePreference === "likert_two_point") {
           data.questionToDisplay = `Would you like to recommend ${productName} to your friends/colleagues?`;
       } else if (data.scaleTypePreference === "nps") {
           data.questionToDisplay = `On a scale of 0 -10, how would you rate ${productName}?`;

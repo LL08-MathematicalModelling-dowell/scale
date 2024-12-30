@@ -7,3 +7,5 @@ PyJWT==2.9.0
 pytz==2024.1
 qrcode==7.4.2
 requests==2.31.0
+folium
+pandas

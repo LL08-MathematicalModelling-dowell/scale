@@ -14,6 +14,7 @@ from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime, timezone
 from services.sendEmail import *
 from services.scaleServices import scaleServicesClass
+from services.heatmap import data_preprocessing, generate_heatmap
 import random
 
 jwt_utils = JWTUtils()
@@ -1104,6 +1105,8 @@ class ScaleCreationView(APIView):
             return self.fetch_scale_data(request)
         elif service_type == "get_scale_report":
             return self.get_scale_report(request)
+        elif service_type == "get_heatmap":
+            return self.get_heatmap(request)
     
     # Create response for a scale
     def get(self, request):
@@ -1573,7 +1576,16 @@ class ScaleCreationView(APIView):
         
         return self.success_response(message=f"Successfully generated the {scale_type} scale report", data=report)
     
-    
+    def get_heatmap(self, request):
+        workspace_id = request.GET.get("workspace_id")
+
+        location_json = json.loads(datacube_data_retrieval(api_key,"voc","user_location_data",{'workspaceId':workspace_id},0,0,False))
+        coordinates = data_preprocessing(location_json["data"])
+        # heatmap = generate_heatmap(df)
+
+        return self.success_response(message=f"Heatmap generated succesfully", data=coordinates)
+
+
     # Method to return a success response
     def success_response(self, message, data):
         return Response({

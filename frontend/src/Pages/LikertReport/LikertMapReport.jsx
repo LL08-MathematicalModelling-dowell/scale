@@ -1,28 +1,29 @@
-import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
+import { MapContainer, TileLayer } from 'react-leaflet';
+import {HeatmapLayer} from 'react-leaflet-heatmap-layer-v3';
 import 'leaflet/dist/leaflet.css';
 
 const LikertMapReport = ({ locations }) => {
   return (
-    <div className="w-full ">
+    <div className="w-full">
       <MapContainer
-        center={[51, -0.09]}
+        center={[0, 0]} // Adjust center coordinates as per your requirement
         zoom={13}
         scrollWheelZoom={false}
         style={{ height: '500px', width: '100%' }}
       >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        <HeatmapLayer
+          // Configuration for heatmap
+          fitBoundsOnLoad
+          fitBoundsOnUpdate
+          points={locations}
+          longitudeExtractor={(point) => point.lng}
+          latitudeExtractor={(point) => point.lat}
+          intensityExtractor={(point) => point.intensity || 1}
         />
- 
-        {locations.map((location, index) => (
-          <Marker key={index} position={[location.lat, location.lng]}>
-            <Popup>
-              {location.name || "Location"} <br />
-              Coordinates: {location.lat}, {location.lng}
-            </Popup>
-          </Marker>
-        ))}
+        <TileLayer
+          url="http://{s}.tile.osm.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+        />
       </MapContainer>
     </div>
   );

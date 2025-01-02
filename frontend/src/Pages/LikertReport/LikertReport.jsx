@@ -76,11 +76,19 @@ const LikertReport = () => {
     datasets: [],
   });
 
-  const locations = [
-    { lat: 7.377536, lng: -3.94704, name: "Location A" },
-    { lat: 7.443845, lng: 3.911397, name: "Location B" },
-    { lat: 12.98582, lng: 77.76463, name: "Location C" },
-  ];
+  // const locations = [
+  //   { lat: 7.377536, lng: -3.94704, name: "Location A" },
+  //   { lat: 7.443845, lng: 3.911397, name: "Location B" },
+  //   { lat: 12.98582, lng: 77.76463, name: "Location C" },
+  // ];
+
+    // Coordinates data
+    const locations = [
+      { lat: 7.377536, lng: -3.94704, intensity: 34.0 },
+      { lat: 7.443845, lng: 3.911397, intensity: 27.0 },
+      { lat: 12.98582, lng: 77.76463, intensity: 20.0 },
+    ];
+    
 
 
 

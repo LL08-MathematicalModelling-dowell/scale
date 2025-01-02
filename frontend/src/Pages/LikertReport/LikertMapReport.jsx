@@ -6,13 +6,13 @@ const LikertMapReport = ({ locations }) => {
   return (
     <div className="w-full">
       <MapContainer
-        center={[0, 0]} // Adjust center coordinates as per your requirement
+        center={[0, 0]} 
         zoom={13}
         scrollWheelZoom={false}
         style={{ height: '500px', width: '100%' }}
       >
         <HeatmapLayer
-          // Configuration for heatmap
+        
           fitBoundsOnLoad
           fitBoundsOnUpdate
           points={locations}

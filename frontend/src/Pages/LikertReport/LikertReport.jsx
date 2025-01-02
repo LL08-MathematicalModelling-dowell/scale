@@ -1,6 +1,6 @@
 
 import LineGraph from "@/components/Graph/LineGraph";
-import Navbar from "@/components/Navbar/Navbar";
+// import Navbar from "@/components/Navbar/Navbar";
 import SelectField from "@/components/SelectField/SelectField";
 import { useCurrentUserContext } from "@/contexts/CurrentUserContext";
 import { workspaceNamesForLikert, workspaceNamesForNPS } from "@/data/Constants";
@@ -10,6 +10,8 @@ import {CircularProgress} from "@mui/material";
 import PropTypes from "prop-types";
 import {useEffect, useState} from "react";
 import { useNavigate } from "react-router-dom";
+import LikertMapReport from "./likertMapReport";
+
 
 const RectangleDiv = ({className = "", scores, type, maximumScore}) => {
   const constrainedYellowPercent = scores;
@@ -73,6 +75,13 @@ const LikertReport = () => {
     labels: [],
     datasets: [],
   });
+
+  const locations = [
+    { lat: 7.377536, lng: -3.94704, name: "Location A" },
+    { lat: 7.443845, lng: 3.911397, name: "Location B" },
+    { lat: 12.98582, lng: 77.76463, name: "Location C" },
+  ];
+
 
 
   const navigate = useNavigate();
@@ -429,7 +438,8 @@ const LikertReport = () => {
           </div>
         )}
         {displayData && (
-          <div className="flex flex-col items-center justify-between gap-10 mx-12 mt-8 text-center md:flex-row md:gap-16">
+         <div>
+           <div className="flex flex-col items-center justify-between gap-10 mx-12 mt-8 text-center md:flex-row md:gap-16">
             {/* First Chart */}
             <div className="flex flex-col w-screen gap-2 md:w-3/5 px-7">
               <p className="font-poppins tracking-tight text-[18px] font-medium">Total Score </p>
@@ -448,14 +458,31 @@ const LikertReport = () => {
                 <LineGraph options={optionsWithPercentage} data={lineChartDataTwo} />
               </div>
             </div>
+       
           </div>
+         <div className="flex flex-col space-y-4 mt-16">
+          <h1 className="font-poppins text-2xl tracking-tight text-center">GeoLocation Report</h1>
+          <div className="w-full rounded-xl">
+          <LikertMapReport locations={locations}/>
+          </div>
+         </div>
+         </div>
+          
         )}
+
+
       </div>
+
+     
       {instanceLoading == true ? (
         <div className="absolute top-0 right-0 flex items-center justify-center w-full min-h-screen bg-gray-100 ">
           <p className="text-xl font-semibold tracking-tight text-green-800 font-poppins">Please wait, while fetching your report...</p>
         </div>
       ) : null}
+
+
+     
+
     </div>
   );
 };

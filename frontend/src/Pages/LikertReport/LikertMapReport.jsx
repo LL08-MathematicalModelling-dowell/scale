@@ -14,7 +14,7 @@ const LikertMapReport = ({ locations }) => {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        {/* Render markers dynamically */}
+ 
         {locations.map((location, index) => (
           <Marker key={index} position={[location.lat, location.lng]}>
             <Popup>

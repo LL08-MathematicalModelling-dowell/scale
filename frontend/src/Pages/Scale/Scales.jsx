@@ -1,9 +1,19 @@
-import {useEffect, useRef, useState} from "react";
-import {useLocation, useNavigate} from "react-router-dom";
-import {decodeToken} from "@/utils/tokenUtils";
-import {Button, Dialog, DialogActions, DialogContent, DialogTitle} from "@mui/material";
+import { useEffect, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { decodeToken } from "@/utils/tokenUtils";
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+} from "@mui/material";
 import npsImage from "../../assets/npsImageNew.svg";
-import {getAvailablePreferences, saveLocationData, scaleResponse} from "../../services/api.services";
+import {
+  getAvailablePreferences,
+  saveLocationData,
+  scaleResponse,
+} from "../../services/api.services";
 import LikertScale from "../LikertScale/LikertScale";
 
 export default function Scales() {
@@ -29,14 +39,15 @@ export default function Scales() {
   console.log("scale type ", scaleType);
   const [openModal, setOpenModal] = useState(false);
 
-  const allParamsPresent = workspace_id && username && scale_id && channel && instance;
+  const allParamsPresent =
+    workspace_id && username && scale_id && channel && instance;
 
-  const buttons = Array.from({length: 11}, (_, i) => i);
+  const buttons = Array.from({ length: 11 }, (_, i) => i);
 
   useEffect(() => {
     if (!hasLocationDataBeenSaved.current && navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(async (position) => {
-        const {latitude, longitude} = position.coords;
+        const { latitude, longitude } = position.coords;
 
         const locationData = {
           latitude,
@@ -78,7 +89,12 @@ export default function Scales() {
       setLoading(true);
       if (accessKey.workspace_id && accessKey.portfolio_username) {
         try {
-          const response = await getAvailablePreferences(accessKey.workspace_id, accessKey.portfolio_username);
+          const response = await getAvailablePreferences(
+            accessKey.workspace_id,
+            accessKey.portfolio_username
+          );
+          console.log("here i am ");
+
           if (response.status === 200) {
             setPreferenceData(response.data.response);
             console.log(response.data.response);
@@ -88,6 +104,8 @@ export default function Scales() {
           }
         } catch (error) {
           showAlert("Error fetching user preferences", "red");
+          console.log("all ok");
+
           console.log(error);
           // navigate("/voc/create-preference");
         } finally {
@@ -111,7 +129,16 @@ export default function Scales() {
       return;
     }
     try {
-      const response = await scaleResponse(false, scaleType, channel, instance, workspace_id, username, scale_id, index);
+      const response = await scaleResponse(
+        false,
+        scaleType,
+        channel,
+        instance,
+        workspace_id,
+        username,
+        scale_id,
+        index
+      );
       console.log("API Response:", response.data);
       setOpenModal(true);
     } catch (error) {
@@ -129,11 +156,22 @@ export default function Scales() {
     return (
       <div className="h-full w-screen flex flex-col justify-center items-center p-4 bg-gray-50">
         <div className="flex flex-col items-center bg-red-100 p-8 rounded-lg shadow-lg">
-          <svg xmlns="http://www.w3.org/2000/svg" className="w-14 h-14 text-red-600 mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-14 h-14 text-red-600 mb-4"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <path d="M12 8v4M12 16h.01M21.9 10.18a10 10 0 1 1-1.8-1.8M12 2a10 10 0 0 1 0 20 10 10 0 0 1 0-20z"></path>
           </svg>
           <p className="text-2xl font-bold text-red-700">Unauthorized Access</p>
-          <p className="text-lg text-red-600 mt-2 text-center">You do not have the necessary permissions to view this page.</p>
+          <p className="text-lg text-red-600 mt-2 text-center">
+            You do not have the necessary permissions to view this page.
+          </p>
         </div>
       </div>
     );
@@ -146,14 +184,27 @@ export default function Scales() {
       ) : (
         <div className="h-full w-screen relative pb-16 pt-5">
           <div className="w-full flex flex-col justify-center items-center p-2">
-            <img className="w-[100px]" src="https://dowellfileuploader.uxlivinglab.online/hr/logo-2-min-min.png" alt="Dowell Logo" />
+            <img
+              className="w-[100px]"
+              src="https://dowellfileuploader.uxlivinglab.online/hr/logo-2-min-min.png"
+              alt="Dowell Logo"
+            />
           </div>
           <div>
             <div className="flex flex-col justify-center items-center p-2 mt-10 sm:mt-0 gap-4">
-              <img src={npsImage} alt="NPS Scale" className="w-[250px] sm:w-[350px]" />
+              <img
+                src={npsImage}
+                alt="NPS Scale"
+                className="w-[250px] sm:w-[350px]"
+              />
               {/* Default Question */}
-              <p className="font-bold text-red-500 sm:text-[25px] text-[18px] text-center">{preferenceData.questionToDisplay}</p>
-              <p className="sm:text-[18px] text-[14px] text-center">Tell us what you think using the scale below!</p>
+              <p className="font-bold text-red-500 sm:text-[25px] text-[18px] text-center">
+                {preferenceData.questionToDisplay ||
+                  "On a scale of 0-10, how would you like to rate our product/ service?"}
+              </p>
+              <p className="sm:text-[18px] text-[14px] text-center">
+                Tell us what you think using the scale below!
+              </p>
             </div>
           </div>
 
@@ -181,7 +232,11 @@ export default function Scales() {
               <button
                 key={index}
                 className={`sm:px-5 sm:p-2 p-[2px] px-[8px] rounded-full font-bold text-[14px] md:text-[20px]
-                hover:bg-blue-600 transition-colors ${submitted === index ? "bg-blue-600 text-white flex justify-center items-center" : "bg-[#ffa3a3]"}`}
+                hover:bg-blue-600 transition-colors ${
+                  submitted === index
+                    ? "bg-blue-600 text-white flex justify-center items-center"
+                    : "bg-[#ffa3a3]"
+                }`}
                 onClick={() => handleClick(index)}
                 disabled={submitted !== -1}
               >
@@ -193,7 +248,9 @@ export default function Scales() {
           <p>{'1- Won\'t Recommend'}</p>
           <p className="ml-4 sm:ml-28">{'5- Highly Recommend'}</p>
         </div>)} */}
-          <p className="w-full absolute bottom-0 mt-4 flex justify-center items-center text-[12px] sm:text-[14px]">Powered by uxlivinglab</p>
+          <p className="w-full absolute bottom-0 mt-4 flex justify-center items-center text-[12px] sm:text-[14px]">
+            Powered by uxlivinglab
+          </p>
           <Dialog open={openModal} onClose={handleClose}>
             <DialogTitle>Thank You!</DialogTitle>
             <DialogContent>

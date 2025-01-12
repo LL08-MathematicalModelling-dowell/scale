@@ -200,7 +200,7 @@ export default function Scales() {
               {/* Default Question */}
               <p className="font-bold text-red-500 sm:text-[25px] text-[18px] text-center">
                 {preferenceData.questionToDisplay ||
-                  "On a scale of 0-10, how would you like to rate our product/ service?"}
+                  "Would you recommend our product/service to your friends and colleagues?"}
               </p>
               <p className="sm:text-[18px] text-[14px] text-center">
                 Tell us what you think using the scale below!

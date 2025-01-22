@@ -1,5 +1,6 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import PayloadValidationServices from "../services/validation.services.js";
+import { dowelltime } from "../services/dowellclock.services.js";
 import { locationSchema } from "../utils/payloadSchema.js";
 import { saveLocationData } from "../config/producer.config.js";
 
@@ -23,6 +24,8 @@ const saveLocation = asyncHandler(async(req,res)=>{
             errors: validationResult.errors
         });
     }
+    const { find } = require('geo-tz')
+    const timezone = find(latitude, longitude) 
 
     const dataToBeSaved = {
         workspaceId,
@@ -30,6 +33,7 @@ const saveLocation = asyncHandler(async(req,res)=>{
         longitude,
         event,
         createdAt: new Date().toISOString(),
+        dowelltime: dowelltime(timezone)
     };
 
     if (scaleId) {

@@ -14,7 +14,8 @@ from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime, timezone
 from services.sendEmail import *
 from services.scaleServices import scaleServicesClass
-from services.heatmap import data_preprocessing, generate_heatmap
+from services.targeted_population import targeted_population
+from utils.heatmap import data_preprocessing, generate_heatmap
 import random
 
 jwt_utils = JWTUtils()
@@ -1523,7 +1524,7 @@ class ScaleCreationView(APIView):
         return self.success_response(message="Retrieved the scale details succcessfully", data=response)
     
     def get_scale_report(self, request):
-        data = {
+        payload_data = {
             "scale_type": request.GET.get("scale_type"),
             "scale_id": request.data.get("scale_id"),
             # "workspace_id": request.data.get("workspace_id"),
@@ -1533,7 +1534,7 @@ class ScaleCreationView(APIView):
             "timezone": request.data.get("timezone")
         }
         
-        serializer = ScaleReportSerializer(data=data)
+        serializer = ScaleReportSerializer(data=payload_data)
 
         if not serializer.is_valid():
             return self.error_response(message="Posting invalid data", error=serializer.errors)
@@ -1544,32 +1545,24 @@ class ScaleCreationView(APIView):
         # workspace_id = validated_data["workspace_id"]
 
         start_date, end_date = get_date_range(validated_data["period"])
-        
-        filters = {
-            "scale_id": validated_data["scale_id"],
-            "dowell_time.current_time": {"$gte": start_date, "$lte": end_date}
-        }
-        if "all" not in validated_data["channel_names"]:
-            filters["channel_name"] = {"$in": validated_data["channel_names"]}
-        if "all" not in validated_data["instance_names"]:
-            filters["instance_name"] = {"$in": validated_data["instance_names"]}
 
-        responses = json.loads(datacube_data_retrieval(api_key, 'livinglab_scale_response', 'collection_1', filters, 10000, 0, False))
-
-        # responses = json.loads(datacube_data_retrieval(
-        #     api_key,
-        #     f"{workspace_id}_scale_response_data",
-        #     f"{workspace_id}_scale_response",
-        #     filters,
-        #     10000,
-        #     0,
-        #     False
-        # ))
-
-        if not responses['data']:
+        responses = targeted_population(
+                                        database_name="livinglab_scale_response", 
+                                        collection_name="collection_1", 
+                                        fields=["score"], 
+                                        column_name="dowell_time.current_time",
+                                        period=payload_data["period"]
+                                    )
+        if not responses["normal"].get("data"):
             return self.error_response(message="No data found", error=None)
-
-        report = scales.generate_scale_report(scale_type, responses['data'], start_date, end_date)
+        
+        response_data = responses["normal"].get("data")
+        score_data = response_data["score"]
+        scale_specific_data = [item for item in score_data if item["scale_id"]==validated_data["scale_id"] ]
+        
+        filtered_responses = [ item for item in scale_specific_data if item.get("channel_name") in validated_data["channel_names"] and item.get("instance_name") in validated_data["instance_names"] ]
+        
+        report = scales.generate_scale_report(scale_type, filtered_responses, start_date, end_date)
 
         if not report:
             return self.error_response(message="Failed to generate the report. Contact admin", error=None)
@@ -1577,13 +1570,29 @@ class ScaleCreationView(APIView):
         return self.success_response(message=f"Successfully generated the {scale_type} scale report", data=report)
     
     def get_heatmap(self, request):
-        workspace_id = request.GET.get("workspace_id")
+        scale_id = request.GET.get("scale_id")
 
-        location_json = json.loads(datacube_data_retrieval(api_key,"voc","user_location_data",{'workspaceId':workspace_id},0,0,False))
-        coordinates = data_preprocessing(location_json["data"])
-        # heatmap = generate_heatmap(df)
+        population_data = targeted_population(
+                                                database_name="voc", 
+                                                collection_name="user_location_data", 
+                                                fields=["latitude"], 
+                                                column_name="createdAt"
+                                            )
+        
+        location_data = population_data["normal"].get("data")
+        field_data = location_data["latitude"]
+        user_specific_data = [data for data in field_data if data["scaleId"] == scale_id]
 
-        return self.success_response(message=f"Heatmap generated succesfully", data=coordinates)
+        df, coordinates = data_preprocessing(user_specific_data)
+        heatmap = generate_heatmap(df)
+
+        return self.success_response(message=f"Heatmap generated succesfully", 
+                                     data=
+                                         {
+                                         "coordinates":coordinates,
+                                         "heatmap_html":heatmap
+                                         }
+                                    )
 
 
     # Method to return a success response

@@ -122,30 +122,51 @@ class ScaleRetrievalSerializer(serializers.Serializer):
     instance_name = serializers.CharField(max_length=100, allow_null=True, required=False)
     
 
+from rest_framework import serializers
+
 class ScaleReportSerializer(serializers.Serializer):
     SCALE_TYPE_CHOICES = (
         ("nps", "nps"),
         ("nps_lite", "nps_lite"),
         ("stapel", "stapel"),
         ("likert", "likert"),
-        ("learning_index","learning_index")
+        ("learning_index", "learning_index"),
     )
+    
     PERIOD_CHOICES = (
-        ("twenty_four_hours", "24 hours"),
-        ("seven_days", "Seven Days"),
-        ("fifteen_days", "Fifteen Days"),
-        ("thirty_days", "Thirty Days"),
-        ("ninety_days","Ninety Days"),
-        ("one_year", "One Year")
+        ("twenty_four_hours", "last_1_day"),
+        ("seven_days", "last_7_days"),
+        ("thirty_days", "last_30_days"),
+        ("ninety_days", "last_90_days"),
+        ("one_year", "last_1_year"),
     )
-    scale_type = serializers.ChoiceField(choices = SCALE_TYPE_CHOICES)
+    
+    period = serializers.CharField(allow_blank=False)
+    scale_type = serializers.ChoiceField(choices=SCALE_TYPE_CHOICES)
     scale_id = serializers.CharField()
-    # workspace_id = serializers.CharField(allow_blank=False)
     channel_names = serializers.ListField(child=serializers.CharField())
     instance_names = serializers.ListField(child=serializers.CharField())
-    period = serializers.ChoiceField(allow_blank=False, choices=PERIOD_CHOICES)
-    timezone = serializers.CharField(allow_blank=True, default="Asia/Cal")
+    timezone = serializers.CharField(allow_blank=True, default="Asia/Kolkata")
 
+    def validate_period(self, value):
+        # Map display values to keys
+        display_to_key = {display: key for key, display in self.PERIOD_CHOICES}
+        
+        # If the value is a display value, convert it to its corresponding key
+        if value in display_to_key:
+            return display_to_key[value]
+
+        # If the value is already a valid key, return it
+        valid_keys = [key for key, _ in self.PERIOD_CHOICES]
+        if value in valid_keys:
+            return value
+
+        # Raise an error if the value is invalid
+        raise serializers.ValidationError(
+            f"Invalid choice: {value}. Valid options are: {valid_keys + list(display_to_key.keys())}"
+        )
+
+    
 class ScaleUpdateSerializer(serializers.Serializer):
     scale_id = serializers.CharField(max_length=100, allow_blank=False, required=True)
     workspace_id = serializers.CharField(max_length=100, allow_blank=False, required=True)

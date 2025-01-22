@@ -456,41 +456,61 @@ class scaleServicesClass:
                     } for data in data]
     
     def get_nps_lite_report(self, data, start_date, end_date):
-        daily_counts = defaultdict(lambda: {"promoter": 0, "detractor": 0, "passive": 0, "nps": 0})
+        daily_average_score = {}
+        daily_counts = defaultdict(lambda: {score: 0 for score in range(0,3)})
+        daily_nps_counts = defaultdict(lambda: {"promoter": 0, "detractor": 0, "passive": 0, "nps": 0})
         start_date = parse_response_datetime(start_date)
         end_date = parse_response_datetime(end_date)
 
         # Initialize counts for each day in the range, even if no data is present for that day
         current_date = start_date
         while current_date <= end_date:
-            daily_counts[str(current_date.date())] 
+            daily_nps_counts[str(current_date.date())] 
+            daily_counts[str(current_date.date())]
             current_date += timedelta(days=1)
-
+           
         # Update daily_counts with actual responses from the data
         for response in data:
             response_date = str(parse_response_datetime(response['dowell_time']['current_time']).date())
-            daily_counts[response_date][response["category"]] += 1
+            daily_counts[response_date][response["score"]]+=1
+            daily_nps_counts[response_date][response["category"]] += 1
         
-        for date, counts in daily_counts.items():
+        for date, counts in daily_nps_counts.items():
             total_responses = counts["promoter"] + counts["detractor"] + counts["passive"]
             if total_responses > 0:
                 counts["nps"] = (counts["promoter"] - counts["detractor"]) / total_responses * 100
             else:
                 counts["nps"] = 0 
+
+        # Calculate daily average score
+        for date, scores in daily_counts.items():
+            total_daily_score = sum(score * count for score, count in scores.items())
+            print(scores.values())
+            print(total_daily_score)
+            daily_responses = sum(scores.values())
+            print(daily_responses)
+            if daily_responses > 0:
+                daily_average_score[date] = total_daily_score / daily_responses
+            else:
+                daily_average_score[date] = 0 
         
         score_list = [response['score'] for response in data]
-        category_dict = {key: sum(counts[key] for counts in daily_counts.values()) for key in ["promoter", "detractor", "passive"]}
+        print(score_list)
+        category_dict = {key: sum(counts[key] for counts in daily_nps_counts.values()) for key in ["promoter", "detractor", "passive"]}
         percentage_category_distribution = {key: value / len(score_list) * 100 for key, value in category_dict.items()}
         nps = percentage_category_distribution["promoter"] - percentage_category_distribution["detractor"]
         total_score = sum(score_list)
-        max_score = len(score_list) * 10
+        max_score = len(score_list) * 2
         
         return {
                 "no_of_responses": len(score_list),
                 "total_score": f"{total_score} / {max_score}",
-                "nps": nps,
-                "nps_category_distribution": percentage_category_distribution,
-                "daily_counts": daily_counts
+                "overall_average_score": round((total_score/ max_score) * 2,4) if max_score > 2 else 0,
+                # "nps": nps,
+                # "nps_category_distribution": percentage_category_distribution,
+                "daily_counts": daily_counts,
+                "daily_average_score":daily_average_score
+                # "daily_nps_counts": daily_nps_counts
             }
     
     def get_stapel_report(self, data, start_date, end_date):

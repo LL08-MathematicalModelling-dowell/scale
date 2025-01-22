@@ -1,4 +1,4 @@
-# importations
+#  importations
 import pandas as pd
 import folium
 from folium.plugins import HeatMap
@@ -21,7 +21,7 @@ def data_preprocessing(data):
     longitudes = df_grouped["rounded_long"].to_list()
     coordinates = [[latitudes[index], longitudes[index]] for index in range(len(latitudes))]
 
-    return (coordinates)
+    return df_grouped, coordinates
 
 def generate_heatmap(dataframe):
     
@@ -42,6 +42,9 @@ def generate_heatmap(dataframe):
     </div>
     """
     world_map.get_root().html.add_child(folium.Element(title_html))
-    heatmap_html_data = world_map._repr_html_()
+    # save the map to an HTML file
+    world_map.save("voc_heatmap.html")\
+    
+    map_html = world_map._repr_html_()
 
-    return heatmap_html_data
+    return map_html

@@ -203,7 +203,7 @@ export default function Scales() {
                   "Would you recommend our product/service to your friends and colleagues?"}
               </p>
               <p className="sm:text-[18px] text-[14px] text-center">
-                Tell us what you think using the scale below!
+                Rate your recommendation in the scale of 0 to 10?
               </p>
             </div>
           </div>

@@ -1543,7 +1543,7 @@ class ScaleCreationView(APIView):
         
         filters = {
             "scale_id": validated_data["scale_id"],
-            "dowell_time.current_time": {"$gte": start_date, "$lte": end_date}
+            # "dowell_time.current_time": {"$gte": start_date, "$lte": end_date}
         }
         if "all" not in validated_data["channel_names"]:
             filters["channel_name"] = {"$in": validated_data["channel_names"]}
@@ -1551,6 +1551,7 @@ class ScaleCreationView(APIView):
             filters["instance_name"] = {"$in": validated_data["instance_names"]}
 
         responses = json.loads(datacube_data_retrieval(api_key, 'livinglab_scale_response', 'collection_1', filters, 10000, 0, False))
+        print(responses)
 
         # responses = json.loads(datacube_data_retrieval(
         #     api_key,

@@ -15,6 +15,7 @@ import {
   scaleResponse,
 } from "../../services/api.services";
 import LikertScale from "../LikertScale/LikertScale";
+import WroomImage from "../../assets/image.png";
 
 export default function Scales() {
   const [submitted, setSubmitted] = useState(-1);
@@ -209,9 +210,17 @@ export default function Scales() {
           <div>
             <div className="flex flex-col justify-center items-center p-2 mt-10 sm:mt-0 gap-4">
               <img
-                src={npsImage}
+                className={`transition-all duration-300 ${
+                  workspace_id === "641d50d96e2378d97406fac0"
+                    ? "brightness-125 drop-shadow-lg h-[250px] mb-2"
+                    : "w-[250px] sm:w-[350px]"
+                }`}
+                src={
+                  workspace_id === "641d50d96e2378d97406fac0"
+                    ? WroomImage
+                    : npsImage
+                }
                 alt="NPS Scale"
-                className="w-[250px] sm:w-[350px]"
               />
               {/* Default Question */}
               <p className="font-bold text-red-500 sm:text-[25px] text-[18px] text-center">

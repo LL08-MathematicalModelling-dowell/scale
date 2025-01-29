@@ -87,40 +87,44 @@ export default function Scales() {
   useEffect(() => {
     const fetchUserPreferences = async () => {
       setLoading(true);
-      if (accessKey.workspace_id && accessKey.portfolio_username) {
-        try {
-          const response = await getAvailablePreferences(
+      try {
+        let response;
+        if (workspace_id === "641d50d96e2378d97406fac0") {
+          response = await getAvailablePreferences(
+            "641d50d96e2378d97406fac0",
+            "ejUFWVJIdQcq"
+          );
+        } else if (accessKey.workspace_id && accessKey.portfolio_username) {
+          response = await getAvailablePreferences(
             accessKey.workspace_id,
             accessKey.portfolio_username
           );
-          console.log("here i am ");
-
-          if (response.status === 200) {
-            setPreferenceData(response.data.response);
-            console.log(response.data.response);
-            showAlert("User preferences fetched successfully", "green");
-          } else {
-            showAlert("No preference data found", "yellow");
-          }
-        } catch (error) {
-          showAlert("Error fetching user preferences", "red");
-          console.log("all ok");
-
-          console.log(error);
-          // navigate("/voc/create-preference");
-        } finally {
+        } else {
           setLoading(false);
+          showAlert("Access key not found");
+          return;
         }
-      } else {
+  
+        console.log("here i am ");
+  
+        if (response.status === 200) {
+          setPreferenceData(response.data.response);
+          console.log(response.data.response);
+          showAlert("User preferences fetched successfully", "green");
+        } else {
+          showAlert("No preference data found", "yellow");
+        }
+      } catch (error) {
+        showAlert("Error fetching user preferences", "red");
+        console.log("all ok");
+        console.log(error);
+      } finally {
         setLoading(false);
-        showAlert("Access key not found");
       }
     };
-
-    if (accessKey.workspace_id && accessKey.portfolio_username) {
-      fetchUserPreferences();
-    }
-  }, [accessKey]);
+  
+    fetchUserPreferences();
+  }, [accessKey, workspace_id]);
 
   async function handleClick(index) {
     setSubmitted(index);

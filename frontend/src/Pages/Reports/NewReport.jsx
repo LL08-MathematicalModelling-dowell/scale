@@ -379,7 +379,7 @@ const NewReport = () => {
           <div>
             <div className=" my-3 ">
               <div className="flex  items-center justify-center">
-                <h1 className="font-poppins tracking-tight text-2xl mb-4 font-bold">NET PROMOTER SCORE</h1>
+                <h1 className="font-poppins tracking-tight text-2xl mb-4 font-bold">net promotor score</h1>
               </div>
               <div className="flex flex-col items-center justify-center gap-10">
                 <div className="flex flex-col justify-center gap-5 md:flex-row md:max-lg:w-full">

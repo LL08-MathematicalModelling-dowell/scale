@@ -212,7 +212,7 @@ export default function Scales() {
               <img
                 className={`transition-all duration-300 ${
                   workspace_id === "641d50d96e2378d97406fac0"
-                    ? "brightness-125 drop-shadow-lg h-[250px] mb-2"
+                    ? "brightness-125 drop-shadow-lg mb-10 sm:w-[350px]"
                     : "w-[250px] sm:w-[350px]"
                 }`}
                 src={

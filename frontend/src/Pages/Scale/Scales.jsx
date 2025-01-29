@@ -104,9 +104,9 @@ export default function Scales() {
           showAlert("Access key not found");
           return;
         }
-  
+
         console.log("here i am ");
-  
+
         if (response.status === 200) {
           setPreferenceData(response.data.response);
           console.log(response.data.response);
@@ -122,7 +122,7 @@ export default function Scales() {
         setLoading(false);
       }
     };
-  
+
     fetchUserPreferences();
   }, [accessKey, workspace_id]);
 
@@ -153,7 +153,11 @@ export default function Scales() {
 
   const handleClose = () => {
     setOpenModal(false);
-    window.location.href = "https://dowellresearch.sg/";
+    if (workspace_id === "641d50d96e2378d97406fac0") {
+      window.location.href = "https://mywroom.com/";
+    } else {
+      window.location.href = "https://dowellresearch.sg/";
+    }
   };
 
   if (!allParamsPresent) {
@@ -189,9 +193,17 @@ export default function Scales() {
         <div className="h-full w-screen relative pb-16 pt-5">
           <div className="w-full flex flex-col justify-center items-center p-2">
             <img
-              className="w-[100px]"
-              src="https://dowellfileuploader.uxlivinglab.online/hr/logo-2-min-min.png"
-              alt="Dowell Logo"
+              className={`transition-all duration-300 ${
+                workspace_id === "641d50d96e2378d97406fac0"
+                  ? "invert brightness-125 drop-shadow-lg h-[40px] md:mb-4"
+                  : "w-[100px]"
+              }`}
+              src={
+                workspace_id === "641d50d96e2378d97406fac0"
+                  ? "https://mywroom.com/wp-content/uploads/2022/01/logo-white.png"
+                  : "https://dowellfileuploader.uxlivinglab.online/hr/logo-2-min-min.png"
+              }
+              alt="Logo"
             />
           </div>
           <div>

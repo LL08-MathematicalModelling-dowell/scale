@@ -1553,11 +1553,14 @@ class ScaleCreationView(APIView):
                                         column_name="dowell_time.current_time",
                                         period=payload_data["period"]
                                     )
+        
         if not responses["normal"].get("data"):
             return self.error_response(message="No data found", error=None)
         
         response_data = responses["normal"].get("data")
+        
         score_data = response_data["score"]
+        
         scale_specific_data = [item for item in score_data if item["scale_id"]==validated_data["scale_id"] ]
         
         filtered_responses = [ item for item in scale_specific_data if item.get("channel_name") in validated_data["channel_names"] and item.get("instance_name") in validated_data["instance_names"] ]

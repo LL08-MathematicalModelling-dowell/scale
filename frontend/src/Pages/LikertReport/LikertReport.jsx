@@ -10,7 +10,7 @@ import {CircularProgress} from "@mui/material";
 import PropTypes from "prop-types";
 import {useEffect, useState} from "react";
 import { useNavigate } from "react-router-dom";
-import LikertMapReport from "./likertMapReport";
+// import LikertMapReport from "./likertMapReport";
 
 
 const RectangleDiv = ({className = "", scores, type, maximumScore}) => {
@@ -76,11 +76,11 @@ const LikertReport = () => {
     datasets: [],
   });
 
-  const locations = [
-    { lat: 7.377536, lng: -3.94704, name: "Location A" },
-    { lat: 7.443845, lng: 3.911397, name: "Location B" },
-    { lat: 12.98582, lng: 77.76463, name: "Location C" },
-  ];
+  // const locations = [
+  //   { lat: 7.377536, lng: -3.94704, name: "Location A" },
+  //   { lat: 7.443845, lng: 3.911397, name: "Location B" },
+  //   { lat: 12.98582, lng: 77.76463, name: "Location C" },
+  // ];
 
 
 
@@ -460,12 +460,12 @@ const LikertReport = () => {
             </div>
        
           </div>
-         <div className="flex flex-col space-y-4 mt-16">
-          <h1 className="font-poppins text-2xl tracking-tight text-center">GeoLocation Report</h1>
-          <div className="w-full rounded-xl">
-          <LikertMapReport locations={locations}/>
-          </div>
-         </div>
+          {/* // <div className="flex flex-col space-y-4 mt-16">
+          // <h1 className="font-poppins text-2xl tracking-tight text-center">GeoLocation Report</h1>
+          // <div className="w-full rounded-xl">
+          // <LikertMapReport locations={locations}/>
+          // </div> */}
+         {/* </div> */}
          </div>
           
         )}

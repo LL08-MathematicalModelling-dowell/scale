@@ -1,6 +1,6 @@
 import jwt
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, Optional
 from functools import wraps
 from django.http import JsonResponse
@@ -277,7 +277,8 @@ def save_location_data(workspaceId,latitude,longitude,userId,event):
 
 
 def get_date_range(period):
-    now = datetime.utcnow()
+    # now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     if period == 'twenty_four_hours':
         start_date = now - timedelta(hours=24)
     elif period == 'seven_days':

@@ -356,6 +356,7 @@ class scaleServicesClass:
         
     # NPS scale report
     def get_nps_report(self, data, start_date, end_date):    
+    
         daily_counts = defaultdict(lambda: {"promoter": 0, "detractor": 0, "passive": 0, "nps": 0})
         start_date = parse_response_datetime(start_date)
         end_date = parse_response_datetime(end_date)
@@ -378,7 +379,7 @@ class scaleServicesClass:
             else:
                 counts["nps"] = 0 
 
-        score_list = [response['score'] for response in data]
+        score_list = [response.get('score') for response in data]
         category_dict = {key: sum(counts[key] for counts in daily_counts.values()) for key in ["promoter", "detractor", "passive"]}
         percentage_category_distribution = {key: value / len(score_list) * 100 for key, value in category_dict.items()}
         nps = percentage_category_distribution["promoter"] - percentage_category_distribution["detractor"]

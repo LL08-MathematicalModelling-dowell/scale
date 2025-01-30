@@ -112,6 +112,7 @@ const NewReport = () => {
     datasets: [],
   });
   const {defaultScaleOfUser, setDefaultScaleOfUser} = useCurrentUserContext();
+  const [workspaceId, setWorkspaceId] = useState("");
 
   const navigate = useNavigate();
   const accessToken = localStorage.getItem("accessToken");
@@ -144,9 +145,13 @@ const NewReport = () => {
         setScaleId(scale_id);
   
         const decodedToken = decodeToken(accessToken);
+        const workspaceId = decodedToken?.workspace_id
+        
         if (!decodedToken?.workspace_id) {
           throw new Error("Invalid or missing workspace ID in token.");
         }
+
+        setWorkspaceId(workspaceId);
   
         const payload = {
           workspace_id: decodedToken.workspace_id,
@@ -378,8 +383,22 @@ const NewReport = () => {
         {defaultScaleOfUser == "nps" ? (
           <div>
             <div className=" my-3 ">
-              <div className="flex  items-center justify-center">
-                <h1 className="font-poppins tracking-tight text-2xl mb-4 font-bold">NET PROMOTER SCORE</h1>
+              <div className="flex flex-col items-center justify-center">
+                
+                <img
+              className={`transition-all duration-300 ${
+                workspaceId === "641d50d96e2378d97406fac0"
+                  ? "invert brightness-125 drop-shadow-lg h-[40px] md:mb-4 mb-6"
+                  : "w-[100px]"
+              }`}
+              src={
+                workspaceId === "641d50d96e2378d97406fac0"
+                  ? "https://mywroom.com/wp-content/uploads/2022/01/logo-white.png"
+                  : ""
+              }
+              alt="Logo"
+            />
+                <h1 className="font-poppins tracking-tight text-2xl mb-4 font-bold">Net Promotor Score</h1>
               </div>
               <div className="flex flex-col items-center justify-center gap-10">
                 <div className="flex flex-col justify-center gap-5 md:flex-row md:max-lg:w-full">
@@ -393,7 +412,7 @@ const NewReport = () => {
                     Total Response: <span className="text-xl text-green-800 font-poppins">{totalResponse}</span>
                   </h2>
                   <h2 className="text-xl font-bold tracking-tight font-montserrat">
-                    NPS: <span className="text-xl text-green-800 font-poppins">{npsScore}</span>
+                    NPS: <span className="text-xl text-green-800 font-poppins">{npsScore.toFixed(2)}</span>
                   </h2>
                 </div>
               </div>

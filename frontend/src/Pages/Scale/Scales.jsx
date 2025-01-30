@@ -15,6 +15,7 @@ import {
   scaleResponse,
 } from "../../services/api.services";
 import LikertScale from "../LikertScale/LikertScale";
+import WroomImage from "../../assets/image.png";
 
 export default function Scales() {
   const [submitted, setSubmitted] = useState(-1);
@@ -87,40 +88,44 @@ export default function Scales() {
   useEffect(() => {
     const fetchUserPreferences = async () => {
       setLoading(true);
-      if (accessKey.workspace_id && accessKey.portfolio_username) {
-        try {
-          const response = await getAvailablePreferences(
+      try {
+        let response;
+        if (workspace_id === "641d50d96e2378d97406fac0") {
+          response = await getAvailablePreferences(
+            "641d50d96e2378d97406fac0",
+            "ejUFWVJIdQcq"
+          );
+        } else if (accessKey.workspace_id && accessKey.portfolio_username) {
+          response = await getAvailablePreferences(
             accessKey.workspace_id,
             accessKey.portfolio_username
           );
-          console.log("here i am ");
-
-          if (response.status === 200) {
-            setPreferenceData(response.data.response);
-            console.log(response.data.response);
-            showAlert("User preferences fetched successfully", "green");
-          } else {
-            showAlert("No preference data found", "yellow");
-          }
-        } catch (error) {
-          showAlert("Error fetching user preferences", "red");
-          console.log("all ok");
-
-          console.log(error);
-          // navigate("/voc/create-preference");
-        } finally {
+        } else {
           setLoading(false);
+          showAlert("Access key not found");
+          return;
         }
-      } else {
+
+        console.log("here i am ");
+
+        if (response.status === 200) {
+          setPreferenceData(response.data.response);
+          console.log(response.data.response);
+          showAlert("User preferences fetched successfully", "green");
+        } else {
+          showAlert("No preference data found", "yellow");
+        }
+      } catch (error) {
+        showAlert("Error fetching user preferences", "red");
+        console.log("all ok");
+        console.log(error);
+      } finally {
         setLoading(false);
-        showAlert("Access key not found");
       }
     };
 
-    if (accessKey.workspace_id && accessKey.portfolio_username) {
-      fetchUserPreferences();
-    }
-  }, [accessKey]);
+    fetchUserPreferences();
+  }, [accessKey, workspace_id]);
 
   async function handleClick(index) {
     setSubmitted(index);
@@ -149,7 +154,11 @@ export default function Scales() {
 
   const handleClose = () => {
     setOpenModal(false);
-    window.location.href = "https://dowellresearch.sg/";
+    if (workspace_id === "641d50d96e2378d97406fac0") {
+      window.location.href = "https://mywroom.com/";
+    } else {
+      window.location.href = "https://dowellresearch.sg/";
+    }
   };
 
   if (!allParamsPresent) {
@@ -185,17 +194,33 @@ export default function Scales() {
         <div className="h-full w-screen relative pb-16 pt-5">
           <div className="w-full flex flex-col justify-center items-center p-2">
             <img
-              className="w-[100px]"
-              src="https://dowellfileuploader.uxlivinglab.online/hr/logo-2-min-min.png"
-              alt="Dowell Logo"
+              className={`transition-all duration-300 ${
+                workspace_id === "641d50d96e2378d97406fac0"
+                  ? "invert brightness-125 drop-shadow-lg h-[40px] md:mb-4"
+                  : "w-[100px]"
+              }`}
+              src={
+                workspace_id === "641d50d96e2378d97406fac0"
+                  ? "https://mywroom.com/wp-content/uploads/2022/01/logo-white.png"
+                  : "https://dowellfileuploader.uxlivinglab.online/hr/logo-2-min-min.png"
+              }
+              alt="Logo"
             />
           </div>
           <div>
             <div className="flex flex-col justify-center items-center p-2 mt-10 sm:mt-0 gap-4">
               <img
-                src={npsImage}
+                className={`transition-all duration-300 ${
+                  workspace_id === "641d50d96e2378d97406fac0"
+                    ? "brightness-125 drop-shadow-lg mb-10 sm:w-[350px]"
+                    : "w-[250px] sm:w-[350px]"
+                }`}
+                src={
+                  workspace_id === "641d50d96e2378d97406fac0"
+                    ? WroomImage
+                    : npsImage
+                }
                 alt="NPS Scale"
-                className="w-[250px] sm:w-[350px]"
               />
               {/* Default Question */}
               <p className="font-bold text-red-500 sm:text-[25px] text-[18px] text-center">
@@ -203,7 +228,7 @@ export default function Scales() {
                   "Would you recommend our product/service to your friends and colleagues?"}
               </p>
               <p className="sm:text-[18px] text-[14px] text-center">
-                Tell us what you think using the scale below!
+                Rate your recommendation in the scale of 0 to 10?
               </p>
             </div>
           </div>

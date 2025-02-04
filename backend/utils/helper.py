@@ -1,5 +1,6 @@
 import jwt
 import os
+import pandas as pd
 from datetime import datetime, timedelta, timezone
 from typing import Dict, Optional
 from functools import wraps
@@ -340,6 +341,19 @@ def get_display_names(channel_instance_list,current_channel_name,current_instanc
         return "Channel or Instance not found"
     
     return channel_display_names, instance_display_names
+
+def calculate_moving_average(daily_counts, window_size=7):
+        # Extract NPS values by date
+        dates = sorted(daily_counts.keys())
+        nps_values = [daily_counts[date]['nps'] for date in dates]
+        
+        # Create a DataFrame to calculate the moving average
+        df = pd.DataFrame({'date': dates, 'nps': nps_values})
+        df['date'] = pd.to_datetime(df['date'])
+        df.set_index('date', inplace=True)
+        df['moving_average'] = df['nps'].rolling(window=window_size).mean()
+        
+        return df
 
 def calculate_learning_index(score, group_size, learner_category, category):
     print(score,group_size,learner_category)

@@ -1,7 +1,7 @@
 from services.datacube import *
 from services.dowellclock import dowell_time
 from utils.eventID import get_event_id
-from utils.helper import generate_urls, get_display_names, calculate_learning_index, parse_response_datetime
+from utils.helper import*
 from itertools import chain
 from collections import defaultdict
 from datetime import datetime, timedelta
@@ -385,13 +385,16 @@ class scaleServicesClass:
         nps = percentage_category_distribution["promoter"] - percentage_category_distribution["detractor"]
         total_score = sum(score_list)
         max_score = len(score_list) * 10
+
+        nps_moving_avg = calculate_moving_average(daily_counts)
         
         return {
                 "no_of_responses": len(score_list),
                 "total_score": f"{total_score} / {max_score}",
                 "nps": nps,
                 "nps_category_distribution": percentage_category_distribution,
-                "daily_counts": daily_counts
+                "daily_counts": daily_counts,
+                "nps_moving_avg": nps_moving_avg
             }
         
     # Likert scale report

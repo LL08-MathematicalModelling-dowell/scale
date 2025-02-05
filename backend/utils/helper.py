@@ -342,18 +342,19 @@ def get_display_names(channel_instance_list,current_channel_name,current_instanc
     
     return channel_display_names, instance_display_names
 
-def calculate_moving_average(daily_counts, window_size=7):
-        # Extract NPS values by date
-        dates = sorted(daily_counts.keys())
-        nps_values = [daily_counts[date]['nps'] for date in dates]
+def stattricks(process_id, process_seq_id,series_values):
+        url = " https://100004.pythonanywhere.com/processapi"
+
+        payload = {
+            "title":"VOC-REPORT",
+            "Process_id":process_id,
+            "processSequenceId":process_seq_id,
+            "seriesvalues": series_values
+        }
+
+        response = requests.post(url, json=payload)
         
-        # Create a DataFrame to calculate the moving average
-        df = pd.DataFrame({'date': dates, 'nps': nps_values})
-        df['date'] = pd.to_datetime(df['date'])
-        df.set_index('date', inplace=True)
-        df['moving_average'] = df['nps'].rolling(window=window_size).mean()
-        
-        return df
+        return response.json()
 
 def calculate_learning_index(score, group_size, learner_category, category):
     print(score,group_size,learner_category)

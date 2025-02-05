@@ -386,15 +386,23 @@ class scaleServicesClass:
         total_score = sum(score_list)
         max_score = len(score_list) * 10
 
-        nps_moving_avg = calculate_moving_average(daily_counts)
-        
+        nps_values = [daily_counts[date]['nps'] for date in sorted(daily_counts.keys())]
+        weekly_nps_values = [nps_values[i:i+7] for i in range(0,len(nps_values),7)]
+       
+        for i, week in enumerate(weekly_nps_values):
+            series_values = {
+                f"week{i}": week
+            }
+
+        stattricks_response = stattricks(1234, 2,series_values)
+        print(f"nps values: {weekly_nps_values}")
+
         return {
                 "no_of_responses": len(score_list),
                 "total_score": f"{total_score} / {max_score}",
                 "nps": nps,
                 "nps_category_distribution": percentage_category_distribution,
-                "daily_counts": daily_counts,
-                "nps_moving_avg": nps_moving_avg
+                "daily_counts": daily_counts
             }
         
     # Likert scale report

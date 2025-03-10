@@ -465,6 +465,68 @@ def fetch_and_format_scores(scale_id):
 
     return results
 
+def fetch_and_format_llx_scores(scale_id, channel_name, instance_name):
+    ist = pytz.timezone('Asia/Kolkata')
+    start_time = datetime.now(ist).replace(hour=0, minute=0, second=0, microsecond=0)
+    end_time = start_time.replace(hour=21)
+    
+    response_data = json.loads(
+        datacube_data_retrieval(
+            "1b834e07-c68b-4bf6-96dd-ab7cdc62f07f", 
+            "livinglab_scale_response", 
+            "collection_1", 
+            {
+                "scale_id": scale_id,
+                "channel_name": channel_name,
+                "instance_name": instance_name
+            }, 
+            0, 
+            0, 
+            False 
+        )
+    )
+
+    if not response_data or not response_data.get("data"):
+        print(f"No data found for scale_id: {scale_id}")
+        return []
+
+    raw_data = response_data["data"]
+
+    results = []
+
+    current_time = start_time
+
+    while current_time < end_time:
+        next_hour = current_time + timedelta(hours=1)
+
+        hourly_data = [
+            item for item in raw_data 
+            if current_time.isoformat() <= item["dowell_time"]["current_time"] < next_hour.isoformat()
+        ]
+        latest_response = hourly_data[-1]
+
+        score_list = [item.get('score', 0) for item in hourly_data]
+        total_score = sum(score_list)
+        average_score = total_score / len(score_list) if score_list else 0
+        total_responses = len(score_list)
+        learning_stage = latest_response["learning_index_data"].get("learning_level_stage")
+
+        data_to_write = {
+            "date": current_time.strftime("%Y-%m-%d"),
+            "start_time": current_time.strftime("%H:%M"),
+            "end_time": next_hour.strftime("%H:%M"),
+            "total_score": total_score,
+            "average_score": average_score,
+            "total_responses": total_responses,
+            "learning_level_stage": learning_stage
+        }
+
+        results.append(data_to_write)
+
+        current_time = next_hour
+
+    return results
+
 def fetch_and_format_user_location_data(scale_id, workspace_id):
     ist = pytz.timezone('Asia/Kolkata')
 

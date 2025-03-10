@@ -358,6 +358,8 @@ class scaleServicesClass:
     def get_nps_report(self, data, start_date, end_date):    
     
         daily_counts = defaultdict(lambda: {"promoter": 0, "detractor": 0, "passive": 0, "nps": 0})
+        # daily_average_score = defaultdict(lambda: [])
+        # d = {}
         start_date = parse_response_datetime(start_date)
         end_date = parse_response_datetime(end_date)
 
@@ -365,12 +367,14 @@ class scaleServicesClass:
         current_date = start_date
         while current_date <= end_date:
             daily_counts[str(current_date.date())] 
+            # daily_average_score[str(current_date.date())]
             current_date += timedelta(days=1)
 
         # Update daily_counts with actual responses from the data
         for response in data:
             response_date = str(parse_response_datetime(response['dowell_time']['current_time']).date())
             daily_counts[response_date][response["category"]] += 1
+            # daily_average_score[response_date].append(response["score"])
         
         for date, counts in daily_counts.items():
             total_responses = counts["promoter"] + counts["detractor"] + counts["passive"]
@@ -378,6 +382,15 @@ class scaleServicesClass:
                 counts["nps"] = (counts["promoter"] - counts["detractor"]) / total_responses * 100
             else:
                 counts["nps"] = 0 
+        
+        # for date, scores in daily_average_score.items():
+        #     # print(scores)
+        #     total_daily_score = sum(scores)
+        #     daily_responses = len(scores)
+        #     if daily_responses > 0:
+        #         d[date] = total_daily_score / daily_responses
+        #     else:
+        #         d[date] = 0 
 
         score_list = [response.get('score') for response in data]
         category_dict = {key: sum(counts[key] for counts in daily_counts.values()) for key in ["promoter", "detractor", "passive"]}
@@ -386,23 +399,28 @@ class scaleServicesClass:
         total_score = sum(score_list)
         max_score = len(score_list) * 10
 
-        nps_values = [daily_counts[date]['nps'] for date in sorted(daily_counts.keys())]
-        weekly_nps_values = [nps_values[i:i+7] for i in range(0,len(nps_values),7)]
+        dates, nps_values = zip(*sorted((date, data['nps']) for date, data in daily_counts.items()))
+
+        dates_by_weeks = [ dates[i:i+7] for i in range(0, len(dates), 7) ]
+        weekly_nps_values = [ nps_values[i:i+7] for i in range(0, len(nps_values), 7) ]
+
+        moving_avg_dict = { week[-1]: sum(nps)/len(nps) for week, nps in zip(dates_by_weeks, weekly_nps_values) }
        
         for i, week in enumerate(weekly_nps_values):
             series_values = {
                 f"week{i}": week
             }
 
-        stattricks_response = stattricks(1234, 2,series_values)
-        print(f"nps values: {weekly_nps_values}")
-
+        # stattricks_response = stattricks(1234, 2,series_values)
+        
         return {
                 "no_of_responses": len(score_list),
                 "total_score": f"{total_score} / {max_score}",
                 "nps": nps,
                 "nps_category_distribution": percentage_category_distribution,
-                "daily_counts": daily_counts
+                "daily_counts": daily_counts,
+                # "daily_average_scores": d,
+                "weekly_moving_averages": moving_avg_dict
             }
         
     # Likert scale report
@@ -457,6 +475,8 @@ class scaleServicesClass:
         }
     
     def get_learning_index_report(self, data, start_date, end_date):
+
+        # print(data)
         return [{
                     "response_id":data["_id"],
                     "score":data["score"],

@@ -85,8 +85,7 @@ def main():
             if preference_details["response"].get("isActive") == True:
                 email_response = send_email(
                     user["portfolio"],
-                    # user["email"],
-                    "khanheena4997@gmail.com", 
+                    user["email"],
                     report_subject, 
                     datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 
                     scale_details["response"][0]["report_link"]["report_link"], 

@@ -228,7 +228,7 @@ export default function Scales() {
                   "Would you recommend our product/service to your friends and colleagues?"}
               </p>
               <p className="sm:text-[18px] text-[14px] text-center">
-                Rate your recommendation in the scale of 0 to 10?
+                Rate your recommendation in the scale of 0 to 10 below
               </p>
             </div>
           </div>
@@ -274,8 +274,15 @@ export default function Scales() {
           <p className="ml-4 sm:ml-28">{'5- Highly Recommend'}</p>
         </div>)} */}
           <p className="w-full absolute bottom-0 mt-4 flex justify-center items-center text-[12px] sm:text-[14px]">
-            Powered by uxlivinglab
-          </p>
+          <a 
+            href="https://dowellresearch.sg/" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="underline hover:text-blue-500"
+          >
+            Powered by DoWell UX Living Lab
+          </a>
+        </p>
           <Dialog open={openModal} onClose={handleClose}>
             <DialogTitle>Thank You!</DialogTitle>
             <DialogContent>

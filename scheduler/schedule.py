@@ -39,6 +39,8 @@ def main():
                 scale_type = "nps"
             elif workspace_name == "VOCABC":
                 scale_type = "likert"
+            elif workspace_name == "LLXVOCABC":
+                scale_type = "learning_index"
             else:
                 scale_type = "unknown"
 
@@ -53,6 +55,10 @@ def main():
                 scale_type
             )
             
+            if scale_type == "learning_index":
+                report_subject = f"DoWell Learning Level Index report for last One day"
+                response_data_report = fetch_and_format_llx_scores(scale_details["response"][0]["scale_id"])
+            
             report_subject = f"DoWell Voice Of Customers report for last One day"
 
             response_data_report = fetch_and_format_scores(scale_details["response"][0]["scale_id"])
@@ -62,7 +68,8 @@ def main():
                 entry['average_score'] = f"{entry['average_score']:.2f}" if entry['average_score'] != 0 else entry['average_score']
                 entry['total_responses'] = f"{entry['total_responses']:.2f}" if entry['total_responses'] != 0 else entry['total_responses']
 
-
+            if scale_type == "learning_index":
+                scale_data_table = format_llx_scale_data(response_data_report)
             scale_data_table = format_scale_data(response_data_report)
             # print(response_data_report)
             location_data_table = format_location_data(response_location_data_report)
@@ -85,7 +92,8 @@ def main():
             if preference_details["response"].get("isActive") == True:
                 email_response = send_email(
                     user["portfolio"],
-                    user["email"],
+                    "khanheena4997@gmail.com",
+                    # user["email"],
                     report_subject, 
                     datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 
                     scale_details["response"][0]["report_link"]["report_link"], 

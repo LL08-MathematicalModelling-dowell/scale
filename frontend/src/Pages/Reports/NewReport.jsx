@@ -10,6 +10,7 @@ import PropTypes from "prop-types";
 import {useEffect, useState, useRef} from "react";
 import {useNavigate} from "react-router-dom";
 import LikertReport from "../LikertReport/LikertReport";
+import SimpleLocationMap from '../../components/Map/SimpleLocationMap';
 
 const RectangleDiv = ({className = "", scores, type, maximumScore, npsDistribution}) => {
   if (npsDistribution) {
@@ -130,6 +131,7 @@ const NewReport = () => {
       }
     }
   }, [accessToken, refreshToken, navigate]);
+  
 
   useEffect(() => {
     const fetchPayload = async () => {
@@ -466,7 +468,17 @@ const NewReport = () => {
                       />
                     </div>
                   </div>
+                  {scaleId && (
+                    <div className='w-full h-[50vh] border-2 m-2 p-2 rounded-lg shadow-md bg-white relative overflow-hidden'>
+                      <SimpleLocationMap
+                        workspaceId={(decodeToken(accessToken)).workspace_id}
+                        scaleId={scaleId}
+                        apiKey="1b834e07-c68b-4bf6-96dd-ab7cdc62f07f"
+                      />
+                    </div>
+                  )}
                 </div>
+
               )}
             </div>
             {instanceLoading == true ? (

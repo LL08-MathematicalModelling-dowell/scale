@@ -60,7 +60,8 @@ export default function useDowellLogin() {
             pathname === '/llx/scaledetails' || pathname === '/llx/scaledetails/' ||
             pathname === '/llx/userdetails' || pathname === '/llx/userdetails/' ||
             pathname === '/llx/register' || pathname === '/llx/register/' ||
-            pathname === '/likert-report' || pathname === '/likert-report/'
+            pathname === '/likert-report' || pathname === '/likert-report/' ||
+            pathname === '/scale/map' || pathname === '/scale/map/'
         )
 
         if (localAPIKey) {

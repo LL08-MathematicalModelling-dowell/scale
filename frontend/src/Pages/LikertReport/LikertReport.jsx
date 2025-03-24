@@ -10,6 +10,7 @@ import {CircularProgress} from "@mui/material";
 import PropTypes from "prop-types";
 import {useEffect, useState} from "react";
 import { useNavigate } from "react-router-dom";
+import SimpleLocationMap from '../../components/Map/SimpleLocationMap';
 
 const RectangleDiv = ({className = "", scores, type, maximumScore}) => {
   const constrainedYellowPercent = scores;
@@ -73,6 +74,7 @@ const LikertReport = () => {
     labels: [],
     datasets: [],
   });
+  const [workspace_map_Id,setWorkspace_map_Id] = useState('')
 
 
   const navigate = useNavigate();
@@ -101,7 +103,7 @@ const LikertReport = () => {
     }
   }, [accessToken, refreshToken, navigate, setDefaultScaleOfUser]);
 
-
+  
   useEffect(() => {
     const fetchScaleId = async () => {
       let scale_id = localStorage.getItem("scale_id");
@@ -115,7 +117,6 @@ const LikertReport = () => {
             accessToken,
           });
           scale_id = response?.data?.response[0]?.scale_id;
-          console.log(scale_id)
           setScaleId(scale_id);
           return scaleId;
         } catch (error) {
@@ -130,7 +131,7 @@ const LikertReport = () => {
     if (defaultScaleOfUser) fetchScaleId();
   }, [defaultScaleOfUser, accessToken]);
 
-
+  
 
   useEffect(() => {
     if (scaleId) {
@@ -404,6 +405,15 @@ const LikertReport = () => {
   const totalScoreYellowPercent = totalScore;
   const averageScoreYellowPercent = averageScore;
 
+  const datas ={
+    workspaceIds: (decodeToken(accessToken)).workspace_id
+    ,
+    scaleId
+  }
+
+  console.log("here is the data",datas);
+  
+
   return (
     <div className="relative max-w-full min-h-screen">
       <div className="mx-8 my-12 ">
@@ -448,6 +458,15 @@ const LikertReport = () => {
                 <LineGraph options={optionsWithPercentage} data={lineChartDataTwo} />
               </div>
             </div>
+          </div>
+        )}
+        {scaleId && (
+          <div className='w-full h-[50vh] border-2 m-2 p-2 rounded-lg shadow-md bg-white relative overflow-hidden'>
+            <SimpleLocationMap
+              workspaceId={(decodeToken(accessToken)).workspace_id}
+              scaleId={scaleId}
+              apiKey="1b834e07-c68b-4bf6-96dd-ab7cdc62f07f"
+            />
           </div>
         )}
       </div>

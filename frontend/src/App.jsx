@@ -28,6 +28,7 @@ import Preferences from "./Pages/Preference/Preferences";
 import UpdatePreference from "./Pages/Preference/UpdatePreference";
 import LikertScale from "./Pages/LikertScale/LikertScale";
 import SetupPreference from "./Pages/Preference/SetupPreference";
+import MapPage from "./Pages/MapPage/MapPage";
 
 const App = () => {
   useDowellLogin();
@@ -59,6 +60,7 @@ const App = () => {
       <Route path="/llx/register" element={<Registration />} />
       {/* Routes for voc */}
       <Route path="/scale" element={<HomePage />} />
+      <Route path="/scale/map" element={<MapPage />} />
       <Route path="/server-status" element={<Healthcheck />} />
       <Route path="/voc" element={<Login />} />
       <Route path="/voc/report" element={<Report />} />

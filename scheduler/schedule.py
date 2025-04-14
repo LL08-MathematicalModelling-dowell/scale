@@ -20,11 +20,11 @@ def main():
             0,                        
             False                     
         )
-        print("Raw responses: ",raw_response)
+        # print("Raw responses: ",raw_response)
         try:
             user_with_update_email = json.loads(raw_response)
             # return user_with_update_email
-            print(user_with_update_email)
+            # print(user_with_update_email)
         except json.JSONDecodeError as e:
             print(f"Failed to decode JSON response: {e}")
             return
@@ -47,11 +47,6 @@ def main():
 
             print("this is user: ", user)
             print("scale_type:", scale_type)
-            # preference_details = json.loads(get_preference_data(
-            #     user["workspace_id"],
-            #     user["portfolio_username"]
-            #     ))
-            # print("prefrence details", preference_details)
 
             scale_details = get_scale_details(
                 user["workspace_id"],
@@ -60,14 +55,16 @@ def main():
             )
             if not scale_details.get("response"):
                 continue
-            print("scale_details: ", scale_details)
+            # print("scale_details: ", scale_details)
             if scale_type == "learning_index":
                 report_subject = f"DoWell Learning Level Index report for last One day"
                 response_data_report = fetch_and_format_llx_scores(scale_details["response"][0]["scale_id"])
-        
+                # print(f"scale_response_data: {response_data_report}")
+                
             else:
                 report_subject = f"DoWell Voice Of Customers report for last One day"
                 response_data_report = fetch_and_format_scores(scale_details["response"][0]["scale_id"])
+           
         
             response_location_data_report = fetch_and_format_user_location_data(scale_details["response"][0]["scale_id"], user["workspace_id"])
             for entry in response_data_report:
@@ -97,17 +94,17 @@ def main():
             #     "One Day"
             # ]
             
-            # if preference_details["response"].get("isActive") == True:
-            #     print("OK")
+            
             if scale_type == "learning_index":
                 email_response = send_llx_email(
                 user["portfolio"],
+                # "khanheena4997@gmail.com",
                 user["email"],
                 report_subject, 
                 datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 
                 scale_details["response"][0]["report_link"]["report_link"], 
                 scale_details["response"][0]["report_link"]["qrcode_image_url"],
-                scale_data_table,
+                response_data_report,
                 location_data_table,
                 user["portfolio_username"],
                 user["portfolio"],

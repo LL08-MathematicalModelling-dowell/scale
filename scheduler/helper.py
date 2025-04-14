@@ -24,7 +24,7 @@ def datacube_data_retrieval(api_key, database_name, collection_name, data, limit
     }
 
     response = requests.post(url, json=payload)
-    print("DB RESPONSE",response.json())
+    # print("DB RESPONSE",response.json())
     return response.text
 
 
@@ -314,23 +314,83 @@ def send_email(toname, toemail, subject, date, button_link, qrcode_link, scale_d
     
     return response.text
 
-def send_llx_email(toname, toemail, subject, date, button_link, qrcode_link, scale_data_table, location_data_table, user_id, customer_id, product_id, report_period):
-    def highlight_data_row(row):
-        
-        import re
-        has_numbers = bool(re.search(r'\d+\.?\d*', row))
-        if has_numbers:
-            if row.strip().startswith('<tr'):
-                return row.replace('<tr', '<tr class="highlight"', 1)
+
+def send_llx_email(
+    toname, toemail, subject, date, button_link, qrcode_link, 
+    channel_instance_data, location_data_table, user_id, 
+    customer_id, product_id, report_period
+    ):
+  
+    def generate_channel_table_rows(channel_instance_data):
+        rows = ""
+
+        for i in range(100):
+            if i < len(channel_instance_data):
+                entry = channel_instance_data[i]
+                session = entry.get("channel", f"Session {i+1}")
+                topic = entry.get("instance", f"Topic {i+1}")
+                
             else:
-                return f'<tr class="highlight">{row}</tr>'
-        return row if row.strip().startswith('<tr') else f'<tr>{row}</tr>'
-    scale_data_rows = scale_data_table.splitlines()
-    processed_rows = [highlight_data_row(row) for row in scale_data_rows]
-    limited_scale_data = "\n".join(processed_rows)
-    
+                session = f"Session {i+1}"
+                topic = f"Topic {i+1}"
+                entry = {
+                    "category": "N/A",
+                    "score": 0,
+                    "date_created": "N/A",
+                    "learning_index_data": {
+                        "control_group_size": 0,
+                        "learning_level_count": {
+                            "reading": 0,
+                            "understanding": 0,
+                            "explaining": 0,
+                            "evaluating": 0,
+                            "applying": 0
+                        },
+                        "learning_level_percentages": {
+                            "reading": 0.0,
+                            "understanding": 0.0,
+                            "explaining": 0.0,
+                            "evaluating": 0.0,
+                            "applying": 0.0
+                        },
+                        "learning_level_index": 0.0,
+                        "learning_stage": "N/A"
+                    }
+                }
+
+            category = entry.get("category", "N/A")
+            score = entry.get("score", 0)
+            learning_data = entry.get("learning_index_data", {})
+            
+            index = learning_data.get("learning_level_index", 0.0)
+
+            try:
+                index = float(index)
+                index_display = f"{index:.2f}"
+            except (ValueError, TypeError):
+                index_display = "0.00"
+
+            stage = learning_data.get("learning_stage", "N/A")
+
+            rows += f"""
+            <tr>
+                <td>{session}</td>
+                <td>{topic}</td>
+                <td>{category}</td>
+                <td>{score}</td>
+                <td>{index_display}</td>
+                <td>{stage}</td>
+                <td><a href="{button_link}" target="_blank">View report</a></td>
+            </tr>
+            """
+        
+        return rows
+
+    # Generate the dynamic table rows
+    scale_data_table_rows = generate_channel_table_rows(channel_instance_data)
+
     url = "https://100085.pythonanywhere.com/api/email/"
-    
+
     email_content = f"""
     <!DOCTYPE html>
     <html lang="en">
@@ -497,7 +557,6 @@ def send_llx_email(toname, toemail, subject, date, button_link, qrcode_link, sca
                 />
             </div>
             <div class="content">
-            
                 <div class="info-grid">
                     <div class="info-item">
                         <div class="info-label">User ID:</div>
@@ -521,8 +580,19 @@ def send_llx_email(toname, toemail, subject, date, button_link, qrcode_link, sca
                 <h2 class="report-title">Learning Level Index Report - {report_period}</h2>
                 
                 <table>
+                    <thead>
+                        <tr>
+                            <th>Channel</th>
+                            <th>Instance</th>
+                            <th>Category</th>
+                            <th>Score</th>
+                            <th>Learning Index</th>
+                            <th>Learning Stage</th>
+                            <th>Detailed Report</th>
+                        </tr>
+                    </thead>
                     <tbody>
-                        {limited_scale_data}
+                        {scale_data_table_rows}
                     </tbody>
                 </table>
 
@@ -549,17 +619,18 @@ def send_llx_email(toname, toemail, subject, date, button_link, qrcode_link, sca
     </body>
     </html>
     """
-    
+
     payload = {
         "toname": toname,
         "toemail": toemail,
         "subject": subject,
         "email_content": email_content
     }
-    
+
     response = requests.post(url, json=payload)
-    
+
     return response.text
+
 
 # def send_email(toname, toemail, subject, date, button_link, qrcode_link, scale_data_table, location_data_table):
 #     url = "https://100085.pythonanywhere.com/api/email/"
@@ -635,7 +706,7 @@ def send_llx_email(toname, toemail, subject, date, button_link, qrcode_link, sca
 #     return response.text
     
 def get_scale_details(workspace_id,portfolio,type_of_scale):
-    print(f"workspace_id: {workspace_id}, portfolio: {portfolio}, type_of_Scale: {type_of_scale}")
+    print(f"workspace_id: {workspace_id}, portfolio: {portfolio}, type_of_scale: {type_of_scale}")
     if type_of_scale == "nps":
             collection_name = "voc_scales"
             data_to_be_fetched = {
@@ -744,19 +815,20 @@ def fetch_and_format_llx_scores(scale_id):
             "livinglab_scale_response", 
             "collection_1", 
             {
-                "scale_id": scale_id
+                "scale_id": scale_id,
             }, 
             0, 
             0, 
             False 
         )
     )
-
+   
     if not response_data or not response_data.get("data"):
         print(f"No data found for scale_id: {scale_id}")
         return []
 
     raw_data = response_data["data"]
+    # print(f"raw_scale_data: {raw_data}")
 
     results = []
 
@@ -769,14 +841,11 @@ def fetch_and_format_llx_scores(scale_id):
             item for item in raw_data 
             if current_time.isoformat() <= item["dowell_time"]["current_time"] < next_hour.isoformat()
         ]
-        print(f"hourly_data: {hourly_data}")
-        # latest_response = hourly_data[-1]
-
+    
         score_list = [item.get('score', 0) for item in hourly_data]
         total_score = sum(score_list)
         average_score = total_score / len(score_list) if score_list else 0
         total_responses = len(score_list)
-        # learning_stage = latest_response["learning_index_data"].get("learning_level_stage")
 
         data_to_write = {
             "date": current_time.strftime("%Y-%m-%d"),
@@ -785,7 +854,6 @@ def fetch_and_format_llx_scores(scale_id):
             "total_score": total_score,
             "average_score": average_score,
             "total_responses": total_responses,
-            # "learning_level_stage": learning_stage
         }
 
         results.append(data_to_write)
@@ -851,22 +919,3 @@ def fetch_and_format_user_location_data(scale_id, workspace_id):
         current_time = next_hour
 
     return results
-
-def get_preference_data(workspace_id, portfolio_username):
-    base_url = "http://localhost:5000/v1/preference-services/"
-
-    workspace_id = workspace_id
-    portfolio_username = portfolio_username
-    product_type = "voice_of_customer"
-
-    path_url = f"{base_url}/{workspace_id}/{portfolio_username}/{product_type}"
-
-    try:
-        response = requests.get(path_url)
-
-        if response.status_code == 200:
-            return response.text
-        else:
-            return f"Error: {response.status_code}"
-    except Exception as e:
-        return e

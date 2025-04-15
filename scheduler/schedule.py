@@ -94,7 +94,8 @@ def main():
             #     "One Day"
             # ]
             
-            
+            # return scale_data_table
+
             if scale_type == "learning_index":
                 email_response = send_llx_email(
                 user["portfolio"],
@@ -102,6 +103,7 @@ def main():
                 user["email"],
                 report_subject, 
                 datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 
+                scale_details["response"][0]["login"]["login_link"],
                 scale_details["response"][0]["report_link"]["report_link"], 
                 scale_details["response"][0]["report_link"]["qrcode_image_url"],
                 response_data_report,

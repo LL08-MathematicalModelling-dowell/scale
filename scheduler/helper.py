@@ -316,14 +316,16 @@ def send_email(toname, toemail, subject, date, button_link, qrcode_link, scale_d
 
 
 def send_llx_email(
-    toname, toemail, subject, date, button_link, qrcode_link, 
+    toname, toemail, subject, date, login_link, button_link, qrcode_link, 
     channel_instance_data, location_data_table, user_id, 
     customer_id, product_id, report_period
     ):
+
+    print("login link", f"{login_link}&portfolio={toname}")
   
     def generate_channel_table_rows(channel_instance_data):
         rows = ""
-
+        
         for i in range(100):
             if i < len(channel_instance_data):
                 entry = channel_instance_data[i]
@@ -380,7 +382,7 @@ def send_llx_email(
                 <td>{score}</td>
                 <td>{index_display}</td>
                 <td>{stage}</td>
-                <td><a href="{button_link}" target="_blank">View report</a></td>
+                <td><a href="{login_link}&portfolio={toname}" target="_blank">View report</a></td>
             </tr>
             """
         

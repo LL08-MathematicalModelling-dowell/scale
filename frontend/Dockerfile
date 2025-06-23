@@ -5,6 +5,7 @@ FROM node:18-alpine AS build
 WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm ci --only=production
+RUN npm install -g vite
 COPY . .
 RUN npm run build
 
@@ -13,6 +14,7 @@ FROM node:18-alpine AS development
 WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm install
+RUN npm install -g vite
 COPY . .
 EXPOSE 5173
 CMD ["npm", "run", "dev"]

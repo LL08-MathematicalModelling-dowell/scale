@@ -11,20 +11,34 @@ services:
     networks:
       - queue-net
 
+  # frontend:
+  #   build: ./frontend
+  #   container_name: frontend_container
+  #   ports:
+  #     - '5173:5173'
+  #   restart: always
+  #   volumes:
+  #     - ./frontend:/usr/src/app
+  #     - /usr/src/app/node_modules
+  #   networks:
+  #     - queue-net
+  #   depends_on:
+  #     - backend
+  #     - server
+  
   frontend:
     build: ./frontend
     container_name: frontend_container
-    ports:
-      - '5173:5173'
     restart: always
-    volumes:
-      - ./frontend:/usr/src/app
-      - /usr/src/app/node_modules
+    env_file:
+      - ./.env.production
+    ports:
+      - 5173:80
+    depends_on:
+      - server
+      - backend
     networks:
       - queue-net
-    depends_on:
-      - backend
-      - server
 
   mongo:
     container_name: mongo_container

@@ -82,7 +82,7 @@ jobs:
             - name: Verify Deployment
               run: |
                   echo "⏳ Waiting for services to start..."
-                  sleep 30  # Allow time for services to start
+                  sleep 15  # Allow time for services to start
 
                   # Check if services are responding
                   echo "🔍 Verifying service availability..."

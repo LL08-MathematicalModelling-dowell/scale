@@ -20,8 +20,7 @@ CMD ["npm", "run", "dev"]
 # Production Stage
 FROM nginx:1.23.3-alpine AS production
 # Copy built assets from build stage
-COPY --from=build /usr/src/app/dist /usr/share/nginx/html
-# Copy nginx configuration for SPA
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /app/dist /usr/share/nginx/html
+COPY nginx-spa.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
